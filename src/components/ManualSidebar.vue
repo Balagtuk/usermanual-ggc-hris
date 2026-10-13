@@ -35,7 +35,7 @@
     </div>
 
     <!-- Navigation Tree -->
-    <div class="sidebar-scroll pa-2 overflow-y-auto">
+    <div class="sidebar-scroll pa-2 overflow-hidden">
       <v-list density="compact" nav class="pa-1">
         <!-- 1. Category: Getting Started -->
         <div class="category-group mb-2">
@@ -273,10 +273,15 @@ const scrollTo = (id: string, pageNumber?: number) => {
 <style scoped>
 .doc-sidebar {
   border-right: 1px solid rgba(var(--v-border-color), var(--v-border-opacity, 0.12)) !important;
+  overflow: hidden !important;
+}
+
+:deep(.v-navigation-drawer__content) {
+  overflow: hidden !important;
 }
 
 .sidebar-scroll {
-  height: calc(100vh - 120px);
+  overflow: hidden !important;
 }
 
 .category-header-btn {

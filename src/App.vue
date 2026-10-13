@@ -1,98 +1,57 @@
 <template>
   <v-app :theme="currentTheme">
     <!-- Top Bar -->
-    <ManualHeader
-      v-model:search-query="searchQuery"
-      :modules="MANUAL_MODULES"
-      :is-dark="isDark"
-      :view-mode="viewMode"
-      :current-page="currentPage"
-      :total-pages="totalPages"
-      @toggle-drawer="drawer = !drawer"
-      @toggle-theme="toggleTheme"
-      @toggle-view-mode="toggleViewMode"
-      @trigger-print="handlePrint"
-      @select-module="onModuleSelected"
-    />
+    <ManualHeader v-model:search-query="searchQuery" :modules="MANUAL_MODULES" :is-dark="isDark" :view-mode="viewMode"
+      :current-page="currentPage" :total-pages="totalPages" :scroll-progress="scrollProgress"
+      @toggle-drawer="drawer = !drawer" @toggle-theme="toggleTheme" @toggle-view-mode="toggleViewMode"
+      @trigger-print="handlePrint" @select-module="onModuleSelected" />
 
     <!-- Navigation Drawer -->
-    <ManualSidebar
-      v-model="drawer"
-      :modules="MANUAL_MODULES"
-      :active-section="activeSection"
-      :visible-module-ids="visibleModuleIds"
-      @navigate="handleNavigation"
-    />
+    <ManualSidebar v-model="drawer" :modules="MANUAL_MODULES" :active-section="activeSection"
+      :visible-module-ids="visibleModuleIds" @navigate="handleNavigation" />
+    <div class="reading-progress-track no-print">
+      <div class="reading-progress-bar" :style="{ width: `${scrollProgress}%` }" />
+    </div>
 
     <!-- Main Content Area -->
     <v-main class="bg-background">
-      <!-- Reading Progress Bar (Subtle primary accent at top of main view) -->
-      <div class="reading-progress-track no-print">
-        <div class="reading-progress-bar" :style="{ width: `${scrollProgress}%` }" />
-      </div>
-
       <v-container fluid class="page-wrapper px-2 px-sm-6 py-4 py-sm-6 max-content-width">
         <!-- View Mode & Quick Breadcrumb Bar -->
         <div class="d-flex flex-wrap align-center justify-space-between ga-2 mb-5 no-print">
           <div class="d-flex align-center ga-2 flex-wrap">
             <v-chip size="small" color="primary" variant="tonal" class="font-weight-medium">
-              <v-icon start :icon="viewMode === 'paged' ? 'mdi-book-open-page-variant-outline' : 'mdi-format-list-bulleted'" size="15" />
+              <v-icon start
+                :icon="viewMode === 'paged' ? 'mdi-book-open-page-variant-outline' : 'mdi-format-list-bulleted'"
+                size="15" />
               {{ viewMode === 'paged' ? 'Book Mode' : 'Continuous View' }}
             </v-chip>
-            <span
-              v-if="viewMode === 'paged'"
-              class="text-caption text-medium-emphasis font-weight-medium"
-            >
+            <span v-if="viewMode === 'paged'" class="text-caption text-medium-emphasis font-weight-medium">
               &bull; {{ currentPageTitle }}
             </span>
           </div>
 
           <div class="d-flex align-center ga-2">
-            <v-btn
-              size="small"
-              variant="text"
-              color="primary"
-              class="text-none font-weight-medium"
-              prepend-icon="mdi-swap-horizontal"
-              @click="toggleViewMode"
-            >
+            <v-btn size="small" variant="text" color="primary" class="text-none font-weight-medium"
+              prepend-icon="mdi-swap-horizontal" @click="toggleViewMode">
               {{ viewMode === 'paged' ? 'Switch to Continuous (All)' : 'Switch to Book Mode' }}
             </v-btn>
           </div>
         </div>
 
         <!-- Filter Count Banner (When reading a matched module on page 2+) -->
-        <v-alert
-          v-if="searchQuery.trim() && currentPage > 1"
-          color="primary"
-          variant="tonal"
-          density="compact"
-          class="mb-6 rounded-lg no-print"
-          closable
-          @click:close="searchQuery = ''"
-        >
+        <v-alert v-if="searchQuery.trim() && currentPage > 1" color="primary" variant="tonal" density="compact"
+          class="mb-6 rounded-lg no-print" closable @click:close="searchQuery = ''">
           <div class="d-flex align-center justify-space-between flex-wrap ga-2">
             <span>
-              Viewing match <strong>{{ currentPage - 1 }} of {{ filteredModules.length }}</strong> for "<em>{{ searchQuery }}</em>"
+              Viewing match <strong>{{ currentPage - 1 }} of {{ filteredModules.length }}</strong> for "<em>{{
+                searchQuery }}</em>"
             </span>
             <div class="d-flex align-center ga-2">
-              <v-btn
-                size="small"
-                variant="text"
-                color="primary"
-                class="text-none font-weight-medium"
-                prepend-icon="mdi-format-list-bulleted"
-                @click="goToPage(1)"
-              >
+              <v-btn size="small" variant="text" color="primary" class="text-none font-weight-medium"
+                prepend-icon="mdi-format-list-bulleted" @click="goToPage(1)">
                 View Results List
               </v-btn>
-              <v-btn
-                size="small"
-                variant="text"
-                color="primary"
-                class="text-none"
-                @click="searchQuery = ''"
-              >
+              <v-btn size="small" variant="text" color="primary" class="text-none" @click="searchQuery = ''">
                 Clear Filter
               </v-btn>
             </div>
@@ -103,38 +62,23 @@
         <div v-else-if="viewMode === 'paged'">
           <!-- Page 1: Search Results View (when searching) OR Introduction (when not searching) -->
           <div v-if="currentPage === 1">
-            <SearchResultsView
-              v-if="searchQuery.trim()"
-              :query="searchQuery"
-              :results="searchResults"
-              @select-module="onModuleSelected"
-              @clear-search="searchQuery = ''"
-              @apply-suggestion="(s) => searchQuery = s"
-            />
-            <IntroductionSection
-              v-else
-              :modules="MANUAL_MODULES"
-              @start-tour="goToPage(2)"
-              @select-module="onModuleSelectedFromIntro"
-            />
+            <SearchResultsView v-if="searchQuery.trim()" :query="searchQuery" :results="searchResults"
+              @select-module="onModuleSelected" @clear-search="searchQuery = ''"
+              @apply-suggestion="(s) => searchQuery = s" />
+            <IntroductionSection v-else :modules="MANUAL_MODULES" @start-tour="goToPage(2)"
+              @select-module="onModuleSelectedFromIntro" />
           </div>
 
           <!-- Page 2+: Selected Module -->
           <div v-else-if="currentPagedModule">
-            <ModuleSection
-              :key="currentPagedModule.id"
-              :module="currentPagedModule"
-            />
+            <ModuleSection :key="currentPagedModule.id" :module="currentPagedModule" />
           </div>
 
           <!-- Enterprise Bottom Previous / Next Chapter Cards (GitBook / Stripe Docs style) -->
           <div class="chapter-nav-grid mt-8 mb-4 no-print d-flex flex-wrap ga-4">
-            <v-card
-              v-if="currentPage > 1"
-              class="chapter-nav-card flex-grow-1 pa-4 rounded-lg bg-surface border cursor-pointer"
-              elevation="0"
-              @click="goToPage(currentPage - 1)"
-            >
+            <v-card v-if="currentPage > 1"
+              class="chapter-nav-card flex-grow-1 pa-4 rounded-lg bg-surface border cursor-pointer" elevation="0"
+              @click="goToPage(currentPage - 1)">
               <div class="d-flex align-center ga-2 text-caption text-medium-emphasis mb-1">
                 <v-icon icon="mdi-arrow-left" size="14" />
                 <span>PREVIOUS CHAPTER</span>
@@ -144,12 +88,9 @@
               </div>
             </v-card>
 
-            <v-card
-              v-if="currentPage < totalPages"
+            <v-card v-if="currentPage < totalPages"
               class="chapter-nav-card flex-grow-1 pa-4 rounded-lg bg-surface border cursor-pointer text-end ms-auto"
-              elevation="0"
-              @click="goToPage(currentPage + 1)"
-            >
+              elevation="0" @click="goToPage(currentPage + 1)">
               <div class="d-flex align-center justify-end ga-2 text-caption text-medium-emphasis mb-1">
                 <span>NEXT CHAPTER</span>
                 <v-icon icon="mdi-arrow-right" size="14" />
@@ -166,54 +107,27 @@
               <span class="text-caption text-medium-emphasis font-weight-medium">
                 Chapter <strong>{{ currentPage }}</strong> of {{ totalPages }} &bull; Use Left/Right arrow keys to flip
               </span>
-              <v-pagination
-                v-model="currentPage"
-                :length="totalPages"
-                :total-visible="5"
-                density="compact"
-                active-color="primary"
-                rounded="circle"
-              />
+              <v-pagination v-model="currentPage" :length="totalPages" :total-visible="5" density="compact"
+                active-color="primary" rounded="circle" />
             </div>
           </v-card>
         </div>
 
         <!-- CONTENT AREA: CONTINUOUS BOOK / SHOW ALL MODE (Ideal for printing) -->
         <div v-else>
-          <SearchResultsView
-            v-if="searchQuery.trim()"
-            :query="searchQuery"
-            :results="searchResults"
-            @select-module="onModuleSelected"
-            @clear-search="searchQuery = ''"
-            @apply-suggestion="(s) => searchQuery = s"
-          />
-          <IntroductionSection
-            v-else
-            :modules="MANUAL_MODULES"
-            @start-tour="scrollToSection('mod-user')"
-            @select-module="scrollToSection"
-          />
+          <SearchResultsView v-if="searchQuery.trim()" :query="searchQuery" :results="searchResults"
+            @select-module="onModuleSelected" @clear-search="searchQuery = ''"
+            @apply-suggestion="(s) => searchQuery = s" />
+          <IntroductionSection v-else :modules="MANUAL_MODULES" @start-tour="scrollToSection('mod-user')"
+            @select-module="scrollToSection" />
 
-          <ModuleSection
-            v-for="mod in filteredModules"
-            :key="mod.id"
-            :module="mod"
-          />
+          <ModuleSection v-for="mod in filteredModules" :key="mod.id" :module="mod" />
         </div>
       </v-container>
       <!-- Floating Back to Top Button -->
-      <v-btn
-        v-show="showBackToTop"
-        icon="mdi-arrow-up"
-        color="primary"
-        variant="flat"
-        size="small"
-        class="back-to-top-btn no-print"
-        aria-label="Scroll to top of document"
-        title="Scroll to top"
-        @click="scrollToTop"
-      />
+      <v-btn v-show="showBackToTop" icon="mdi-arrow-up" color="primary" variant="flat" size="small"
+        class="back-to-top-btn no-print" aria-label="Scroll to top of document" title="Scroll to top"
+        @click="scrollToTop" />
     </v-main>
 
     <!-- Footer -->
@@ -483,22 +397,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.reading-progress-track {
-  position: sticky;
-  top: 60px;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: transparent;
-  z-index: 100;
-}
-
-.reading-progress-bar {
-  height: 100%;
-  background-color: rgb(var(--v-theme-primary));
-  transition: width 0.1s ease-out;
-}
-
 .max-content-width {
   max-width: 920px;
   margin: 0 auto;
@@ -543,6 +441,7 @@ onUnmounted(() => {
   .no-print {
     display: none !important;
   }
+
   .max-content-width {
     max-width: 100% !important;
     padding: 0 !important;

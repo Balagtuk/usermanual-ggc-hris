@@ -356,13 +356,6 @@ export const MANUAL_MODULES: ModuleDoc[] = [
         action: 'Selecting Province dynamically loads valid Cities/Municipalities, which then loads valid registered Barangays.',
       },
       {
-        name: 'Total Employees Headcount Badge',
-        icon: 'mdi-account-group-outline',
-        location: 'Entity Cards & View Profile',
-        purpose: 'Corporate workforce metrics indicator',
-        action: 'Real-time numerical pill displaying the total active headcount assigned across all branches under this company.',
-      },
-      {
         name: '3-Dots Action Menu (⋮)',
         icon: 'mdi-dots-vertical',
         location: 'Each Entity Card & Row',
@@ -381,10 +374,10 @@ export const MANUAL_MODULES: ModuleDoc[] = [
       {
         number: 1,
         title: 'Browse & Search Registered Entities (Grid View)',
-        description: 'Navigate to Admin > Settings > Entity. The Entity Directory displays all registered corporate companies and subsidiaries as visual cards (e.g., Head Office, Damayan, Goodlife Plans Inc., Goodlife Chapel). Each card highlights the company emblem, registered business title, physical address summary, total employee headcount count (members count), official acronym code (e.g., GLPI, GL-COOP), and Active status chip. Use the search bar to locate an entity quickly.',
+        description: 'Navigate to Admin > Settings > Entity. The Entity Directory displays all registered corporate companies and subsidiaries as visual cards (e.g., Head Office, Damayan, Goodlife Plans Inc., Goodlife Chapel). Each card highlights the company emblem, registered business title, physical address summary, official acronym code (e.g., GLPI, GL-COOP), and Active status chip. Use the search bar to locate an entity quickly.',
         image: '/screenshots/Entity/1-list.png',
-        caption: 'Entity Directory Grid View showing corporate cards, company emblems, and employee headcounts.',
-        highlights: ['Instant search by company name or code', 'Company cards with emblems and acronyms', 'Real-time employee headcount badge', 'Grid / List view toggle', '3-Dots action menu per card'],
+        caption: 'Entity Directory Grid View showing corporate cards, company emblems, and registered addresses.',
+        highlights: ['Instant search by company name or code', 'Company cards with emblems and acronyms', 'Active status indicator chip', 'Grid / List view toggle', '3-Dots action menu per card'],
       },
       {
         number: 2,
@@ -404,11 +397,11 @@ export const MANUAL_MODULES: ModuleDoc[] = [
       },
       {
         number: 4,
-        title: 'View Entity Profile & Assigned Headcount (CRUD: Read)',
-        description: 'Click on an entity card or choose "View" from the action menu to open the Entity Information profile. This modal displays the entity emblem, registered name, standardized code, Active status chip, total employee headcount currently assigned (Total Employees), full registered address, and postal code. Includes direct action buttons for "Edit" and "Delete".',
+        title: 'View Entity Profile Information (CRUD: Read)',
+        description: 'Click on an entity card or choose "View" from the action menu to open the Entity Information profile. This modal displays the entity emblem, registered name, standardized code, Active status chip, full registered address, and postal code. Includes direct action buttons for "Edit" and "Delete".',
         image: '/screenshots/Entity/2-create.png',
-        caption: 'Entity Information modal displaying active status, total employee headcount, and postal address.',
-        highlights: ['Detailed view of registered entity', 'Total employee headcount badge', 'Complete registered street address', 'Postal code display', 'Direct triggers to Edit or Delete'],
+        caption: 'Entity Information modal displaying active status, registered acronym, and postal address.',
+        highlights: ['Detailed view of registered entity', 'Standardized corporate code and emblem', 'Complete registered street address', 'Postal code display', 'Direct triggers to Edit or Delete'],
       },
       {
         number: 5,

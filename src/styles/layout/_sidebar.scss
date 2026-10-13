@@ -1,8 +1,12 @@
 // Seamless Docked Sidebar Styling (No Outlines)
 .doc-sidebar {
-  border: none !important;
   background-color: rgb(var(--v-theme-surface)) !important;
   box-shadow: 1px 0 4px rgba(0, 0, 0, 0.02) !important;
+  overflow: hidden !important;
+
+  .v-navigation-drawer__content {
+    overflow: hidden !important;
+  }
 }
 
 .v-theme--dark .doc-sidebar {
@@ -10,7 +14,7 @@
 }
 
 .sidebar-scroll {
-  height: calc(100vh - 120px);
+  overflow: hidden !important;
 }
 
 .category-header {
