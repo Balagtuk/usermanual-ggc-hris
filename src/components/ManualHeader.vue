@@ -283,6 +283,18 @@
         Print / PDF
       </v-btn>
     </template>
+
+    <!-- Reading Progress Indicator (Outlines the bottom border of the header) -->
+    <div
+      v-show="scrollProgress && scrollProgress > 0"
+      class="header-reading-track no-print"
+      aria-hidden="true"
+    >
+      <div
+        class="header-reading-fill"
+        :style="{ width: `${scrollProgress}%` }"
+      />
+    </div>
   </v-app-bar>
 </template>
 
@@ -301,6 +313,7 @@ const props = defineProps<{
   currentPage: number
   totalPages: number
   modules?: ModuleDoc[]
+  scrollProgress?: number
 }>()
 
 const emit = defineEmits<{
@@ -433,9 +446,28 @@ onUnmounted(() => {
 
 <style scoped>
 .doc-header {
-  backdrop-filter: blur(8px);
-  background-color: rgba(var(--v-theme-surface), 0.92) !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+  background-color: rgb(var(--v-theme-surface)) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  z-index: 1000 !important;
+}
+
+.header-reading-track {
+  position: absolute !important;
+  top: auto !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  height: 2px !important;
+  background-color: rgba(var(--v-theme-primary), 0.15);
+  z-index: 1005 !important;
+  pointer-events: none;
+}
+
+.header-reading-fill {
+  height: 100%;
+  background-color: rgb(var(--v-theme-primary));
+  transition: width 0.12s ease-out;
 }
 
 .tracking-tight {
