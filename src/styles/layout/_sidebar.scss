@@ -1,0 +1,55 @@
+// Seamless Docked Sidebar Styling (No Outlines)
+.doc-sidebar {
+  border: none !important;
+  background-color: rgb(var(--v-theme-surface)) !important;
+  box-shadow: 1px 0 4px rgba(0, 0, 0, 0.02) !important;
+}
+
+.v-theme--dark .doc-sidebar {
+  box-shadow: 1px 0 6px rgba(0, 0, 0, 0.25) !important;
+}
+
+.sidebar-scroll {
+  height: calc(100vh - 120px);
+}
+
+.category-header {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgb(var(--v-theme-secondary));
+  opacity: 0.8;
+  padding: 8px 12px 4px 12px;
+}
+
+.sidebar-filter :deep(.v-field) {
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  background-color: rgb(var(--v-theme-surface-variant)) !important;
+  box-shadow: none !important;
+}
+
+.nav-item {
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: rgb(var(--v-theme-on-surface));
+  transition: all 0.15s ease-in-out;
+  border-radius: 8px !important;
+  min-height: 38px;
+
+  &:hover {
+    background-color: rgba(var(--v-theme-primary), 0.07);
+    color: rgb(var(--v-theme-primary));
+  }
+
+  &.v-list-item--active {
+    background-color: rgba(var(--v-theme-primary), 0.12) !important;
+    color: rgb(var(--v-theme-primary)) !important;
+    font-weight: 600;
+
+    .v-icon {
+      color: rgb(var(--v-theme-primary)) !important;
+    }
+  }
+}

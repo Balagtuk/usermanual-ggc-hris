@@ -1,0 +1,14 @@
+// Seamless Topbar Styling (No Outlines)
+.doc-header {
+  border: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+}
+
+.v-theme--dark .doc-header {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+.topbar-wrapper {
+  max-width: 1040px;
+  margin: 0 auto;
+}

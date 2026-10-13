@@ -1,0 +1,24 @@
+// Borderless Clean Cards with Crisp 8px Corners
+.v-card {
+  width: 100%;
+  border: none !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.2s ease-in-out;
+}
+
+.v-theme--dark .v-card {
+  box-shadow: 0 2px 12px -2px rgba(0, 0, 0, 0.4) !important;
+}
+
+.v-card--variant-elevated,
+.v-card--variant-flat {
+  color: rgb(var(--v-theme-on-surface));
+}
+
+.card-hover {
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px -4px rgba(0, 0, 0, 0.08) !important;
+  }
+}

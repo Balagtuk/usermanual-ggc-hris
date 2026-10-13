@@ -1,0 +1,32 @@
+/**
+ * src/styles/settings.scss
+ *
+ * Configures SASS variables and Vuetify overwrites matching frontend-ggc-hris
+ */
+
+@use './variables';
+@use './override';
+@use './theme/themeColors';
+
+@use './components/VCard';
+@use './components/VButtons';
+@use './components/VList';
+@use './components/VShadow';
+@use './components/VTable';
+@use './components/VBreadcrumb';
+@use './components/VAlert';
+
+@use './layout/topbar';
+@use './layout/sidebar';
+
+html, body {
+  font-family: 'Montserrat', sans-serif !important;
+}
+
+.v-application {
+  font-family: 'Montserrat', sans-serif !important;
+}
+
+.bg-containerBg {
+  background-color: rgb(var(--v-theme-containerBg)) !important;
+}
