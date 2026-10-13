@@ -26,13 +26,18 @@
 
     <!-- Main Content Area -->
     <v-main class="bg-background">
-      <v-container fluid class="page-wrapper px-sm-6 px-4 py-6 max-content-width">
+      <!-- Reading Progress Bar (Subtle primary accent at top of main view) -->
+      <div class="reading-progress-track no-print">
+        <div class="reading-progress-bar" :style="{ width: `${scrollProgress}%` }" />
+      </div>
+
+      <v-container fluid class="page-wrapper px-2 px-sm-6 py-4 py-sm-6 max-content-width">
         <!-- View Mode & Quick Breadcrumb Bar -->
         <div class="d-flex flex-wrap align-center justify-space-between ga-2 mb-5 no-print">
           <div class="d-flex align-center ga-2 flex-wrap">
             <v-chip size="small" color="primary" variant="tonal" class="font-weight-medium">
               <v-icon start :icon="viewMode === 'paged' ? 'mdi-book-open-page-variant-outline' : 'mdi-format-list-bulleted'" size="15" />
-              {{ viewMode === 'paged' ? 'Paged Reading' : 'Continuous View' }}
+              {{ viewMode === 'paged' ? 'Book Mode' : 'Continuous View' }}
             </v-chip>
             <span
               v-if="viewMode === 'paged'"
@@ -51,7 +56,7 @@
               prepend-icon="mdi-swap-horizontal"
               @click="toggleViewMode"
             >
-              {{ viewMode === 'paged' ? 'Switch to Continuous (All)' : 'Switch to Paged Mode' }}
+              {{ viewMode === 'paged' ? 'Switch to Continuous (All)' : 'Switch to Book Mode' }}
             </v-btn>
           </div>
         </div>
@@ -122,50 +127,53 @@
             />
           </div>
 
-          <!-- Bottom Sticky/In-Flow Pagination Controls (Borderless) -->
-          <v-card class="pa-4 pa-md-5 rounded-lg mt-6 bg-surface no-print" elevation="0">
-            <div class="d-flex flex-wrap align-center justify-space-between ga-3">
-              <!-- Previous Page Button -->
-              <v-btn
-                color="primary"
-                variant="outlined"
-                class="text-none font-weight-medium"
-                prepend-icon="mdi-chevron-left"
-                :disabled="currentPage <= 1"
-                @click="goToPage(currentPage - 1)"
-              >
-                Previous: {{ prevPageTitle }}
-              </v-btn>
-
-              <!-- Central Pagination Indicators -->
-              <div class="d-flex align-center ga-2">
-                <v-pagination
-                  v-model="currentPage"
-                  :length="totalPages"
-                  :total-visible="5"
-                  density="comfortable"
-                  active-color="primary"
-                  rounded="circle"
-                />
+          <!-- Enterprise Bottom Previous / Next Chapter Cards (GitBook / Stripe Docs style) -->
+          <div class="chapter-nav-grid mt-8 mb-4 no-print d-flex flex-wrap ga-4">
+            <v-card
+              v-if="currentPage > 1"
+              class="chapter-nav-card flex-grow-1 pa-4 rounded-lg bg-surface border cursor-pointer"
+              elevation="0"
+              @click="goToPage(currentPage - 1)"
+            >
+              <div class="d-flex align-center ga-2 text-caption text-medium-emphasis mb-1">
+                <v-icon icon="mdi-arrow-left" size="14" />
+                <span>PREVIOUS CHAPTER</span>
               </div>
+              <div class="text-subtitle-2 font-weight-bold text-high-emphasis">
+                {{ prevPageTitle }}
+              </div>
+            </v-card>
 
-              <!-- Next Page Button -->
-              <v-btn
-                color="primary"
-                variant="flat"
-                class="text-none font-weight-bold"
-                append-icon="mdi-chevron-right"
-                :disabled="currentPage >= totalPages"
-                @click="goToPage(currentPage + 1)"
-              >
-                Next: {{ nextPageTitle }}
-              </v-btn>
-            </div>
+            <v-card
+              v-if="currentPage < totalPages"
+              class="chapter-nav-card flex-grow-1 pa-4 rounded-lg bg-surface border cursor-pointer text-end ms-auto"
+              elevation="0"
+              @click="goToPage(currentPage + 1)"
+            >
+              <div class="d-flex align-center justify-end ga-2 text-caption text-medium-emphasis mb-1">
+                <span>NEXT CHAPTER</span>
+                <v-icon icon="mdi-arrow-right" size="14" />
+              </div>
+              <div class="text-subtitle-2 font-weight-bold text-primary">
+                {{ nextPageTitle }}
+              </div>
+            </v-card>
+          </div>
 
-            <!-- Page Quick Jump Footer -->
-            <div class="d-flex align-center justify-space-between mt-3 pt-3 border-t text-caption text-medium-emphasis">
-              <span>Use Left/Right arrow keys to turn pages</span>
-              <span>Page <strong>{{ currentPage }}</strong> of {{ totalPages }}</span>
+          <!-- Compact Page Pagination Controls -->
+          <v-card class="pa-3 pa-md-4 rounded-lg bg-surface border no-print" elevation="0">
+            <div class="d-flex flex-wrap align-center justify-space-between ga-3">
+              <span class="text-caption text-medium-emphasis font-weight-medium">
+                Chapter <strong>{{ currentPage }}</strong> of {{ totalPages }} &bull; Use Left/Right arrow keys to flip
+              </span>
+              <v-pagination
+                v-model="currentPage"
+                :length="totalPages"
+                :total-visible="5"
+                density="compact"
+                active-color="primary"
+                rounded="circle"
+              />
             </div>
           </v-card>
         </div>
@@ -194,6 +202,18 @@
           />
         </div>
       </v-container>
+      <!-- Floating Back to Top Button -->
+      <v-btn
+        v-show="showBackToTop"
+        icon="mdi-arrow-up"
+        color="primary"
+        variant="flat"
+        size="small"
+        class="back-to-top-btn no-print"
+        aria-label="Scroll to top of document"
+        title="Scroll to top"
+        @click="scrollToTop"
+      />
     </v-main>
 
     <!-- Footer -->
@@ -221,6 +241,8 @@ const searchQuery = ref('')
 const activeSection = ref('intro')
 const viewMode = ref<'paged' | 'all'>('paged')
 const currentPage = ref(1)
+const scrollProgress = ref(0)
+const showBackToTop = ref(false)
 
 const isDark = computed(() => currentTheme.value === 'dark')
 
@@ -310,7 +332,7 @@ const currentPageTitle = computed(() => {
 const prevPageTitle = computed(() => {
   if (currentPage.value <= 1) return 'None'
   if (currentPage.value === 2) {
-    return searchQuery.value.trim() ? 'Search Results' : 'Introduction'
+    return searchQuery.value.trim() ? 'Search Results' : 'Introduction & Governance'
   }
   const prevMod = filteredModules.value[currentPage.value - 3]
   return prevMod ? `${prevMod.num}. ${prevMod.title}` : 'Previous'
@@ -391,6 +413,10 @@ const scrollToSection = (id: string) => {
   }
 }
 
+const scrollToTop = () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
 // Print handling: temporarily switch to continuous mode so all modules print
 const handlePrint = () => {
   const previousMode = viewMode.value
@@ -421,8 +447,13 @@ const handleKeyDown = (e: KeyboardEvent) => {
   }
 }
 
-// Scrollspy for active link tracking in continuous mode
+// Scrollspy for active link tracking and reading progress
 const handleScroll = () => {
+  const scrollTop = window.scrollY || document.documentElement.scrollTop
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight
+  scrollProgress.value = docHeight > 0 ? Math.min(100, Math.round((scrollTop / docHeight) * 100)) : 0
+  showBackToTop.value = scrollTop > 320
+
   if (viewMode.value !== 'all') return
   const scrollPos = window.scrollY + 140
   const sections = ['intro', ...MANUAL_MODULES.map((m) => m.id)]
@@ -452,9 +483,60 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.reading-progress-track {
+  position: sticky;
+  top: 60px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: transparent;
+  z-index: 100;
+}
+
+.reading-progress-bar {
+  height: 100%;
+  background-color: rgb(var(--v-theme-primary));
+  transition: width 0.1s ease-out;
+}
+
 .max-content-width {
-  max-width: 1040px;
+  max-width: 920px;
   margin: 0 auto;
+}
+
+.chapter-nav-card {
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  min-width: 240px;
+}
+
+.chapter-nav-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(var(--v-theme-primary), 0.4) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+.back-to-top-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15) !important;
+}
+
+@media (max-width: 600px) {
+  .chapter-nav-grid {
+    flex-direction: column !important;
+  }
+
+  .chapter-nav-card {
+    min-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .back-to-top-btn {
+    bottom: 16px !important;
+    right: 16px !important;
+  }
 }
 
 @media print {

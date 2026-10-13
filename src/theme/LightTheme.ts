@@ -6,26 +6,26 @@ export const LIGHT_THEME = {
   dark: false,
   colors: {
     primary: '#0066cc', // Clean signature Blue
-    secondary: '#475569', // Neutral Black/Slate
-    info: '#0066cc', // Blue
-    success: '#0066cc', // Blue
-    warning: '#0f172a', // Black
-    error: '#0066cc', // Blue
-    background: '#f8fafc', // Soft White
+    secondary: '#475569', // Slate 600
+    info: '#0284c7', // Sky Blue
+    success: '#059669', // Emerald Green
+    warning: '#d97706', // Amber
+    error: '#dc2626', // Red
+    background: '#f8fafc', // Soft Slate White
     surface: '#ffffff', // Pure White
     'surface-variant': '#f1f5f9', // Clean soft surface
-    'on-background': '#000000', // Pure Black text
-    'on-surface': '#000000', // Pure Black text
-    'on-surface-variant': '#0f172a', // Clean Black text
-    textPrimary: '#000000',
+    'on-background': '#0f172a', // Deep Slate text
+    'on-surface': '#0f172a', // Deep Slate text
+    'on-surface-variant': '#334155', // Slate text
+    textPrimary: '#0f172a',
     textSecondary: '#475569',
     containerBg: '#ffffff',
     grey100: '#64748b',
-    grey200: '#000000',
+    grey200: '#0f172a',
   },
   variables: {
-    'border-color': 'transparent',
-    'border-opacity': 0,
+    'border-color': '#e2e8f0',
+    'border-opacity': 0.8,
   },
 }
 

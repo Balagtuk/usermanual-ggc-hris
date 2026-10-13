@@ -57,7 +57,7 @@
           <span class="window-dot" style="background-color: rgba(var(--v-theme-on-surface), 0.2);" />
           <span class="window-dot" style="background-color: rgba(var(--v-theme-on-surface), 0.2);" />
           <span class="text-caption font-weight-medium ml-2 text-medium-emphasis">
-            {{ module.route }} &bull; {{ currentViewTitle }}
+            {{ module.title }} &bull; {{ currentViewTitle }}
           </span>
         </div>
         <div class="d-flex align-center ga-2">
@@ -95,7 +95,7 @@
               <v-icon :icon="module.icon" color="primary" size="28" />
               <div>
                 <div class="text-subtitle-1 font-weight-bold">{{ module.title }}</div>
-                <div class="text-caption text-medium-emphasis">Dashboard &bull; Admin Settings &bull; {{ module.route }}</div>
+                <div class="text-caption text-medium-emphasis">Admin Settings &bull; {{ module.title }}</div>
               </div>
             </div>
 
@@ -304,7 +304,7 @@
 
         <v-card-actions class="px-4 py-3 bg-surface border-t">
           <span class="text-caption text-medium-emphasis">
-            Route: <code>{{ module.route }}</code> &bull; Permissions: <code>{{ module.permissions.join(', ') }}</code>
+            GGC HRIS Operations Manual &bull; {{ module.title }} &bull; Chapter {{ module.num }}
           </span>
           <v-spacer />
           <v-btn color="primary" variant="flat" class="text-none" @click="lightboxOpen = false">
