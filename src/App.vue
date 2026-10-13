@@ -3,6 +3,7 @@
     <!-- Top Bar -->
     <ManualHeader
       v-model:search-query="searchQuery"
+      :modules="MANUAL_MODULES"
       :is-dark="isDark"
       :view-mode="viewMode"
       :current-page="currentPage"
@@ -11,6 +12,7 @@
       @toggle-theme="toggleTheme"
       @toggle-view-mode="toggleViewMode"
       @trigger-print="handlePrint"
+      @select-module="onModuleSelected"
     />
 
     <!-- Navigation Drawer -->
@@ -54,9 +56,9 @@
           </div>
         </div>
 
-        <!-- Filter Count Banner (When searching) -->
+        <!-- Filter Count Banner (When reading a matched module on page 2+) -->
         <v-alert
-          v-if="searchQuery.trim()"
+          v-if="searchQuery.trim() && currentPage > 1"
           color="primary"
           variant="tonal"
           density="compact"
@@ -66,53 +68,53 @@
         >
           <div class="d-flex align-center justify-space-between flex-wrap ga-2">
             <span>
-              Showing <strong>{{ filteredModules.length }}</strong> of {{ MANUAL_MODULES.length }} modules matching "<em>{{ searchQuery }}</em>"
+              Viewing match <strong>{{ currentPage - 1 }} of {{ filteredModules.length }}</strong> for "<em>{{ searchQuery }}</em>"
             </span>
-            <v-btn
-              size="small"
-              variant="text"
-              color="primary"
-              class="text-none"
-              @click="searchQuery = ''"
-            >
-              Reset Filter
-            </v-btn>
+            <div class="d-flex align-center ga-2">
+              <v-btn
+                size="small"
+                variant="text"
+                color="primary"
+                class="text-none font-weight-medium"
+                prepend-icon="mdi-format-list-bulleted"
+                @click="goToPage(1)"
+              >
+                View Results List
+              </v-btn>
+              <v-btn
+                size="small"
+                variant="text"
+                color="primary"
+                class="text-none"
+                @click="searchQuery = ''"
+              >
+                Clear Filter
+              </v-btn>
+            </div>
           </div>
         </v-alert>
 
-        <!-- No Results Fallback -->
-        <v-card
-          v-if="filteredModules.length === 0"
-          class="pa-8 text-center rounded-lg my-8 bg-surface"
-          elevation="0"
-        >
-          <v-icon icon="mdi-file-search-outline" size="64" color="grey" class="mb-4" />
-          <h3 class="text-h6 font-weight-bold mb-2">No Matching Modules Found</h3>
-          <p class="text-body-2 text-medium-emphasis mb-4">
-            Try searching for another keyword, field name, route, or permission code.
-          </p>
-          <v-btn
-            color="primary"
-            variant="flat"
-            prepend-icon="mdi-refresh"
-            @click="searchQuery = ''"
-          >
-            Clear Search
-          </v-btn>
-        </v-card>
-
         <!-- CONTENT AREA: PAGED VIEW MODE -->
         <div v-else-if="viewMode === 'paged'">
-          <!-- Page 1: Introduction -->
+          <!-- Page 1: Search Results View (when searching) OR Introduction (when not searching) -->
           <div v-if="currentPage === 1">
+            <SearchResultsView
+              v-if="searchQuery.trim()"
+              :query="searchQuery"
+              :results="searchResults"
+              @select-module="onModuleSelected"
+              @clear-search="searchQuery = ''"
+              @apply-suggestion="(s) => searchQuery = s"
+            />
             <IntroductionSection
+              v-else
               :modules="MANUAL_MODULES"
               @start-tour="goToPage(2)"
               @select-module="onModuleSelectedFromIntro"
             />
           </div>
 
-          <!-- Page 2 to 10: Selected Module -->
+          <!-- Page 2+: Selected Module -->
           <div v-else-if="currentPagedModule">
             <ModuleSection
               :key="currentPagedModule.id"
@@ -170,7 +172,16 @@
 
         <!-- CONTENT AREA: CONTINUOUS BOOK / SHOW ALL MODE (Ideal for printing) -->
         <div v-else>
+          <SearchResultsView
+            v-if="searchQuery.trim()"
+            :query="searchQuery"
+            :results="searchResults"
+            @select-module="onModuleSelected"
+            @clear-search="searchQuery = ''"
+            @apply-suggestion="(s) => searchQuery = s"
+          />
           <IntroductionSection
+            v-else
             :modules="MANUAL_MODULES"
             @start-tour="scrollToSection('mod-user')"
             @select-module="scrollToSection"
@@ -194,10 +205,12 @@
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { useTheme } from 'vuetify'
 import { MANUAL_MODULES, type ModuleDoc } from '@/data/manualData'
+import { searchModules } from '@/utils/searchHelper'
 import ManualHeader from '@/components/ManualHeader.vue'
 import ManualSidebar from '@/components/ManualSidebar.vue'
 import IntroductionSection from '@/components/IntroductionSection.vue'
 import ModuleSection from '@/components/ModuleSection.vue'
+import SearchResultsView from '@/components/SearchResultsView.vue'
 import ManualFooter from '@/components/ManualFooter.vue'
 
 const theme = useTheme()
@@ -233,30 +246,28 @@ const toggleViewMode = () => {
 }
 
 // Search and filter logic
+const searchResults = computed(() => {
+  return searchModules(MANUAL_MODULES, searchQuery.value)
+})
+
 const filteredModules = computed(() => {
-  const query = searchQuery.value.toLowerCase().trim()
+  const query = searchQuery.value.trim()
   if (!query) return MANUAL_MODULES
-
-  return MANUAL_MODULES.filter((m) => {
-    const textTarget = [
-      m.title,
-      m.route,
-      m.description,
-      m.overview,
-      ...m.permissions,
-      ...(m.fields?.map((f) => `${f.name} ${f.description}`) || []),
-      ...(m.steps?.map((s) => `${s.title} ${s.description}`) || []),
-    ].join(' ').toLowerCase()
-
-    return textTarget.includes(query)
-  })
+  return searchResults.value.map((res) => res.module)
 })
 
 const visibleModuleIds = computed(() => {
   return new Set(filteredModules.value.map((m) => m.id))
 })
 
-// Total pages: Page 1 is Introduction + each filtered module
+// Automatically navigate to page 1 (Search Results view) when search starts
+watch(searchQuery, (newQuery, oldQuery) => {
+  if (newQuery.trim() && !oldQuery?.trim()) {
+    currentPage.value = 1
+  }
+})
+
+// Total pages: Page 1 is Introduction/Search Results + each filtered module
 const totalPages = computed(() => {
   return 1 + filteredModules.value.length
 })
@@ -270,7 +281,7 @@ const currentPagedModule = computed<ModuleDoc | undefined>(() => {
 // Synchronize activeSection whenever currentPage changes
 watch(currentPage, (newPage) => {
   if (newPage === 1) {
-    activeSection.value = 'intro'
+    activeSection.value = searchQuery.value.trim() ? 'search-results' : 'intro'
   } else if (currentPagedModule.value) {
     activeSection.value = currentPagedModule.value.id
   }
@@ -287,19 +298,30 @@ watch(totalPages, (newTotal) => {
 
 // Titles for pagination navigation buttons
 const currentPageTitle = computed(() => {
-  if (currentPage.value === 1) return 'Chapter 1: Introduction & Architecture'
+  if (currentPage.value === 1) {
+    if (searchQuery.value.trim()) {
+      return `Search: "${searchQuery.value}" (${searchResults.value.length} found)`
+    }
+    return 'Chapter 1: Introduction & Architecture'
+  }
   return `${currentPagedModule.value?.num}. ${currentPagedModule.value?.title || 'Module'}`
 })
 
 const prevPageTitle = computed(() => {
   if (currentPage.value <= 1) return 'None'
-  if (currentPage.value === 2) return 'Introduction'
+  if (currentPage.value === 2) {
+    return searchQuery.value.trim() ? 'Search Results' : 'Introduction'
+  }
   const prevMod = filteredModules.value[currentPage.value - 3]
   return prevMod ? `${prevMod.num}. ${prevMod.title}` : 'Previous'
 })
 
 const nextPageTitle = computed(() => {
   if (currentPage.value >= totalPages.value) return 'End of Manual'
+  if (currentPage.value === 1 && searchQuery.value.trim()) {
+    const firstMatch = filteredModules.value[0]
+    return firstMatch ? `${firstMatch.num}. ${firstMatch.title}` : 'Next'
+  }
   const nextMod = filteredModules.value[currentPage.value - 1]
   return nextMod ? `${nextMod.num}. ${nextMod.title}` : 'Next'
 })
@@ -310,22 +332,41 @@ const goToPage = (page: number) => {
   }
 }
 
-// Sidebar or intro card navigation handler
-const handleNavigation = (sectionId: string, pageNumber?: number) => {
-  activeSection.value = sectionId
+// Module selection handler (from Header dropdown or Search Results view)
+const onModuleSelected = (modId: string) => {
+  activeSection.value = modId
   if (viewMode.value === 'paged') {
-    if (pageNumber !== undefined) {
-      currentPage.value = pageNumber
-    } else if (sectionId === 'intro') {
-      currentPage.value = 1
+    const idx = filteredModules.value.findIndex((m) => m.id === modId)
+    if (idx !== -1) {
+      currentPage.value = idx + 2
     } else {
-      const idx = filteredModules.value.findIndex((m) => m.id === sectionId)
-      if (idx !== -1) {
-        currentPage.value = idx + 2
+      // If module was filtered out, clear search so it becomes accessible
+      searchQuery.value = ''
+      const allIdx = MANUAL_MODULES.findIndex((m) => m.id === modId)
+      if (allIdx !== -1) {
+        currentPage.value = allIdx + 2
       }
     }
   } else {
-    scrollToSection(sectionId)
+    scrollToSection(modId)
+  }
+}
+
+// Sidebar or intro card navigation handler
+const handleNavigation = (sectionId: string, pageNumber?: number) => {
+  if (sectionId === 'intro') {
+    searchQuery.value = ''
+    activeSection.value = 'intro'
+    if (viewMode.value === 'paged') {
+      currentPage.value = 1
+    } else {
+      scrollToSection('intro')
+    }
+  } else if (pageNumber !== undefined && !searchQuery.value.trim() && viewMode.value === 'paged') {
+    activeSection.value = sectionId
+    currentPage.value = pageNumber
+  } else {
+    onModuleSelected(sectionId)
   }
 }
 
