@@ -284,6 +284,31 @@
                 </div>
               </div>
             </div>
+
+            <!-- Highlights & Notes Footer when no image is specified -->
+            <div
+              v-else-if="step.caption || (step.highlights && step.highlights.length > 0)"
+              class="pa-4 bg-surface rounded-lg border mt-2"
+            >
+              <p v-if="step.caption" class="text-body-2 font-weight-medium text-high-emphasis mb-2 leading-relaxed">
+                {{ step.caption }}
+              </p>
+
+              <div v-if="step.highlights && step.highlights.length > 0" class="d-flex flex-wrap align-center ga-1 pt-1">
+                <span class="text-caption font-weight-bold text-medium-emphasis mr-1">Visible Features & Controls:</span>
+                <v-chip
+                  v-for="hl in step.highlights"
+                  :key="hl"
+                  size="x-small"
+                  variant="tonal"
+                  color="primary"
+                  class="font-weight-medium"
+                >
+                  <v-icon start icon="mdi-check-circle-outline" size="12" />
+                  {{ hl }}
+                </v-chip>
+              </div>
+            </div>
           </v-card>
         </div>
 
