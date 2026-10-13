@@ -4,12 +4,12 @@
       <span class="text-caption text-medium-emphasis">
         &copy; {{ currentYear }} GGC HRIS &bull; Internal Administration Manual
       </span>
-      <v-chip size="x-small" color="primary" variant="flat">
+      <!-- <v-chip size="x-small" color="primary" variant="flat">
         Confidential
       </v-chip>
       <v-chip size="x-small" color="secondary" variant="outlined">
         Vuetify 3
-      </v-chip>
+      </v-chip> -->
     </div>
     <div class="text-caption text-disabled">
       Designed for enterprise human resource information systems operations.

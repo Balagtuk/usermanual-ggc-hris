@@ -1,14 +1,14 @@
 <template>
   <v-navigation-drawer
     :model-value="modelValue"
-    width="360"
+    width="300"
     app
     elevation="0"
-    class="doc-sidebar bg-surface"
+    class="doc-sidebar bg-surface border-e"
     @update:model-value="$emit('update:modelValue', $event)"
   >
-    <!-- Filter Search Field (Flat, no outline, 6px radius) -->
-    <div class="pa-3">
+    <!-- Filter Search Field & Mobile Close Button -->
+    <div class="pa-3 border-b d-flex align-center justify-space-between ga-2">
       <v-text-field
         v-model="filterKeyword"
         placeholder="Filter chapters..."
@@ -17,105 +17,196 @@
         density="compact"
         hide-details
         clearable
-        prepend-inner-icon="mdi-magnify"
-        class="sidebar-filter"
+        prepend-inner-icon="mdi-filter-variant"
+        class="sidebar-filter flex-grow-1"
       />
+      <v-btn
+        v-if="smAndDown"
+        icon
+        variant="text"
+        size="small"
+        class="text-medium-emphasis flex-shrink-0"
+        aria-label="Close sidebar navigation"
+        title="Close sidebar"
+        @click="$emit('update:modelValue', false)"
+      >
+        <v-icon size="20">mdi-close</v-icon>
+      </v-btn>
     </div>
 
     <!-- Navigation Tree -->
     <div class="sidebar-scroll pa-2 overflow-y-auto">
       <v-list density="compact" nav class="pa-1">
-        <!-- Chapter 1: Introduction -->
-        <div class="category-header">
-          Getting Started
-        </div>
-
-        <v-list-item
-          prepend-icon="mdi-book-open-page-variant-outline"
-          :active="activeSection === 'intro'"
-          rounded="md"
-          class="nav-item mb-1"
-          @click="scrollTo('intro', 1)"
-        >
-          <template #title>
-            <span class="nav-title-text">1. Introduction & Setup</span>
-          </template>
-          <template #append>
-            <span class="page-badge font-weight-medium">
-              p.1
-            </span>
-          </template>
-        </v-list-item>
-
-        <v-divider class="my-2 opacity-20" />
-
-        <!-- Category: Account & Access -->
-        <div class="category-header">
-          Account & Access
-        </div>
-
-        <template v-for="mod in filteredAccountModules" :key="mod.id">
-          <v-list-item
-            :prepend-icon="mod.icon"
-            :active="activeSection === mod.id"
-            :disabled="isFilteredOut(mod)"
-            rounded="md"
-            class="nav-item mb-1"
-            @click="scrollTo(mod.id)"
+        <!-- 1. Category: Getting Started -->
+        <div class="category-group mb-2">
+          <button
+            type="button"
+            class="category-header-btn d-flex align-center justify-space-between w-100 rounded px-2 py-1"
+            @click="isGettingStartedOpen = !isGettingStartedOpen"
           >
-            <template #title>
-              <span class="nav-title-text">{{ mod.num }}. {{ mod.title }}</span>
-            </template>
-            <template #append>
-              <span class="page-badge font-weight-medium" :class="{ 'opacity-40': isFilteredOut(mod) }">
-                p.{{ mod.num + 1 }}
-              </span>
-            </template>
-          </v-list-item>
-        </template>
+            <span class="category-header-text">Getting Started</span>
+            <v-icon
+              size="15"
+              :icon="isGettingStartedOpen ? 'mdi-chevron-down' : 'mdi-chevron-right'"
+              class="text-medium-emphasis"
+            />
+          </button>
 
-        <v-divider class="my-2 opacity-20" />
-
-        <!-- Category: Organizational Setup -->
-        <div class="category-header">
-          Organizational Setup
+          <v-expand-transition>
+            <div v-show="isGettingStartedOpen" class="category-items mt-1">
+              <v-list-item
+                prepend-icon="mdi-book-open-page-variant-outline"
+                :active="activeSection === 'intro'"
+                rounded="md"
+                class="nav-item mb-1"
+                @click="scrollTo('intro', 1)"
+              >
+                <template #title>
+                  <span class="nav-title-text">Introduction & Governance</span>
+                </template>
+              </v-list-item>
+            </div>
+          </v-expand-transition>
         </div>
 
-        <template v-for="mod in filteredOrgModules" :key="mod.id">
-          <v-list-item
-            :prepend-icon="mod.icon"
-            :active="activeSection === mod.id"
-            :disabled="isFilteredOut(mod)"
-            rounded="md"
-            class="nav-item mb-1"
-            @click="scrollTo(mod.id)"
+        <v-divider class="my-2 opacity-30" />
+
+        <!-- 2. Category: Account & Access -->
+        <div class="category-group mb-2">
+          <button
+            type="button"
+            class="category-header-btn d-flex align-center justify-space-between w-100 rounded px-2 py-1"
+            @click="isAccountOpen = !isAccountOpen"
           >
-            <template #title>
-              <span class="nav-title-text">{{ mod.num }}. {{ mod.title }}</span>
-            </template>
-            <template #append>
-              <span class="page-badge font-weight-medium" :class="{ 'opacity-40': isFilteredOut(mod) }">
-                p.{{ mod.num + 1 }}
-              </span>
-            </template>
-          </v-list-item>
-        </template>
+            <div class="d-flex align-center ga-2">
+              <span class="category-header-text">Account & Access</span>
+              <v-chip
+                v-if="filterKeyword.trim()"
+                size="x-small"
+                color="primary"
+                variant="tonal"
+                class="font-weight-bold"
+              >
+                {{ filteredAccountModules.length }}
+              </v-chip>
+            </div>
+            <v-icon
+              size="15"
+              :icon="isAccountOpen ? 'mdi-chevron-down' : 'mdi-chevron-right'"
+              class="text-medium-emphasis"
+            />
+          </button>
+
+          <v-expand-transition>
+            <div v-show="isAccountOpen" class="category-items mt-1">
+              <v-list-item
+                v-for="mod in filteredAccountModules"
+                :key="mod.id"
+                :prepend-icon="mod.icon"
+                :active="activeSection === mod.id"
+                :disabled="isFilteredOut(mod)"
+                rounded="md"
+                class="nav-item mb-1"
+                @click="scrollTo(mod.id)"
+              >
+                <template #title>
+                  <span class="nav-title-text">{{ mod.title }}</span>
+                </template>
+              </v-list-item>
+
+              <div
+                v-if="filteredAccountModules.length === 0 && filterKeyword.trim()"
+                class="px-3 py-2 text-caption text-disabled font-italic"
+              >
+                No matching chapters
+              </div>
+            </div>
+          </v-expand-transition>
+        </div>
+
+        <v-divider class="my-2 opacity-30" />
+
+        <!-- 3. Category: Organizational Setup -->
+        <div class="category-group mb-2">
+          <button
+            type="button"
+            class="category-header-btn d-flex align-center justify-space-between w-100 rounded px-2 py-1"
+            @click="isOrgOpen = !isOrgOpen"
+          >
+            <div class="d-flex align-center ga-2">
+              <span class="category-header-text">Organizational Setup</span>
+              <v-chip
+                v-if="filterKeyword.trim()"
+                size="x-small"
+                color="primary"
+                variant="tonal"
+                class="font-weight-bold"
+              >
+                {{ filteredOrgModules.length }}
+              </v-chip>
+            </div>
+            <v-icon
+              size="15"
+              :icon="isOrgOpen ? 'mdi-chevron-down' : 'mdi-chevron-right'"
+              class="text-medium-emphasis"
+            />
+          </button>
+
+          <v-expand-transition>
+            <div v-show="isOrgOpen" class="category-items mt-1">
+              <v-list-item
+                v-for="mod in filteredOrgModules"
+                :key="mod.id"
+                :prepend-icon="mod.icon"
+                :active="activeSection === mod.id"
+                :disabled="isFilteredOut(mod)"
+                rounded="md"
+                class="nav-item mb-1"
+                @click="scrollTo(mod.id)"
+              >
+                <template #title>
+                  <span class="nav-title-text">{{ mod.title }}</span>
+                </template>
+              </v-list-item>
+
+              <div
+                v-if="filteredOrgModules.length === 0 && filterKeyword.trim()"
+                class="px-3 py-2 text-caption text-disabled font-italic"
+              >
+                No matching chapters
+              </div>
+            </div>
+          </v-expand-transition>
+        </div>
       </v-list>
     </div>
 
-    <!-- Sidebar Sticky Footer (No outlines) -->
+    <!-- Sidebar Sticky Footer -->
     <template #append>
-      <div class="pa-3 bg-surface text-caption text-medium-emphasis d-flex align-center justify-space-between">
-        <span>GGC HRIS Manual</span>
-        <span class="font-weight-medium text-primary">v1.0.0</span>
+      <div class="pa-3 bg-surface border-t d-flex align-center justify-space-between text-caption text-medium-emphasis">
+        <div class="d-flex align-center ga-2">
+          <v-icon icon="mdi-book-check-outline" size="16" color="primary" />
+          <span class="font-weight-medium">GGC HRIS Handbook</span>
+        </div>
+        <v-btn
+          icon="mdi-chevron-double-left"
+          size="x-small"
+          variant="text"
+          title="Collapse sidebar"
+          aria-label="Collapse sidebar navigation"
+          @click="$emit('update:modelValue', false)"
+        />
       </div>
     </template>
   </v-navigation-drawer>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { useDisplay } from 'vuetify'
 import type { ModuleDoc } from '@/data/manualData'
+
+const { smAndDown } = useDisplay()
 
 const props = defineProps<{
   modelValue: boolean
@@ -130,6 +221,18 @@ const emit = defineEmits<{
 }>()
 
 const filterKeyword = ref('')
+const isGettingStartedOpen = ref(true)
+const isAccountOpen = ref(true)
+const isOrgOpen = ref(true)
+
+// When searching/filtering, automatically expand all categories
+watch(filterKeyword, (kw) => {
+  if (kw.trim()) {
+    isGettingStartedOpen.value = true
+    isAccountOpen.value = true
+    isOrgOpen.value = true
+  }
+})
 
 const accountModules = computed(() =>
   props.modules.filter((m) => m.category === 'Account & Access')
@@ -161,27 +264,39 @@ const isFilteredOut = (mod: ModuleDoc) => {
 
 const scrollTo = (id: string, pageNumber?: number) => {
   emit('navigate', id, pageNumber)
+  if (smAndDown.value) {
+    emit('update:modelValue', false)
+  }
 }
 </script>
 
 <style scoped>
 .doc-sidebar {
-  border: none !important;
-  box-shadow: 1px 0 3px rgba(0, 0, 0, 0.02) !important;
+  border-right: 1px solid rgba(var(--v-border-color), var(--v-border-opacity, 0.12)) !important;
 }
 
 .sidebar-scroll {
   height: calc(100vh - 120px);
 }
 
-.category-header {
+.category-header-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  user-select: none;
+}
+
+.category-header-btn:hover {
+  background-color: rgba(var(--v-theme-on-surface), 0.04);
+}
+
+.category-header-text {
   font-size: 0.6875rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: rgb(var(--v-theme-secondary));
-  opacity: 0.8;
-  padding: 8px 10px 4px 10px;
 }
 
 .sidebar-filter :deep(.v-field) {
@@ -190,13 +305,14 @@ const scrollTo = (id: string, pageNumber?: number) => {
 }
 
 .nav-item {
-  font-size: 0.825rem;
+  font-size: 0.8125rem;
   font-weight: 500;
   color: rgb(var(--v-theme-on-surface));
   transition: all 0.15s ease-in-out;
   border-radius: 6px !important;
-  min-height: 40px;
-  padding-inline: 12px 10px !important;
+  min-height: 38px;
+  padding-inline: 10px 10px !important;
+  border-left: 3px solid transparent;
 }
 
 .nav-title-text {
@@ -222,11 +338,6 @@ const scrollTo = (id: string, pageNumber?: number) => {
   margin-inline-end: 10px !important;
 }
 
-:deep(.nav-item .v-list-item__append) {
-  margin-inline-start: 8px !important;
-  flex-shrink: 0;
-}
-
 .nav-item:hover {
   background-color: rgba(var(--v-theme-primary), 0.08);
   color: rgb(var(--v-theme-primary));
@@ -235,21 +346,8 @@ const scrollTo = (id: string, pageNumber?: number) => {
 .nav-item.v-list-item--active {
   background-color: rgba(var(--v-theme-primary), 0.12) !important;
   color: rgb(var(--v-theme-primary)) !important;
+  border-left-color: rgb(var(--v-theme-primary)) !important;
   font-weight: 600;
-}
-
-.page-badge {
-  font-size: 0.7rem;
-  color: rgb(var(--v-theme-secondary));
-  background: rgba(var(--v-theme-primary), 0.08);
-  padding: 2px 5px;
-  border-radius: 4px;
-  white-space: nowrap;
-}
-
-.nav-item.v-list-item--active .page-badge {
-  background: rgba(var(--v-theme-primary), 0.18);
-  color: rgb(var(--v-theme-primary));
 }
 
 @media print {

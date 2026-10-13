@@ -4,7 +4,7 @@
     <BaseBreadcrumb :title="INTRO_CONTENT.title" :breadcrumbs="breadcrumbs" />
 
     <!-- Minimalist Modern Hero Card (No Outlines) -->
-    <v-card class="hero-card pa-6 pa-md-8 mb-6 rounded-lg" elevation="0">
+    <v-card class="hero-card pa-4 pa-sm-6 pa-md-8 mb-6 rounded-lg" elevation="0">
       <div class="d-flex flex-wrap align-center justify-space-between ga-2 mb-3">
         <div class="d-flex align-center ga-2 flex-wrap">
           <v-chip size="x-small" color="primary" variant="flat" class="font-weight-bold">
@@ -22,7 +22,7 @@
         </span>
       </div>
 
-      <h1 class="text-h4 text-md-h3 font-weight-bold mb-3 tracking-tight">
+      <h1 class="text-h5 text-sm-h4 text-md-h3 font-weight-bold mb-3 tracking-tight">
         {{ INTRO_CONTENT.title }}
       </h1>
 
@@ -43,7 +43,7 @@
     </v-card>
 
     <!-- Target Audience & Governance Roles -->
-    <v-card class="pa-6 rounded-lg mb-6 bg-surface" elevation="0">
+    <v-card class="pa-4 pa-sm-6 rounded-lg mb-6 bg-surface" elevation="0">
       <div class="d-flex align-center mb-4">
         <div class="section-icon-badge me-3">
           <v-icon icon="mdi-account-group-outline" size="20" color="primary" />
@@ -72,7 +72,7 @@
     </v-card>
 
     <!-- Organizational Sequence / Hierarchy Flow -->
-    <v-card class="pa-6 rounded-lg mb-6 bg-surface" elevation="0">
+    <v-card class="pa-4 pa-sm-6 rounded-lg mb-6 bg-surface" elevation="0">
       <div class="d-flex align-center mb-4">
         <div class="section-icon-badge me-3">
           <v-icon icon="mdi-sitemap-outline" size="20" color="primary" />
@@ -114,7 +114,7 @@
     </v-card>
 
     <!-- Core Security & Architectural Principles -->
-    <v-card class="pa-6 rounded-lg mb-6 bg-surface" elevation="0">
+    <v-card class="pa-4 pa-sm-6 rounded-lg mb-6 bg-surface" elevation="0">
       <div class="d-flex align-center mb-4">
         <div class="section-icon-badge me-3">
           <v-icon icon="mdi-shield-check-outline" size="20" color="primary" />
@@ -143,7 +143,7 @@
     </v-card>
 
     <!-- Pre-Flight Checklist -->
-    <v-card id="sec-checklist" class="pa-6 rounded-lg mb-6 bg-surface" elevation="0">
+    <v-card id="sec-checklist" class="pa-4 pa-sm-6 rounded-lg mb-6 bg-surface" elevation="0">
       <div class="d-flex align-center mb-4">
         <div class="section-icon-badge me-3">
           <v-icon icon="mdi-checkbox-marked-circle-outline" size="20" color="primary" />
@@ -179,7 +179,7 @@
     </v-card>
 
     <!-- Quick Module Navigation Catalog -->
-    <v-card class="pa-6 rounded-lg bg-surface" elevation="0">
+    <v-card class="pa-4 pa-sm-6 rounded-lg bg-surface" elevation="0">
       <div class="mb-4">
         <h2 class="text-subtitle-1 font-weight-bold">Modules Index</h2>
         <p class="text-caption text-medium-emphasis mb-0">
@@ -193,7 +193,9 @@
             @click="$emit('select-module', mod.id)">
             <div class="d-flex align-start justify-space-between mb-2">
               <span class="step-num">{{ mod.num }}</span>
-              <code class="text-caption text-primary font-weight-medium">{{ mod.route }}</code>
+              <v-chip size="x-small" color="secondary" variant="tonal" class="font-weight-medium">
+                {{ mod.category }}
+              </v-chip>
             </div>
             <h3 class="text-subtitle-2 font-weight-bold mb-1">{{ mod.title }}</h3>
             <p class="text-caption text-medium-emphasis mb-3 line-clamp-2">

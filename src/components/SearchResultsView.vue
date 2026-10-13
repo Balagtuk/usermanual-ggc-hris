@@ -7,7 +7,7 @@
     />
 
     <!-- Header Card -->
-    <v-card class="pa-6 rounded-lg mb-6 bg-surface search-hero-card" elevation="0">
+    <v-card class="pa-4 pa-sm-6 rounded-lg mb-6 bg-surface search-hero-card" elevation="0">
       <div class="d-flex flex-wrap align-center justify-space-between ga-3 mb-2">
         <div class="d-flex align-center ga-2 flex-wrap">
           <v-chip size="small" color="primary" variant="flat" class="font-weight-bold">
@@ -99,7 +99,7 @@
                 <div class="chapter-badge font-weight-bold">
                   {{ item.module.num }}
                 </div>
-                <code class="route-tag">{{ item.module.route }}</code>
+                <span class="text-caption font-weight-medium text-medium-emphasis">Chapter {{ item.module.num }}</span>
               </div>
               <v-chip size="x-small" color="secondary" variant="tonal" class="font-weight-medium">
                 {{ item.module.category }}

@@ -35,13 +35,13 @@ export default defineConfig({
       '@': fileURLToPath(new URL('src', import.meta.url)),
     },
     extensions: [
+      '.ts',
+      '.vue',
       '.js',
       '.json',
-      '.jsx',
       '.mjs',
-      '.ts',
+      '.jsx',
       '.tsx',
-      '.vue',
     ],
   },
   server: {
