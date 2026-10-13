@@ -1,16 +1,10 @@
 <template>
   <section id="intro" class="introduction-section mb-8">
     <!-- Top Minimal Breadcrumb -->
-    <BaseBreadcrumb
-      :title="INTRO_CONTENT.title"
-      :breadcrumbs="breadcrumbs"
-    />
+    <BaseBreadcrumb :title="INTRO_CONTENT.title" :breadcrumbs="breadcrumbs" />
 
     <!-- Minimalist Modern Hero Card (No Outlines) -->
-    <v-card
-      class="hero-card pa-6 pa-md-8 mb-6 rounded-lg"
-      elevation="0"
-    >
+    <v-card class="hero-card pa-6 pa-md-8 mb-6 rounded-lg" elevation="0">
       <div class="d-flex flex-wrap align-center justify-space-between ga-2 mb-3">
         <div class="d-flex align-center ga-2 flex-wrap">
           <v-chip size="x-small" color="primary" variant="flat" class="font-weight-bold">
@@ -37,22 +31,12 @@
       </p>
 
       <div class="d-flex flex-wrap ga-3">
-        <v-btn
-          color="primary"
-          variant="flat"
-          class="font-weight-bold text-none"
-          prepend-icon="mdi-arrow-right-circle-outline"
-          @click="$emit('start-tour')"
-        >
+        <v-btn color="primary" variant="flat" class="font-weight-bold text-none"
+          prepend-icon="mdi-arrow-right-circle-outline" @click="$emit('start-tour')">
           Begin Reading (Chapter 1: User)
         </v-btn>
-        <v-btn
-          variant="tonal"
-          color="primary"
-          class="text-none font-weight-medium"
-          prepend-icon="mdi-format-list-checks"
-          @click="scrollTo('sec-checklist')"
-        >
+        <v-btn variant="tonal" color="primary" class="text-none font-weight-medium"
+          prepend-icon="mdi-format-list-checks" @click="scrollTo('sec-checklist')">
           Pre-Flight Checklist
         </v-btn>
       </div>
@@ -73,12 +57,7 @@
       </div>
 
       <v-row dense>
-        <v-col
-          v-for="aud in INTRO_CONTENT.targetAudience"
-          :key="aud.role"
-          cols="12"
-          md="4"
-        >
+        <v-col v-for="aud in INTRO_CONTENT.targetAudience" :key="aud.role" cols="12" md="4">
           <div class="pa-4 h-100 rounded-lg inner-card">
             <div class="d-flex align-center ga-2 mb-2">
               <v-icon :icon="aud.icon" color="primary" size="20" />
@@ -109,33 +88,18 @@
       <!-- Flow visualizer chips -->
       <div class="pa-3 rounded-lg inner-card d-flex flex-wrap align-center ga-2 justify-center mb-4">
         <template v-for="(step, sIdx) in INTRO_CONTENT.hierarchyFlow" :key="step.step">
-          <v-chip
-            :color="sIdx === 0 ? 'primary' : 'secondary'"
-            :variant="sIdx === 0 ? 'flat' : 'tonal'"
-            size="small"
-            class="font-weight-medium"
-            :prepend-icon="step.icon"
-          >
+          <v-chip :color="sIdx === 0 ? 'primary' : 'secondary'" :variant="sIdx === 0 ? 'flat' : 'tonal'" size="small"
+            class="font-weight-medium" :prepend-icon="step.icon">
             {{ step.step }}. {{ step.name }}
           </v-chip>
-          <v-icon
-            v-if="sIdx < INTRO_CONTENT.hierarchyFlow.length - 1"
-            icon="mdi-chevron-right"
-            size="16"
-            class="text-medium-emphasis"
-          />
+          <v-icon v-if="sIdx < INTRO_CONTENT.hierarchyFlow.length - 1" icon="mdi-chevron-right" size="16"
+            class="text-medium-emphasis" />
         </template>
       </div>
 
       <!-- Deep Dive Hierarchy Grid -->
       <v-row dense>
-        <v-col
-          v-for="step in INTRO_CONTENT.hierarchyFlow"
-          :key="step.step"
-          cols="12"
-          sm="6"
-          md="3"
-        >
+        <v-col v-for="step in INTRO_CONTENT.hierarchyFlow" :key="step.step" cols="12" sm="6" md="3">
           <div class="pa-3 rounded-lg inner-card h-100">
             <div class="d-flex align-center ga-2 mb-1">
               <span class="step-num">{{ step.step }}</span>
@@ -164,12 +128,7 @@
       </div>
 
       <v-row dense>
-        <v-col
-          v-for="rule in INTRO_CONTENT.corePrinciples"
-          :key="rule.title"
-          cols="12"
-          md="6"
-        >
+        <v-col v-for="rule in INTRO_CONTENT.corePrinciples" :key="rule.title" cols="12" md="6">
           <div class="pa-4 h-100 rounded-lg inner-card">
             <div class="d-flex align-center ga-2 mb-2">
               <v-icon :icon="rule.icon" color="primary" size="20" />
@@ -199,11 +158,7 @@
 
       <div class="rounded-lg overflow-hidden inner-card">
         <v-list density="compact" class="pa-0 bg-transparent">
-          <v-list-item
-            v-for="item in INTRO_CONTENT.preflightChecklist"
-            :key="item.number"
-            class="py-3"
-          >
+          <v-list-item v-for="item in INTRO_CONTENT.preflightChecklist" :key="item.number" class="py-3">
             <template #prepend>
               <span class="step-num me-3">{{ item.number }}</span>
             </template>
@@ -233,17 +188,9 @@
       </div>
 
       <v-row dense>
-        <v-col
-          v-for="mod in modules"
-          :key="mod.id"
-          cols="12"
-          sm="6"
-          md="4"
-        >
-          <div
-            class="module-index-card pa-4 h-100 rounded-lg inner-card cursor-pointer"
-            @click="$emit('select-module', mod.id)"
-          >
+        <v-col v-for="mod in modules" :key="mod.id" cols="12" sm="6" md="4">
+          <div class="module-index-card pa-4 h-100 rounded-lg inner-card cursor-pointer"
+            @click="$emit('select-module', mod.id)">
             <div class="d-flex align-start justify-space-between mb-2">
               <span class="step-num">{{ mod.num }}</span>
               <code class="text-caption text-primary font-weight-medium">{{ mod.route }}</code>
