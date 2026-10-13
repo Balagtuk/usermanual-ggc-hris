@@ -19,7 +19,19 @@
               <h1 class="text-h5 font-weight-bold tracking-tight mb-0">
                 {{ module.title }}
               </h1>
-              <code class="route-tag">{{ module.route }}</code>
+              <!-- Menu Navigation Path (User-friendly) -->
+              <v-chip
+                v-if="module.menuPath"
+                size="x-small"
+                color="primary"
+                variant="tonal"
+                class="font-weight-medium"
+              >
+                <v-icon start icon="mdi-navigation-variant-outline" size="13" />
+                Menu: {{ module.menuPath }}
+              </v-chip>
+              <code v-else class="route-tag">{{ module.route }}</code>
+
               <v-chip size="x-small" color="secondary" variant="tonal" class="font-weight-medium">
                 {{ module.category }}
               </v-chip>
@@ -30,12 +42,26 @@
           </div>
         </div>
 
-        <!-- Permissions & Page Tag -->
+        <!-- Authorized Roles / Permissions & Page Tag -->
         <div class="d-flex flex-column align-sm-end align-start ga-2">
           <span class="text-caption font-weight-semibold text-primary">
             Chapter {{ module.num }} of 10
           </span>
-          <div class="d-flex flex-wrap ga-1">
+          <div v-if="module.authorizedRoles && module.authorizedRoles.length > 0" class="d-flex flex-wrap align-center ga-1">
+            <span class="text-caption font-weight-medium text-medium-emphasis mr-1">Authorized Roles:</span>
+            <v-chip
+              v-for="role in module.authorizedRoles"
+              :key="role"
+              size="x-small"
+              variant="tonal"
+              color="primary"
+              class="font-weight-medium"
+            >
+              <v-icon start icon="mdi-account-lock-outline" size="13" />
+              {{ role }}
+            </v-chip>
+          </div>
+          <div v-else class="d-flex flex-wrap ga-1">
             <v-chip
               v-for="perm in module.permissions"
               :key="perm"
@@ -63,17 +89,135 @@
         </p>
       </section>
 
-      <!-- Interface Screenshot Visual Reference -->
-      <section class="mb-8">
+      <!-- Interface Screenshot Visual Reference (Only for modules without visual step handbook) -->
+      <section v-if="!hasVisualSteps" class="mb-8">
         <ModuleScreenshot :module="module" />
       </section>
 
       <!-- Step-by-Step Operating Procedure -->
       <section v-if="module.steps && module.steps.length > 0" class="mb-8">
-        <h2 class="section-title mb-3">
-          Step-by-Step Procedure
-        </h2>
-        <v-row dense>
+        <div class="d-flex align-center justify-space-between mb-4 flex-wrap ga-2">
+          <div>
+            <h2 class="section-title mb-1">
+              {{ hasVisualSteps ? 'Step-by-Step Handbook Walkthrough' : 'Step-by-Step Procedure' }}
+            </h2>
+            <p v-if="hasVisualSteps" class="text-caption text-medium-emphasis mb-0">
+              Follow each visual step below to complete standard operations in this module. Click any screenshot to view full resolution.
+            </p>
+          </div>
+          <v-chip v-if="hasVisualSteps" size="small" color="primary" variant="tonal" class="font-weight-bold">
+            <v-icon start icon="mdi-book-open-page-variant-outline" size="16" />
+            {{ module.steps.length }} Visual Steps
+          </v-chip>
+        </div>
+
+        <!-- Sequential Visual Walkthrough (Handbook Style for User, Entity, Branch) -->
+        <div v-if="hasVisualSteps" class="d-flex flex-column ga-6">
+          <v-card
+            v-for="step in module.steps"
+            :key="step.number"
+            class="visual-step-card rounded-lg pa-5 pa-md-6 inner-card"
+            elevation="0"
+          >
+            <!-- Step Header Bar -->
+            <div class="d-flex flex-wrap align-center justify-space-between ga-3 mb-3">
+              <div class="d-flex align-center ga-3">
+                <span class="step-badge">Step {{ step.number }}</span>
+                <h3 class="text-subtitle-1 font-weight-bold mb-0 text-high-emphasis">
+                  {{ step.title }}
+                </h3>
+              </div>
+              <v-chip
+                v-if="step.image"
+                size="x-small"
+                variant="tonal"
+                color="primary"
+                class="font-weight-medium cursor-pointer"
+                @click="openLightbox(step)"
+              >
+                <v-icon start icon="mdi-magnify-plus-outline" size="13" />
+                Click image to expand
+              </v-chip>
+            </div>
+
+            <!-- Step Operational Guidance Text -->
+            <p class="text-body-2 text-high-emphasis leading-relaxed mb-4">
+              {{ step.description }}
+            </p>
+
+            <!-- Embedded Step Screenshot Frame -->
+            <div
+              v-if="step.image"
+              class="step-image-frame rounded-lg overflow-hidden border cursor-pointer bg-background position-relative"
+              @click="openLightbox(step)"
+            >
+              <!-- Window top bar -->
+              <div class="window-bar px-4 py-2 bg-surface-variant d-flex align-center justify-space-between border-b">
+                <div class="d-flex align-center ga-2">
+                  <span class="window-dot" style="background-color: rgba(var(--v-theme-on-surface), 0.25);" />
+                  <span class="window-dot" style="background-color: rgba(var(--v-theme-on-surface), 0.25);" />
+                  <span class="window-dot" style="background-color: rgba(var(--v-theme-on-surface), 0.25);" />
+                  <span class="text-caption font-weight-medium ml-2 text-medium-emphasis">
+                    GGC HRIS &bull; {{ module.title }} &bull; Step {{ step.number }}
+                  </span>
+                </div>
+                <v-chip size="x-small" variant="tonal" color="primary">
+                  Screenshot Reference
+                </v-chip>
+              </div>
+
+              <!-- Real Image View -->
+              <div class="position-relative">
+                <v-img
+                  :src="step.image"
+                  :alt="step.alt || step.title"
+                  max-height="460"
+                  cover
+                  class="step-screenshot-img"
+                >
+                  <template #placeholder>
+                    <div class="d-flex align-center justify-center fill-height bg-surface-variant pa-8">
+                      <v-progress-circular indeterminate color="primary" size="32" />
+                    </div>
+                  </template>
+                </v-img>
+
+                <!-- Hover Overlay -->
+                <div class="step-image-overlay d-flex align-center justify-center">
+                  <v-chip color="white" variant="flat" class="text-primary font-weight-bold">
+                    <v-icon start icon="mdi-arrow-expand" />
+                    Click to View Full-Size Screenshot
+                  </v-chip>
+                </div>
+              </div>
+
+              <!-- Caption & Highlights Footer -->
+              <div class="pa-4 bg-surface border-t">
+                <p v-if="step.caption" class="text-body-2 font-weight-medium text-high-emphasis mb-2 leading-relaxed">
+                  {{ step.caption }}
+                </p>
+
+                <div v-if="step.highlights && step.highlights.length > 0" class="d-flex flex-wrap align-center ga-1 pt-1">
+                  <span class="text-caption font-weight-bold text-medium-emphasis mr-1">Visible Features & Controls:</span>
+                  <v-chip
+                    v-for="hl in step.highlights"
+                    :key="hl"
+                    size="x-small"
+                    variant="tonal"
+                    color="primary"
+                    class="font-weight-medium"
+                  >
+                    <v-icon start icon="mdi-check-circle-outline" size="12" />
+                    {{ hl }}
+                  </v-chip>
+                </div>
+              </div>
+            </div>
+          </v-card>
+        </div>
+
+        <!-- Standard Compact Grid for Modules 4-9 (No step images) -->
+        <v-row v-else dense>
           <v-col
             v-for="step in module.steps"
             :key="step.number"
@@ -191,12 +335,68 @@
         </div>
       </v-alert>
     </v-card>
+
+    <!-- Lightbox Dialog for Step Screenshots -->
+    <v-dialog v-model="lightboxOpen" max-width="1200" scrollable>
+      <v-card class="rounded-lg overflow-hidden">
+        <v-toolbar color="primary" density="comfortable" class="text-white">
+          <v-toolbar-title class="text-subtitle-1 font-weight-bold">
+            {{ module.num }}. {{ module.title }} &mdash; {{ lightboxTitle }}
+          </v-toolbar-title>
+          <v-spacer />
+          <v-btn icon="mdi-close" variant="text" @click="lightboxOpen = false" />
+        </v-toolbar>
+
+        <v-card-text class="pa-4 bg-background">
+          <!-- Lightbox View Info Banner -->
+          <div class="mb-3 pa-3 rounded-lg bg-surface border">
+            <p class="text-body-2 text-high-emphasis mb-1 font-weight-medium">
+              {{ lightboxCaption }}
+            </p>
+
+            <div v-if="lightboxHighlights.length > 0" class="d-flex flex-wrap align-center ga-1 pt-1">
+              <span class="text-caption font-weight-bold text-medium-emphasis mr-1">Visible Actions & Features:</span>
+              <v-chip
+                v-for="feat in lightboxHighlights"
+                :key="feat"
+                size="x-small"
+                variant="tonal"
+                color="primary"
+              >
+                <v-icon start icon="mdi-check-circle-outline" size="12" />
+                {{ feat }}
+              </v-chip>
+            </div>
+          </div>
+
+          <div class="rounded-lg border overflow-hidden bg-surface text-center">
+            <v-img
+              :src="lightboxImage"
+              :alt="lightboxTitle"
+              class="w-100"
+              max-height="750"
+              contain
+            />
+          </div>
+        </v-card-text>
+
+        <v-card-actions class="px-4 py-3 bg-surface border-t">
+          <span class="text-caption text-medium-emphasis">
+            <span v-if="module.menuPath">Menu: {{ module.menuPath }} &bull; </span>GGC HRIS Admin Handbook &bull; Chapter {{ module.num }}
+          </span>
+          <v-spacer />
+          <v-btn color="primary" variant="flat" class="text-none" @click="lightboxOpen = false">
+            Close Preview
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </article>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import type { ModuleDoc } from '@/data/manualData'
+import { ref, computed } from 'vue'
+import type { ModuleDoc, StepItem } from '@/data/manualData'
 import ModuleScreenshot from '@/components/ModuleScreenshot.vue'
 import BaseBreadcrumb from '@/components/BaseBreadcrumb.vue'
 
@@ -209,6 +409,25 @@ const breadcrumbs = computed(() => [
   { text: props.module.category, disabled: false },
   { text: props.module.title, disabled: true },
 ])
+
+const hasVisualSteps = computed(() => {
+  return props.module.steps?.some(step => !!step.image) || false
+})
+
+const lightboxOpen = ref(false)
+const lightboxImage = ref('')
+const lightboxTitle = ref('')
+const lightboxCaption = ref('')
+const lightboxHighlights = ref<string[]>([])
+
+const openLightbox = (step: StepItem) => {
+  if (!step.image) return
+  lightboxImage.value = step.image
+  lightboxTitle.value = `Step ${step.number}: ${step.title}`
+  lightboxCaption.value = step.caption || step.description
+  lightboxHighlights.value = step.highlights || []
+  lightboxOpen.value = true
+}
 </script>
 
 <style scoped>
@@ -294,5 +513,53 @@ const breadcrumbs = computed(() => [
 
 .font-mono {
   font-family: monospace;
+}
+
+.step-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background-color: rgba(var(--v-theme-primary), 0.12);
+  color: rgb(var(--v-theme-primary));
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.visual-step-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.step-image-frame {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.step-image-frame:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.step-image-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.step-image-frame:hover .step-image-overlay {
+  opacity: 1;
+}
+
+.window-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
 }
 </style>

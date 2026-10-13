@@ -38,12 +38,7 @@
           @click="scrollTo('intro', 1)"
         >
           <template #title>
-            <span class="nav-title-text">1. Introduction & Setup</span>
-          </template>
-          <template #append>
-            <span class="page-badge font-weight-medium">
-              p.1
-            </span>
+            <span class="nav-title-text">Introduction & Setup</span>
           </template>
         </v-list-item>
 
@@ -64,12 +59,7 @@
             @click="scrollTo(mod.id)"
           >
             <template #title>
-              <span class="nav-title-text">{{ mod.num }}. {{ mod.title }}</span>
-            </template>
-            <template #append>
-              <span class="page-badge font-weight-medium" :class="{ 'opacity-40': isFilteredOut(mod) }">
-                p.{{ mod.num + 1 }}
-              </span>
+              <span class="nav-title-text">{{ mod.title }}</span>
             </template>
           </v-list-item>
         </template>
@@ -91,12 +81,7 @@
             @click="scrollTo(mod.id)"
           >
             <template #title>
-              <span class="nav-title-text">{{ mod.num }}. {{ mod.title }}</span>
-            </template>
-            <template #append>
-              <span class="page-badge font-weight-medium" :class="{ 'opacity-40': isFilteredOut(mod) }">
-                p.{{ mod.num + 1 }}
-              </span>
+              <span class="nav-title-text">{{ mod.title }}</span>
             </template>
           </v-list-item>
         </template>

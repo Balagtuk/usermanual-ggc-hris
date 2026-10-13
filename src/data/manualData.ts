@@ -9,6 +9,10 @@ export interface StepItem {
   number: number
   title: string
   description: string
+  image?: string
+  alt?: string
+  caption?: string
+  highlights?: string[]
 }
 
 export interface CalloutItem {
@@ -20,6 +24,9 @@ export interface CalloutItem {
 export interface ScreenshotGalleryItem {
   src: string
   label: string
+  caption?: string
+  description?: string
+  features?: string[]
 }
 
 export interface ScreenshotInfo {
@@ -36,7 +43,9 @@ export interface ModuleDoc {
   num: number
   title: string
   route: string
+  menuPath?: string
   permissions: string[]
+  authorizedRoles?: string[]
   category: 'Account & Access' | 'Organizational Setup'
   icon: string
   description: string
@@ -130,57 +139,54 @@ export const MANUAL_MODULES: ModuleDoc[] = [
     permissions: ['user.read', 'user.create', 'user.update'],
     category: 'Account & Access',
     icon: 'mdi-account-cog',
-    description: 'Manage system operator credentials, user status, user type assignments, and profile credentials.',
-    overview: 'The User Management view displays all registered accounts with support for both Grid Card and Table List views. Users can be searched by name, username, email, or filtered by Active/Inactive status.',
+    description: 'Handbook guide for creating and maintaining employee and administrator login accounts, roles, and access statuses.',
+    overview: 'The User Management module allows HR administrators to create and maintain system login accounts for personnel across all corporate entities. From this central hub, HR staff can search employee accounts, filter users by Entity, Branch, or Department, toggle between visual card and compact List Views, issue new credentials, assign user access roles, and manage active/inactive statuses.',
     steps: [
       {
         number: 1,
-        title: 'Open Add User Modal',
-        description: 'Navigate to Admin > Settings > User and click the Add User button in the upper-right corner.',
+        title: 'Filter & Search the User Directory (Grid View)',
+        description: 'Navigate to Admin > Settings > User. The User Directory loads all registered accounts in Grid View as visual cards. Each card clearly displays the employee’s profile photo, full name, @username, email, parent Entity, Branch, Department, Division, and role badge (e.g., Super Administrator, Director, Employee). Use the Entity, Branch, and Department dropdown filters in the top toolbar to isolate accounts by unit, or type into the search bar to locate specific staff immediately.',
+        image: '/screenshots/User/1-roster.png',
+        caption: 'User Directory Grid View showing employee cards, role pills, and organization filter bar.',
+        highlights: ['Entity, Branch, and Department filters', 'Instant search by name, username, or email', 'Role pill & organization indicators', 'Grid vs List view toggle', '3-Dots action menu per card'],
       },
       {
         number: 2,
-        title: 'Provide Identity Information',
-        description: 'Enter the unique Username, First Name, optional Middle Name, and Last Name.',
+        title: 'Switch to High-Volume Tabular Roster (List View)',
+        description: 'For bulk administrative reviews and cross-department audits, click the List View toggle icon on the right toolbar. The display transitions into a structured table detailing Name, Username, Corporate Email, Entity, Branch, Department, Division, User Type, and Status chips. Use the pagination bar at the bottom to configure display limits (e.g., 10, 25, 50, or All entries).',
+        image: '/screenshots/User/2-add-modal.png',
+        caption: 'User List View providing full column visibility for administrative privilege audits.',
+        highlights: ['Compact tabular layout for bulk auditing', 'Direct visibility of Department & Division', 'Quick status indicators', 'Row action menu for View/Edit/Delete', 'Bottom pagination controls'],
       },
       {
         number: 3,
-        title: 'Assign Email & User Type',
-        description: 'Enter a valid corporate email address and select the appropriate User Type (Role) from the dropdown list.',
+        title: 'Create a New User Account (CRUD: Create)',
+        description: 'Click the "+ Create" button in the upper-right toolbar to open the Create User dialog. Enter the employee’s unique Username (max 45 characters, no spaces), First Name, optional Middle Name, and Last Name. Enter their official corporate Email address for system alerts and password resets. Choose their operational User Type (Role) from the dropdown list to set baseline permissions. Click "Upload photo" to attach an optional avatar portrait (PNG, JPG, WebP), then click "Save".',
+        image: '/screenshots/User/3-form-fields.png',
+        caption: 'Create User dialog for entering credentials, uploading avatar portraits, and assigning roles.',
+        highlights: ['Upload profile photo (PNG, JPG, WebP)', 'Unique Username validation', 'First, Middle, and Last Name inputs', 'Corporate Email validation', 'User Type role assignment dropdown', 'Save & Cancel buttons'],
       },
       {
         number: 4,
-        title: 'Upload Avatar Photo (Optional) & Save',
-        description: 'Click Upload photo (PNG, JPEG, WebP) to attach a user portrait, then click Submit to create the account.',
+        title: 'View User Profile & Information (CRUD: Read)',
+        description: 'Click on any user card or select "View" from the 3-dots action menu to open the read-only User Information modal. This dialog presents the user’s account status (Active/Inactive), User Type role pill, uploaded portrait, full name with @username handle, and official email address. Authorized administrators can click "Edit" to modify credentials or "Delete" to remove the account.',
+        image: '/screenshots/User/4-edit-dialog.png',
+        caption: 'User Information profile dialog showing verified credentials and direct action shortcuts.',
+        highlights: ['Read-only credential verification', 'Active / Inactive status badge', 'User Type role pill', 'Direct shortcut to Edit dialog', 'Protected Delete button'],
+      },
+      {
+        number: 5,
+        title: 'Edit Credentials & Deactivate Resigned Accounts (CRUD: Update)',
+        description: 'Choose "Edit" from the action menu or from the View modal. You can update the employee’s name, email, re-assign their User Type role, or replace their avatar. When an employee departs, resigns, or is placed on leave, change the "Status" dropdown from Active to "Inactive". Setting an account to Inactive revokes login privileges immediately while safeguarding all past approvals, biometric logs, and historical audit trails.',
+        image: '/screenshots/User/5-status.png',
+        caption: 'Edit User dialog with Status selector for managing account activation and deactivation.',
+        highlights: ['Update personal info and email', 'Re-assign User Type role', 'Active / Inactive status toggle', 'Replace or remove avatar photo', 'Preserves audit logs upon deactivation'],
       },
     ],
-    fields: [
-      { name: 'Username', requirement: 'Required', dataType: 'String', description: 'Must be unique. Max 45 characters. No special symbols.' },
-      { name: 'First Name', requirement: 'Required', dataType: 'String', description: 'Max 45 characters.' },
-      { name: 'Middle Name', requirement: 'Optional', dataType: 'String', description: 'Max 45 characters.' },
-      { name: 'Last Name', requirement: 'Required', dataType: 'String', description: 'Max 45 characters.' },
-      { name: 'Email', requirement: 'Required', dataType: 'Email', description: 'Must be a valid email format. Used for notifications and password recovery.' },
-      { name: 'User Type', requirement: 'Required', dataType: 'Dropdown', description: 'Selects the baseline Role Permissions assigned to this user.' },
-      { name: 'Status', requirement: 'Required', dataType: 'Dropdown', description: 'Active (can log in) or Inactive (login blocked).' },
-    ],
-    screenshot: {
-      src: '/screenshots/mod-user.png',
-      caption: 'User Management master roster showcasing user cards, search filters, status indicators, and Add User action modal.',
-      alt: 'User Management Interface Preview',
-      viewTitle: 'User Management Interface & Dialog',
-      mockupType: 'table',
-      gallery: [
-        { src: '/screenshots/User/1-roster.png', label: '1. User Roster' },
-        { src: '/screenshots/User/2-add-modal.png', label: '2. Add User Dialog' },
-        { src: '/screenshots/User/3-form-fields.png', label: '3. Credentials Info' },
-        { src: '/screenshots/User/4-edit-dialog.png', label: '4. Edit & Role Permissions' },
-        { src: '/screenshots/User/5-status.png', label: '5. Status & Actions' },
-      ],
-    },
     callout: {
       type: 'warning',
-      title: 'Deactivating vs. Deleting',
-      text: 'For auditing purposes, always prefer setting a user\'s status to Inactive instead of deleting them, ensuring historical logs and approvals remain intact.',
+      title: 'HR Administrative Rule: Deactivate, Never Delete',
+      text: 'When an employee departs, resigns, or goes on extended leave, always set their status to "Inactive". Never delete user accounts that have performed approvals, generated time logs, or submitted official requests, as deleting breaks historical compliance and audit trails.',
     },
   },
   {
@@ -191,26 +197,54 @@ export const MANUAL_MODULES: ModuleDoc[] = [
     permissions: ['entity.read', 'entity.create', 'entity.update'],
     category: 'Organizational Setup',
     icon: 'mdi-domain',
-    description: 'Define corporate entities, subsidiaries, and corporate umbrella structures.',
-    overview: 'An Entity represents an independent registered corporation or business division within the enterprise. Branches and payroll records are scoped to their respective Entity.',
-    fields: [
-      { name: 'Entity Name', requirement: 'Required', dataType: 'String', description: 'Official registered business name of the corporate entity.' },
-      { name: 'Entity Code / Acronym', requirement: 'Required', dataType: 'String', description: 'Short standardized code (e.g., GGC-CORP, GGC-RETL).' },
-      { name: 'Status', requirement: 'Required', dataType: 'Dropdown', description: 'Active or Inactive state.' },
+    description: 'Handbook guide for registering corporate companies, subsidiaries, and corporate umbrellas that establish organizational boundaries.',
+    overview: 'An Entity represents a registered company, corporate subsidiary, or independent enterprise unit within the organization (e.g., Head Office, Retail Division, Logistics Corporation). In GGC HRIS, all branches, departments, employees, and payroll calculations are scoped to their respective Entity. Setting up entities correctly is the foundational first step before branches or departments can be created.',
+    steps: [
+      {
+        number: 1,
+        title: 'Browse & Search Registered Entities (Grid View)',
+        description: 'Navigate to Admin > Settings > Entity. The Entity Directory displays all registered corporate companies and subsidiaries as visual cards (e.g., Head Office, Damayan, Goodlife Plans Inc., Goodlife Chapel). Each card highlights the company emblem, registered business title, physical address summary, total employee headcount count (members count), official acronym code (e.g., GLPI, GL-COOP), and Active status chip. Use the search bar to locate an entity quickly.',
+        image: '/screenshots/Entity/1-list.png',
+        caption: 'Entity Directory Grid View showing corporate cards, company emblems, and employee headcounts.',
+        highlights: ['Instant search by company name or code', 'Company cards with emblems and acronyms', 'Real-time employee headcount badge', 'Grid / List view toggle', '3-Dots action menu per card'],
+      },
+      {
+        number: 2,
+        title: 'Switch to Tabular Inventory (List View)',
+        description: 'Click the List View toggle icon on the toolbar to view entities in a structured table. Columns detail Logo icon, Entity Name, Acronym Code, Full Address, Postal Code, and Active Status badge. This view provides a concise overview of the entire corporate umbrella and registered office locations across the enterprise.',
+        image: '/screenshots/Entity/4-edit.png',
+        caption: 'Entity List View displaying acronym codes, full registered addresses, and postal codes.',
+        highlights: ['High-density list of all subsidiaries', 'Postal code & full address visibility', 'Standardized acronym code column', 'Actions trigger on each row', 'Items per page pagination'],
+      },
+      {
+        number: 3,
+        title: 'Register a New Corporate Entity (CRUD: Create)',
+        description: 'Click the "+ Create" button on the toolbar to open the Create Entity Information dialog. Click "Upload logo" to attach the official company emblem (PNG, JPG, SVG). Enter the registered Entity Name (e.g., "Goodlife Plans Inc.") and an Entity Code acronym (e.g., "GL-PLANS"). In the Address Information section, select the Province first—the City/Municipality and Barangay dropdowns will automatically filter to match. Enter the optional Street details and required Postal Code, then click "Save".',
+        image: '/screenshots/Entity/5-status.png',
+        caption: 'Create Entity dialog with corporate logo upload and cascading Philippine address hierarchy.',
+        highlights: ['Company logo upload (PNG, JPG, SVG)', 'Required Entity Name and Entity Code', 'Cascading Philippine address selector (Province > City > Barangay)', 'Street and Postal Code inputs', 'Save & Cancel buttons'],
+      },
+      {
+        number: 4,
+        title: 'View Entity Profile & Assigned Headcount (CRUD: Read)',
+        description: 'Click on an entity card or choose "View" from the action menu to open the Entity Information profile. This modal displays the entity emblem, registered name, standardized code, Active status chip, total employee headcount currently assigned (Total Employees), full registered address, and postal code. Includes direct action buttons for "Edit" and "Delete".',
+        image: '/screenshots/Entity/2-create.png',
+        caption: 'Entity Information modal displaying active status, total employee headcount, and postal address.',
+        highlights: ['Detailed view of registered entity', 'Total employee headcount badge', 'Complete registered street address', 'Postal code display', 'Direct triggers to Edit or Delete'],
+      },
+      {
+        number: 5,
+        title: 'Edit Entity Details & Archive Status (CRUD: Update)',
+        description: 'Select "Edit" to modify corporate information. HR administrators can update the company name or acronym, upload a refreshed corporate logo, and adjust physical address information. If a subsidiary ceases business operations, change the Status dropdown from Active to "Inactive". Setting an entity to Inactive archives it and prevents new branches from being registered under it.',
+        image: '/screenshots/Entity/3-details.png',
+        caption: 'Edit Entity modal for updating business names, corporate logos, address details, and active status.',
+        highlights: ['Modify registered entity title & code', 'Replace or remove corporate logo', 'Update cascading address details', 'Status selector (Active / Inactive)', 'Save updates with confirmation'],
+      },
     ],
-    screenshot: {
-      src: '/screenshots/mod-entity.png',
-      caption: 'Corporate Entity listing showing registered legal business corporations and subsidiary abbreviations.',
-      alt: 'Entity Management Interface Preview',
-      viewTitle: 'Entity Listing & Configuration View',
-      mockupType: 'table',
-      gallery: [
-        { src: '/screenshots/Entity/1-list.png', label: '1. Entity Directory' },
-        { src: '/screenshots/Entity/2-create.png', label: '2. Create Entity Dialog' },
-        { src: '/screenshots/Entity/3-details.png', label: '3. Entity Acronym / Code' },
-        { src: '/screenshots/Entity/4-edit.png', label: '4. Edit Entity' },
-        { src: '/screenshots/Entity/5-status.png', label: '5. Status Toggle' },
-      ],
+    callout: {
+      type: 'tip',
+      title: 'Parent-First Foundation Rule',
+      text: 'Corporate Entities serve as the umbrella for the entire HRIS hierarchy. You must register an Entity before you can add branches, departments, or assign new employees to that corporate division.',
     },
   },
   {
@@ -221,27 +255,54 @@ export const MANUAL_MODULES: ModuleDoc[] = [
     permissions: ['branch.read', 'branch.create', 'branch.update'],
     category: 'Organizational Setup',
     icon: 'mdi-storefront-outline',
-    description: 'Manage physical office, store, or warehouse branches assigned under Entities.',
-    overview: 'Branches represent geographical or operational operational sites tied to an Entity, defining payroll boundaries and biometric device assignments.',
-    fields: [
-      { name: 'Branch Name', requirement: 'Required', dataType: 'String', description: 'Full location or branch title (e.g., Main Headquarters, Cebu Branch).' },
-      { name: 'Branch Code', requirement: 'Required', dataType: 'String', description: 'Unique code used for attendance biometric syncing and identification.' },
-      { name: 'Entity', requirement: 'Required', dataType: 'Dropdown', description: 'Select the parent corporate Entity owning this branch.' },
-      { name: 'Region / Location', requirement: 'Optional', dataType: 'String', description: 'Regional classification for minimum wage computation and reporting.' },
+    description: 'Handbook guide for establishing physical branches, retail stores, and warehouses mapped to corporate entities and statutory wage regions.',
+    overview: 'Branches represent the physical operational work sites—such as head offices, regional branches, retail stores, and warehouses—where employees report daily. Each branch is tied to a parent Entity and mapped to a specific Philippine Region. Regional mapping is crucial for HR operations because it determines statutory minimum wage compliance, regional holiday calendars, and DOLE reporting.',
+    steps: [
+      {
+        number: 1,
+        title: 'Browse & Filter Branches by Parent Entity (Grid View)',
+        description: 'Navigate to Admin > Settings > Branch. Physical branches, stores, and warehouses appear as location cards showing branch initials, facility name (e.g., Bansalan Branch, Digos Branch), municipality/province snippet, active employee headcount badge (e.g., 70 Employees), operational tenure, and an action menu. Use the "Entity" filter dropdown in the top toolbar to isolate branches owned by a specific corporate company.',
+        image: '/screenshots/Branch/1-list.png',
+        caption: 'Branch Directory Grid View showing physical facilities, employee headcounts, and Entity filter.',
+        highlights: ['Parent Entity dropdown filter', 'Instant search by branch name or city', 'Employee headcount badge per branch', 'Grid / List view toggle', '3-Dots action menu per card'],
+      },
+      {
+        number: 2,
+        title: 'Switch to Structured Contact Directory (List View)',
+        description: 'Click the List View toggle to view branches in a structured table. Columns clearly display Branch Name, formatted Contact Hotline, official Email Address, physical Location Address, and action menus. This format is ideal for administrative directory printouts and emergency contact lookups.',
+        image: '/screenshots/Branch/4-details.png',
+        caption: 'Branch List View providing complete contact telephone hotlines, emails, and physical addresses.',
+        highlights: ['Comprehensive contact list (Phone & Email)', 'Full physical address column', 'Tabular overview for operations', 'Row-based actions menu', 'Pagination controls'],
+      },
+      {
+        number: 3,
+        title: 'Register a New Branch Location (CRUD: Create)',
+        description: 'Click the "+ Create" button on the toolbar to open the Create Branch Information dialog. Select the parent Entity legally owning the site, and choose the administrative Region (e.g., Eastern Visayas, NCR). Enter the official Branch Name (e.g., "Cebu Regional Branch"). Type the branch contact number (which automatically formats into standard Philippine mobile syntax 09XX-XXX-XXXX) and official branch email. Complete the cascading location fields (Province, City/Municipality, Barangay, Street, and Postal Code), then click "Save".',
+        image: '/screenshots/Branch/5-edit.png',
+        caption: 'Create Branch dialog with parent Entity selection, statutory Region picker, and contact inputs.',
+        highlights: ['Parent Entity selection dropdown', 'Statutory Region selector (NWPC wage mapping)', 'Auto-formatting contact phone input', 'Official branch email field', 'Cascading Philippine address inputs', 'Postal code validation'],
+      },
+      {
+        number: 4,
+        title: 'View Branch Profile & Wage Region (CRUD: Read)',
+        description: 'Click on a branch card or select "View" to inspect the Branch Information profile. Displays the Branch Name, parent Entity (e.g., HEAD OFFICE), statutory Region (e.g., REGION VIII - EASTERN VISAYAS), total assigned employees headcount, full physical address, postal code, formatted contact number, and Active status badge. Includes buttons to "Edit" or "Delete".',
+        image: '/screenshots/Branch/2-create.png',
+        caption: 'Branch Information profile showing parent entity link, wage region, staff count, and hotline.',
+        highlights: ['Verification of parent company link', 'Statutory wage region display', 'Total employee headcount badge', 'Direct contact telephone & postal code', 'Buttons to Edit or Delete branch'],
+      },
+      {
+        number: 5,
+        title: 'Edit Branch Contact Info & Operating Status (CRUD: Update)',
+        description: 'Select "Edit" to modify branch information. HR administrators can update telephone contacts or email addresses, adjust physical site address details, or re-assign wage regions. If a branch temporarily closes for renovations or ceases operations, toggle the Status dropdown from Active to "Inactive". Inactive branches are archived and hidden from active employee dispatch.',
+        image: '/screenshots/Branch/3-dropdown.png',
+        caption: 'Edit Branch dialog for updating phone hotlines, email addresses, and active operational status.',
+        highlights: ['Update branch phone & email contacts', 'Adjust statutory wage region', 'Update cascading physical address', 'Toggle operational Status (Active / Inactive)', 'Save updates with confirmation dialog'],
+      },
     ],
-    screenshot: {
-      src: '/screenshots/mod-branch.png',
-      caption: 'Branch Management screen listing physical facilities, biometric device codes, and parent entity links.',
-      alt: 'Branch Management Interface Preview',
-      viewTitle: 'Branch Site Administration',
-      mockupType: 'table',
-      gallery: [
-        { src: '/screenshots/Branch/1-list.png', label: '1. Branch Directory' },
-        { src: '/screenshots/Branch/2-create.png', label: '2. Add Branch Dialog' },
-        { src: '/screenshots/Branch/3-dropdown.png', label: '3. Entity & Region Selection' },
-        { src: '/screenshots/Branch/4-details.png', label: '4. Biometric Device Code' },
-        { src: '/screenshots/Branch/5-edit.png', label: '5. Actions & Options' },
-      ],
+    callout: {
+      type: 'info',
+      title: 'Why Region Mapping Matters for HR',
+      text: 'In the Philippines, statutory minimum wage rates and special local non-working holidays are established per region by the National Wages and Productivity Commission (NWPC). Correctly setting a branch\'s Region guarantees compliant payroll calculations.',
     },
   },
   {

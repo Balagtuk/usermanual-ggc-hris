@@ -161,14 +161,45 @@
       </div>
 
       <!-- Caption Footer -->
-      <div class="px-4 py-3 bg-surface border-t d-flex align-start justify-space-between ga-2">
-        <div class="d-flex align-center ga-2 text-caption text-medium-emphasis">
-          <v-icon icon="mdi-image-outline" size="16" color="primary" />
-          <span>{{ currentCaption }}</span>
+      <div class="px-5 py-4 bg-surface border-t">
+        <div class="d-flex flex-wrap align-center justify-space-between ga-2 mb-2">
+          <div class="d-flex align-center ga-2">
+            <v-chip size="small" color="primary" variant="tonal" class="font-weight-bold">
+              <v-icon start icon="mdi-eye-check-outline" size="14" />
+              {{ currentViewTitle }}
+            </v-chip>
+            <span v-if="hasGallery" class="text-caption text-medium-emphasis">
+              (View {{ activeGalleryIndex + 1 }} of {{ galleryItems.length }})
+            </span>
+          </div>
+          <v-chip v-if="imageError" size="x-small" variant="outlined" color="info">
+            Mockup (Drop {{ expectedFileName }} into /public/screenshots/)
+          </v-chip>
         </div>
-        <v-chip v-if="imageError" size="x-small" variant="outlined" color="info">
-          Mockup (Drop {{ expectedFileName }} into /public/screenshots/)
-        </v-chip>
+
+        <p class="text-body-2 text-high-emphasis mb-2 font-weight-medium leading-relaxed">
+          {{ currentCaption }}
+        </p>
+
+        <p v-if="currentDescription" class="text-caption text-medium-emphasis mb-3 leading-relaxed">
+          {{ currentDescription }}
+        </p>
+
+        <!-- Feature chips -->
+        <div v-if="currentFeatures.length > 0" class="d-flex flex-wrap align-center ga-1 pt-1">
+          <span class="text-caption font-weight-bold text-medium-emphasis mr-1">Visible Actions & Features:</span>
+          <v-chip
+            v-for="feat in currentFeatures"
+            :key="feat"
+            size="x-small"
+            variant="tonal"
+            color="primary"
+            class="font-weight-medium"
+          >
+            <v-icon start icon="mdi-check-circle-outline" size="12" />
+            {{ feat }}
+          </v-chip>
+        </div>
       </div>
     </v-card>
 
@@ -177,35 +208,62 @@
       <v-card class="rounded-lg overflow-hidden">
         <v-toolbar color="primary" density="comfortable" class="text-white">
           <v-toolbar-title class="text-subtitle-1 font-weight-bold">
-            {{ module.num }}. {{ module.title }} &mdash; {{ currentViewTitle }}
+            {{ module.num }}. {{ module.title }} &mdash; {{ lightboxGalleryItem?.label || currentViewTitle }}
           </v-toolbar-title>
           <v-spacer />
           <v-btn icon="mdi-close" variant="text" @click="lightboxOpen = false" />
         </v-toolbar>
 
         <v-card-text class="pa-4 bg-background">
-          <div class="d-flex flex-wrap align-center justify-space-between ga-2 mb-3">
-            <div class="text-body-2 text-medium-emphasis">
-              {{ currentCaption }}
+          <!-- Lightbox View Info Banner -->
+          <div class="mb-3 pa-3 rounded-lg bg-surface border">
+            <div class="d-flex flex-wrap align-center justify-space-between ga-2 mb-1">
+              <div class="d-flex align-center ga-2">
+                <v-chip size="small" color="primary" variant="flat" class="font-weight-bold">
+                  {{ lightboxGalleryItem?.label || currentViewTitle }}
+                </v-chip>
+              </div>
+              <div v-if="hasGallery" class="d-flex align-center ga-1">
+                <v-btn
+                  icon="mdi-chevron-left"
+                  size="small"
+                  variant="outlined"
+                  :disabled="lightboxIndex <= 0"
+                  @click="lightboxIndex--"
+                />
+                <span class="text-caption font-weight-bold px-2">
+                  {{ lightboxIndex + 1 }} / {{ galleryItems.length }}
+                </span>
+                <v-btn
+                  icon="mdi-chevron-right"
+                  size="small"
+                  variant="outlined"
+                  :disabled="lightboxIndex >= galleryItems.length - 1"
+                  @click="lightboxIndex++"
+                />
+              </div>
             </div>
-            <div v-if="hasGallery" class="d-flex align-center ga-1">
-              <v-btn
-                icon="mdi-chevron-left"
-                size="small"
-                variant="outlined"
-                :disabled="lightboxIndex <= 0"
-                @click="lightboxIndex--"
-              />
-              <span class="text-caption font-weight-bold px-2">
-                {{ lightboxIndex + 1 }} / {{ galleryItems.length }}
-              </span>
-              <v-btn
-                icon="mdi-chevron-right"
-                size="small"
-                variant="outlined"
-                :disabled="lightboxIndex >= galleryItems.length - 1"
-                @click="lightboxIndex++"
-              />
+
+            <p class="text-body-2 text-high-emphasis mb-1 font-weight-medium">
+              {{ lightboxGalleryItem?.caption || currentCaption }}
+            </p>
+
+            <p v-if="lightboxGalleryItem?.description" class="text-caption text-medium-emphasis mb-2 leading-relaxed">
+              {{ lightboxGalleryItem.description }}
+            </p>
+
+            <div v-if="lightboxGalleryItem?.features && lightboxGalleryItem.features.length > 0" class="d-flex flex-wrap align-center ga-1 pt-1">
+              <span class="text-caption font-weight-bold text-medium-emphasis mr-1">Visible Actions & Features:</span>
+              <v-chip
+                v-for="feat in lightboxGalleryItem.features"
+                :key="feat"
+                size="x-small"
+                variant="tonal"
+                color="primary"
+              >
+                <v-icon start icon="mdi-check-circle-outline" size="12" />
+                {{ feat }}
+              </v-chip>
             </div>
           </div>
 
@@ -279,6 +337,20 @@ const galleryItems = computed(() => {
   return props.module.screenshot?.gallery || []
 })
 
+const activeGalleryItem = computed(() => {
+  if (hasGallery.value && galleryItems.value[activeGalleryIndex.value]) {
+    return galleryItems.value[activeGalleryIndex.value]
+  }
+  return null
+})
+
+const lightboxGalleryItem = computed(() => {
+  if (hasGallery.value && galleryItems.value[lightboxIndex.value]) {
+    return galleryItems.value[lightboxIndex.value]
+  }
+  return null
+})
+
 const currentImageSrc = computed(() => {
   if (hasGallery.value && galleryItems.value[activeGalleryIndex.value]) {
     return galleryItems.value[activeGalleryIndex.value].src
@@ -301,7 +373,15 @@ const currentViewTitle = computed(() => {
 })
 
 const currentCaption = computed(() => {
-  return props.module.screenshot?.caption || ''
+  return activeGalleryItem.value?.caption || props.module.screenshot?.caption || ''
+})
+
+const currentDescription = computed(() => {
+  return activeGalleryItem.value?.description || ''
+})
+
+const currentFeatures = computed(() => {
+  return activeGalleryItem.value?.features || []
 })
 
 const expectedFileName = computed(() => `${props.module.id}.png`)
