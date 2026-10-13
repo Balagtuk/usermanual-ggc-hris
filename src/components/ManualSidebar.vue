@@ -61,7 +61,7 @@
             :disabled="isFilteredOut(mod)"
             rounded="md"
             class="nav-item mb-1"
-            @click="scrollTo(mod.id, mod.num + 1)"
+            @click="scrollTo(mod.id)"
           >
             <template #title>
               <span class="nav-title-text">{{ mod.num }}. {{ mod.title }}</span>
@@ -88,7 +88,7 @@
             :disabled="isFilteredOut(mod)"
             rounded="md"
             class="nav-item mb-1"
-            @click="scrollTo(mod.id, mod.num + 1)"
+            @click="scrollTo(mod.id)"
           >
             <template #title>
               <span class="nav-title-text">{{ mod.num }}. {{ mod.title }}</span>
@@ -126,7 +126,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:modelValue', val: boolean): void
-  (e: 'navigate', sectionId: string, pageNumber: number): void
+  (e: 'navigate', sectionId: string, pageNumber?: number): void
 }>()
 
 const filterKeyword = ref('')
@@ -159,7 +159,7 @@ const isFilteredOut = (mod: ModuleDoc) => {
   return !props.visibleModuleIds.has(mod.id)
 }
 
-const scrollTo = (id: string, pageNumber: number) => {
+const scrollTo = (id: string, pageNumber?: number) => {
   emit('navigate', id, pageNumber)
 }
 </script>
