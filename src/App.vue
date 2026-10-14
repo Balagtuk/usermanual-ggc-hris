@@ -398,7 +398,7 @@ onUnmounted(() => {
 
 <style scoped>
 .max-content-width {
-  max-width: 920px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 

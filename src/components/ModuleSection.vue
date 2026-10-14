@@ -172,10 +172,52 @@
         </v-card>
       </section>
 
-      <!-- Interface Screenshot Visual Reference (Only for modules without visual step handbook) -->
-      <section v-if="!hasVisualSteps" class="mb-8">
-        <ModuleScreenshot :module="module" />
+      <!-- Experience Mode Switcher (Handbook Walkthrough vs Live Sandbox) -->
+      <div v-if="module.id === 'mod-user'" class="d-flex align-center justify-space-between mb-6 pa-3 rounded-lg bg-surface border flex-wrap ga-3">
+        <div class="d-flex align-center ga-2">
+          <v-avatar size="32" color="primary" variant="tonal">
+            <v-icon icon="mdi-flask-outline" size="18" color="primary" />
+          </v-avatar>
+          <div>
+            <div class="text-subtitle-2 font-weight-bold text-high-emphasis">
+              Interactive Sandbox Experience Available
+            </div>
+            <div class="text-caption text-medium-emphasis">
+              Explore the live simulated user management interface or follow the step-by-step handbook walkthrough.
+            </div>
+          </div>
+        </div>
+
+        <v-btn-toggle
+          v-model="experienceTab"
+          mandatory
+          density="compact"
+          color="primary"
+          rounded="lg"
+          class="border"
+        >
+          <v-btn value="walkthrough" size="small" class="text-none font-weight-medium px-3">
+            <v-icon start icon="mdi-book-open-page-variant-outline" size="15" />
+            Handbook Walkthrough
+          </v-btn>
+          <v-btn value="sandbox" size="small" class="text-none font-weight-medium px-3">
+            <v-icon start icon="mdi-flask-outline" size="15" />
+            Interactive Sandbox 🧪
+          </v-btn>
+        </v-btn-toggle>
+      </div>
+
+      <!-- Live Sandbox Mode -->
+      <section v-if="module.id === 'mod-user' && experienceTab === 'sandbox'" class="mb-8">
+        <UserManagementSandbox />
       </section>
+
+      <!-- Standard Walkthrough & Screenshots Mode -->
+      <template v-else>
+        <!-- Interface Screenshot Visual Reference (Only for modules without visual step handbook) -->
+        <section v-if="!hasVisualSteps" class="mb-8">
+          <ModuleScreenshot :module="module" />
+        </section>
 
       <!-- Step-by-Step Operating Procedure -->
       <section v-if="module.steps && module.steps.length > 0" class="mb-8">
@@ -362,6 +404,7 @@
           </v-col>
         </v-row>
       </section>
+    </template>
 
       <!-- Form Fields Reference Table -->
       <section v-if="module.fields && module.fields.length > 0" class="mb-8">
@@ -1286,17 +1329,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useDisplay } from 'vuetify'
 import type { ModuleDoc, StepItem, UIFeatureControl } from '@/data/manualData'
 import ModuleScreenshot from '@/components/ModuleScreenshot.vue'
 import BaseBreadcrumb from '@/components/BaseBreadcrumb.vue'
+import UserManagementSandbox from '@/components/sandbox/UserManagementSandbox.vue'
 
 const { smAndDown } = useDisplay()
 
 const props = defineProps<{
   module: ModuleDoc
 }>()
+
+const experienceTab = ref<'walkthrough' | 'sandbox'>('walkthrough')
+
+watch(() => props.module.id, () => {
+  experienceTab.value = 'walkthrough'
+})
 
 const breadcrumbs = computed(() => [
   { text: 'Manual', disabled: false },
