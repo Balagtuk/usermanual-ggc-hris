@@ -81,8 +81,57 @@
 
       <v-divider class="my-5 opacity-40" />
 
-      <!-- Module Overview & Purpose -->
-      <section class="mb-8">
+      <!-- Top Experience Mode Switcher (Handbook Walkthrough vs Live Sandbox) -->
+      <div v-if="hasSandbox" class="experience-switcher-top mb-6 pa-3 rounded-xl border bg-surface-variant d-flex align-center justify-space-between flex-wrap ga-3">
+        <div class="d-flex align-center ga-3">
+          <v-avatar size="36" color="primary" variant="flat">
+            <v-icon icon="mdi-flask-outline" size="20" color="white" />
+          </v-avatar>
+          <div>
+            <div class="d-flex align-center ga-2 flex-wrap">
+              <span class="text-subtitle-2 font-weight-bold text-high-emphasis">
+                Interactive Sandbox Experience Available
+              </span>
+              <v-chip size="x-small" color="primary" variant="flat" class="font-weight-bold">
+                Live Simulation
+              </v-chip>
+            </div>
+            <div class="text-caption text-medium-emphasis">
+              Explore the live simulated {{ module.title.toLowerCase() }} interface or follow the step-by-step handbook walkthrough.
+            </div>
+          </div>
+        </div>
+
+        <v-btn-toggle
+          v-model="experienceTab"
+          mandatory
+          density="compact"
+          color="primary"
+          rounded="lg"
+          class="border bg-surface"
+        >
+          <v-btn value="walkthrough" size="small" class="text-none font-weight-medium px-4">
+            <v-icon start icon="mdi-book-open-page-variant-outline" size="16" />
+            Handbook Walkthrough
+          </v-btn>
+          <v-btn value="sandbox" size="small" class="text-none font-weight-bold px-4">
+            <v-icon start icon="mdi-flask-outline" size="16" />
+            Interactive Sandbox 🧪
+          </v-btn>
+        </v-btn-toggle>
+      </div>
+
+      <!-- Live Sandbox Mode (Promoted to Top) -->
+      <section v-if="hasSandbox && experienceTab === 'sandbox'" :id="module.id + '-sandbox-section'" class="mb-8">
+        <DepartmentManagementSandbox v-if="module.id === 'mod-departments'" ref="deptSandboxRef" />
+        <DivisionManagementSandbox v-else-if="module.id === 'mod-division'" ref="divSandboxRef" />
+        <PositionManagementSandbox v-else-if="module.id === 'mod-position'" ref="posSandboxRef" />
+      </section>
+
+      <!-- Standard Walkthrough & Screenshots Mode -->
+      <template v-else>
+        <!-- Module Overview & Purpose -->
+        <section class="mb-8">
         <h2 class="section-title mb-2">
           Overview & System Purpose
         </h2>
@@ -160,10 +209,10 @@
                     variant="tonal"
                     color="primary"
                     class="text-none font-weight-bold"
-                    prepend-icon="mdi-play-circle-outline"
+                    :prepend-icon="hasSandbox ? 'mdi-flask-outline' : 'mdi-play-circle-outline'"
                     @click.stop="openControlSimulator(ctrl)"
                   >
-                    Simulate
+                    {{ hasSandbox ? 'Try in Sandbox' : 'Simulate' }}
                   </v-btn>
                 </td>
               </tr>
@@ -172,48 +221,6 @@
         </v-card>
       </section>
 
-      <!-- Experience Mode Switcher (Handbook Walkthrough vs Live Sandbox) -->
-      <div v-if="module.id === 'mod-user'" class="d-flex align-center justify-space-between mb-6 pa-3 rounded-lg bg-surface border flex-wrap ga-3">
-        <div class="d-flex align-center ga-2">
-          <v-avatar size="32" color="primary" variant="tonal">
-            <v-icon icon="mdi-flask-outline" size="18" color="primary" />
-          </v-avatar>
-          <div>
-            <div class="text-subtitle-2 font-weight-bold text-high-emphasis">
-              Interactive Sandbox Experience Available
-            </div>
-            <div class="text-caption text-medium-emphasis">
-              Explore the live simulated user management interface or follow the step-by-step handbook walkthrough.
-            </div>
-          </div>
-        </div>
-
-        <v-btn-toggle
-          v-model="experienceTab"
-          mandatory
-          density="compact"
-          color="primary"
-          rounded="lg"
-          class="border"
-        >
-          <v-btn value="walkthrough" size="small" class="text-none font-weight-medium px-3">
-            <v-icon start icon="mdi-book-open-page-variant-outline" size="15" />
-            Handbook Walkthrough
-          </v-btn>
-          <v-btn value="sandbox" size="small" class="text-none font-weight-medium px-3">
-            <v-icon start icon="mdi-flask-outline" size="15" />
-            Interactive Sandbox 🧪
-          </v-btn>
-        </v-btn-toggle>
-      </div>
-
-      <!-- Live Sandbox Mode -->
-      <section v-if="module.id === 'mod-user' && experienceTab === 'sandbox'" class="mb-8">
-        <UserManagementSandbox />
-      </section>
-
-      <!-- Standard Walkthrough & Screenshots Mode -->
-      <template v-else>
         <!-- Interface Screenshot Visual Reference (Only for modules without visual step handbook) -->
         <section v-if="!hasVisualSteps" class="mb-8">
           <ModuleScreenshot :module="module" />
@@ -1329,12 +1336,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { useDisplay } from 'vuetify'
 import type { ModuleDoc, StepItem, UIFeatureControl } from '@/data/manualData'
 import ModuleScreenshot from '@/components/ModuleScreenshot.vue'
 import BaseBreadcrumb from '@/components/BaseBreadcrumb.vue'
-import UserManagementSandbox from '@/components/sandbox/UserManagementSandbox.vue'
+import DepartmentManagementSandbox from '@/components/sandbox/DepartmentManagementSandbox.vue'
+import DivisionManagementSandbox from '@/components/sandbox/DivisionManagementSandbox.vue'
+import PositionManagementSandbox from '@/components/sandbox/PositionManagementSandbox.vue'
 
 const { smAndDown } = useDisplay()
 
@@ -1343,6 +1352,80 @@ const props = defineProps<{
 }>()
 
 const experienceTab = ref<'walkthrough' | 'sandbox'>('walkthrough')
+
+const deptSandboxRef = ref<any>(null)
+const divSandboxRef = ref<any>(null)
+const posSandboxRef = ref<any>(null)
+
+const getActiveSandbox = () => {
+  if (props.module.id === 'mod-departments') return deptSandboxRef.value
+  if (props.module.id === 'mod-division') return divSandboxRef.value
+  if (props.module.id === 'mod-position') return posSandboxRef.value
+  return null
+}
+
+const mapControlToFeatureKey = (moduleId: string, ctrlName: string): string => {
+  const name = ctrlName.toLowerCase()
+
+  // 1. Search
+  if (name.includes('search')) return 'search'
+
+  // 2. Refresh
+  if (name.includes('refresh') || name.includes('sync')) return 'refresh'
+
+  // 3. View mode
+  if (name.includes('grid') || name.includes('list') || name.includes('view toggle') || name.includes('view mode')) {
+    return 'view_toggle'
+  }
+
+  // 4. Filters
+  if (name.includes('filter') || name.includes('dropdown') || name.includes('entity') || name.includes('department') || name.includes('tier') || name.includes('branch')) {
+    if (moduleId === 'mod-user') return 'filters'
+    if (moduleId === 'mod-departments') return 'entity_filter'
+    if (moduleId === 'mod-division') return 'dept_filter'
+    if (moduleId === 'mod-position') return 'tier_filter'
+    return 'filters'
+  }
+
+  // 5. Create
+  if (name.includes('create') || name.includes('add') || name.includes('plus') || name.includes('new')) {
+    if (moduleId === 'mod-user') return 'create_user'
+    if (moduleId === 'mod-departments') return 'create_department'
+    if (moduleId === 'mod-division') return 'create_division'
+    if (moduleId === 'mod-position') return 'create_position'
+    return 'create'
+  }
+
+  // 6. Action Menu / 3-dots
+  if (name.includes('action') || name.includes('dots') || name.includes('kebab') || name.includes('menu')) {
+    return 'action_menu'
+  }
+
+  // 7. Pagination
+  if (name.includes('pagination') || name.includes('page') || name.includes('rows')) {
+    return 'pagination'
+  }
+
+  // 8. Card / Row / Item
+  if (name.includes('card') || name.includes('item') || name.includes('avatar') || name.includes('profile')) {
+    if (moduleId === 'mod-user') return 'user_card'
+    if (moduleId === 'mod-departments') return 'department_card'
+    if (moduleId === 'mod-division') return 'division_card'
+    if (moduleId === 'mod-position') return 'position_card'
+  }
+
+  if (moduleId === 'mod-user') return 'filters'
+  if (moduleId === 'mod-departments') return 'entity_filter'
+  if (moduleId === 'mod-division') return 'dept_filter'
+  if (moduleId === 'mod-position') return 'tier_filter'
+  return 'search'
+}
+
+const hasSandbox = computed(() => [
+  'mod-departments',
+  'mod-division',
+  'mod-position'
+].includes(props.module.id))
 
 watch(() => props.module.id, () => {
   experienceTab.value = 'walkthrough'
@@ -1878,6 +1961,22 @@ const getControlTip = (ctrl: UIFeatureControl): string => {
 
 // Open simulator
 const openControlSimulator = (ctrl: UIFeatureControl) => {
+  if (hasSandbox.value) {
+    experienceTab.value = 'sandbox'
+    const featureKey = mapControlToFeatureKey(props.module.id, ctrl.name)
+    nextTick(() => {
+      const sandbox = getActiveSandbox()
+      if (sandbox && typeof sandbox.focusFeature === 'function') {
+        sandbox.focusFeature(featureKey)
+      }
+      const el = document.getElementById(props.module.id + '-sandbox-section')
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    })
+    return
+  }
+
   selectedControl.value = ctrl
   simMenuToast.value = ''
   simSyncSuccess.value = false
