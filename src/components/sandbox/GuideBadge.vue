@@ -13,7 +13,10 @@
         type="button"
         v-bind="menuProps"
         class="guide-badge-btn"
-        :class="[small ? 'guide-badge-small' : 'guide-badge', { 'is-active': isOpen }]"
+        :class="[
+          small ? 'guide-badge-small' : 'guide-badge',
+          { 'is-active': isOpen, 'guide-badge-inline': inline }
+        ]"
         :aria-label="`Explanation for ${explanation.name}`"
         @mouseenter="$emit('hover', explanation)"
       >
@@ -83,13 +86,14 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { ExplanationInfo } from './UserManagementSandbox.vue'
+import type { ExplanationInfo } from '@/types/sandbox'
 
 defineProps<{
   badgeNumber?: number
   explanation: ExplanationInfo
   small?: boolean
-  location?: 'top center' | 'bottom center' | 'left center' | 'right center' | 'bottom' | 'top'
+  inline?: boolean
+  location?: any
 }>()
 
 defineEmits<{
@@ -109,6 +113,15 @@ const isOpen = ref(false)
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.guide-badge-inline {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  margin: 0 !important;
 }
 
 .guide-badge {
