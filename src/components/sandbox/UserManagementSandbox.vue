@@ -1,163 +1,23 @@
 <template>
-  <div class="user-management-sandbox rounded-xl border bg-surface overflow-hidden">
+  <div class="user-management-sandbox">
     <!-- Sandbox Control & Guide Header -->
-    <div class="sandbox-top-bar px-4 py-3 bg-surface-variant d-flex flex-wrap align-center justify-space-between ga-3 border-b">
-      <div class="d-flex align-center ga-2 flex-wrap">
-        <v-chip size="small" color="primary" variant="flat" class="font-weight-bold">
-          <v-icon start icon="mdi-flask-outline" size="14" />
-          Interactive Sandbox
-        </v-chip>
-        <span class="text-caption font-weight-bold text-high-emphasis">
-          Simulated User Management Interface
-        </span>
-        <v-chip size="x-small" variant="tonal" color="secondary" class="d-none d-sm-inline-flex">
-          Safe Playground &bull; No live database changes
-        </v-chip>
-      </div>
-
-      <!-- Mode Switch, Maximize & Reset Controls -->
-      <div class="d-flex align-center ga-2 flex-wrap">
-        <v-btn-toggle
-          v-model="sandboxMode"
-          mandatory
-          density="compact"
-          color="primary"
-          rounded="lg"
-          class="sandbox-mode-toggle border"
-        >
-          <v-btn value="play" size="small" class="text-none font-weight-medium px-3">
-            <v-icon start icon="mdi-gamepad-variant-outline" size="15" />
-            Try Live
-          </v-btn>
-          <v-btn value="guide" size="small" class="text-none font-weight-medium px-3">
-            <v-icon start icon="mdi-lightbulb-on-outline" size="15" />
-            Explain Controls
-            <v-badge v-if="sandboxMode !== 'guide'" color="warning" dot floating />
-          </v-btn>
-        </v-btn-toggle>
-
-        <v-btn
-          size="small"
-          variant="text"
-          color="medium-emphasis"
-          class="text-none font-weight-medium"
-          prepend-icon="mdi-restore"
-          title="Reset dummy roster to default records"
-          @click="resetDummyData"
-        >
-          Reset
-        </v-btn>
-      </div>
-    </div>
-
-    <!-- Active Guide Banner (When Guide Mode is ON) -->
-    <v-expand-transition>
-      <div v-if="sandboxMode === 'guide'" class="guide-banner px-4 py-2 bg-primary-lighten-5 border-b">
-        <div class="d-flex align-center justify-space-between flex-wrap ga-2">
-          <div class="d-flex align-center ga-2">
-            <v-avatar size="24" color="primary" variant="flat">
-              <v-icon icon="mdi-cursor-default-hover" size="14" color="white" />
-            </v-avatar>
-            <div>
-              <span class="text-caption font-weight-bold text-primary mr-1">
-                Hover Mode Active:
-              </span>
-              <span class="text-caption text-medium-emphasis">
-                Move your mouse over any numbered badge (1 to 8) to see an instant pop-up explanation of that feature, its required permissions, and best practices.
-              </span>
-            </div>
-          </div>
-          <v-chip
-            v-if="selectedExplanation"
-            size="x-small"
-            color="primary"
-            variant="flat"
-            closable
-            @click:close="selectedExplanation = null"
-          >
-            Focused: {{ selectedExplanation.name }}
-          </v-chip>
-        </div>
-      </div>
-    </v-expand-transition>
-
-    <!-- Guide Explanation Drawer / Active Pinned Card -->
-    <v-expand-transition>
-      <div v-if="sandboxMode === 'guide' && selectedExplanation" class="explanation-details-box pa-4 bg-surface border-b">
-        <v-card variant="tonal" color="primary" class="rounded-lg pa-3 pa-sm-4">
-          <div class="d-flex flex-wrap align-start justify-space-between ga-3 mb-2">
-            <div class="d-flex align-center ga-3">
-              <v-avatar size="34" color="primary" variant="flat">
-                <v-icon :icon="selectedExplanation.icon || 'mdi-information'" size="18" color="white" />
-              </v-avatar>
-              <div>
-                <div class="d-flex align-center ga-2 flex-wrap">
-                  <h4 class="text-subtitle-1 font-weight-bold text-high-emphasis mb-0">
-                    {{ selectedExplanation.name }}
-                  </h4>
-                  <v-chip size="x-small" color="primary" variant="flat" class="font-weight-bold">
-                    Control #{{ selectedExplanation.badgeNumber }}
-                  </v-chip>
-                  <v-chip size="x-small" color="secondary" variant="tonal">
-                    {{ selectedExplanation.location }}
-                  </v-chip>
-                </div>
-                <div class="text-caption text-medium-emphasis">
-                  {{ selectedExplanation.purpose }}
-                </div>
-              </div>
-            </div>
-
-            <v-btn
-              icon="mdi-close"
-              size="x-small"
-              variant="text"
-              color="medium-emphasis"
-              @click="selectedExplanation = null"
-            />
-          </div>
-
-          <v-divider class="my-2" />
-
-          <v-row dense class="text-caption mt-1">
-            <v-col cols="12" md="6">
-              <div class="font-weight-bold text-high-emphasis mb-1">
-                <v-icon icon="mdi-play-circle-outline" size="14" class="mr-1 text-primary" />
-                Operational Action:
-              </div>
-              <div class="text-medium-emphasis">
-                {{ selectedExplanation.action }}
-              </div>
-            </v-col>
-            <v-col cols="12" md="3">
-              <div class="font-weight-bold text-high-emphasis mb-1">
-                <v-icon icon="mdi-shield-lock-outline" size="14" class="mr-1 text-primary" />
-                Required Permission:
-              </div>
-              <v-chip size="x-small" color="primary" variant="outlined" class="font-weight-bold">
-                {{ selectedExplanation.permission || 'user.read' }}
-              </v-chip>
-            </v-col>
-            <v-col cols="12" md="3">
-              <div class="font-weight-bold text-high-emphasis mb-1">
-                <v-icon icon="mdi-lightbulb-outline" size="14" class="mr-1 text-warning" />
-                Administrator Tip:
-              </div>
-              <div class="text-medium-emphasis">
-                {{ selectedExplanation.tip }}
-              </div>
-            </v-col>
-          </v-row>
-        </v-card>
-      </div>
-    </v-expand-transition>
+    <SandboxHeader
+      title="User Management Live Sandbox"
+      subtitle="Interactive environment mirroring GGC HRIS User & Access controls with simulated employee accounts."
+      icon="mdi-account-cog"
+      v-model:sandbox-mode="sandboxMode"
+      v-model:selected-explanation="selectedExplanation"
+      reset-title="Reset dummy roster to default records"
+      @reset="resetDummyData"
+    />
 
     <!-- SIMULATED REAL APPLICATION WINDOW -->
-    <div class="simulated-app-window pa-4 pa-sm-6 bg-background">
+    <div class="simulated-app-window pa-4 pa-sm-6 bg-background rounded-xl border">
       <!-- Simulated Breadcrumb -->
       <div class="d-flex align-center justify-space-between mb-4 flex-wrap ga-2">
         <div class="d-flex align-center ga-2 text-caption">
-          <span class="text-medium-emphasis cursor-pointer" @click="triggerToast('Navigated to Simulated Dashboard')">Dashboard</span>
+          <span class="text-medium-emphasis cursor-pointer"
+            @click="triggerToast('Navigated to Simulated Dashboard')">Dashboard</span>
           <span class="text-disabled">/</span>
           <span class="font-weight-bold text-high-emphasis">Users</span>
         </div>
@@ -174,66 +34,26 @@
           <!-- Org Filters (Left) -->
           <div class="d-flex flex-wrap align-center ga-2 position-relative flex-grow-1 sim-filters-wrapper">
             <!-- Badge 1: Filters -->
-            <GuideBadge
-              v-if="sandboxMode === 'guide'"
-              :explanation="EXPLANATIONS.filters"
-              location="bottom center"
-              @hover="openFeatureExplanation('filters')"
-            />
+            <GuideBadge v-if="sandboxMode === 'guide'" :explanation="EXPLANATIONS.filters" location="bottom center"
+              @hover="openFeatureExplanation('filters')" />
 
             <!-- Entity Filter -->
-            <v-select
-              v-model="selectedEntity"
-              :items="availableEntities"
-              label="Entity"
-              placeholder="All Entities"
-              variant="outlined"
-              density="compact"
-              hide-details
-              rounded="lg"
-              clearable
-              class="sim-filter-select"
-              @update:model-value="onEntityChange"
-            />
+            <v-select v-model="selectedEntity" :items="availableEntities" label="Entity" placeholder="All Entities"
+              variant="outlined" density="compact" hide-details rounded="lg" clearable class="sim-filter-select"
+              @update:model-value="onEntityChange" />
 
             <!-- Branch Filter -->
-            <v-select
-              v-model="selectedBranch"
-              :items="availableBranches"
-              label="Branch"
-              placeholder="All Branches"
-              variant="outlined"
-              density="compact"
-              hide-details
-              rounded="lg"
-              clearable
-              class="sim-filter-select"
-              :disabled="!selectedEntity && availableBranches.length === 0"
-              @update:model-value="onBranchChange"
-            />
+            <v-select v-model="selectedBranch" :items="availableBranches" label="Branch" placeholder="All Branches"
+              variant="outlined" density="compact" hide-details rounded="lg" clearable class="sim-filter-select"
+              :disabled="!selectedEntity && availableBranches.length === 0" @update:model-value="onBranchChange" />
 
             <!-- Department Filter -->
-            <v-select
-              v-model="selectedDepartment"
-              :items="availableDepartments"
-              label="Department"
-              placeholder="All Departments"
-              variant="outlined"
-              density="compact"
-              hide-details
-              rounded="lg"
-              clearable
-              class="sim-filter-select"
-            />
+            <v-select v-model="selectedDepartment" :items="availableDepartments" label="Department"
+              placeholder="All Departments" variant="outlined" density="compact" hide-details rounded="lg" clearable
+              class="sim-filter-select" />
 
-            <v-btn
-              v-if="hasActiveFilters"
-              variant="text"
-              size="small"
-              color="primary"
-              class="text-capitalize font-weight-medium"
-              @click="clearFilters"
-            >
+            <v-btn v-if="hasActiveFilters" variant="text" size="small" color="primary"
+              class="text-capitalize font-weight-medium" @click="clearFilters">
               Clear
             </v-btn>
           </div>
@@ -242,65 +62,27 @@
           <div class="d-flex align-center ga-3 position-relative">
             <!-- Refresh Button -->
             <div class="position-relative">
-              <GuideBadge
-                v-if="sandboxMode === 'guide'"
-                :explanation="EXPLANATIONS.refresh"
-                location="bottom center"
-                @hover="openFeatureExplanation('refresh')"
-              />
-              <v-btn
-                icon
-                size="small"
-                variant="outlined"
-                rounded="lg"
-                color="primary"
-                :loading="isRefreshing"
-                title="Synchronize user records"
-                @click="triggerRefresh"
-              >
+              <GuideBadge v-if="sandboxMode === 'guide'" :explanation="EXPLANATIONS.refresh" location="bottom center"
+                @hover="openFeatureExplanation('refresh')" />
+              <v-btn icon size="small" variant="outlined" rounded="lg" color="primary" :loading="isRefreshing"
+                title="Synchronize user records" @click="triggerRefresh">
                 <v-icon>mdi-refresh</v-icon>
               </v-btn>
             </div>
 
             <!-- View Mode Switch -->
             <div class="position-relative">
-              <GuideBadge
-                v-if="sandboxMode === 'guide'"
-                :explanation="EXPLANATIONS.view_toggle"
-                location="bottom center"
-                @hover="openFeatureExplanation('view_toggle')"
-              />
-              <v-btn-toggle
-                v-model="viewMode"
-                mandatory
-                density="compact"
-                color="primary"
-                rounded="lg"
-                class="border"
-              >
-                <v-btn value="grid" size="small" icon title="Card Grid View">
-                  <v-icon size="18">mdi-view-grid-outline</v-icon>
-                </v-btn>
-                <v-btn value="list" size="small" icon title="Table List View">
-                  <v-icon size="18">mdi-view-list-outline</v-icon>
-                </v-btn>
-              </v-btn-toggle>
+              <GuideBadge v-if="sandboxMode === 'guide'" :explanation="EXPLANATIONS.view_toggle"
+                location="bottom center" @hover="openFeatureExplanation('view_toggle')" />
+              <ViewToggle v-model="viewMode" />
             </div>
 
             <!-- Create Button -->
             <div class="position-relative">
-              <GuideBadge
-                v-if="sandboxMode === 'guide'"
-                :explanation="EXPLANATIONS.create_user"
-                location="bottom center"
-                @hover="openFeatureExplanation('create_user')"
-              />
-              <v-btn
-                color="primary"
-                class="rounded-lg text-capitalize font-weight-medium"
-                prepend-icon="mdi-plus"
-                @click="openCreateDialog"
-              >
+              <GuideBadge v-if="sandboxMode === 'guide'" :explanation="EXPLANATIONS.create_user"
+                location="bottom center" @hover="openFeatureExplanation('create_user')" />
+              <v-btn color="primary" class="rounded-lg text-capitalize font-weight-medium" prepend-icon="mdi-plus"
+                @click="openCreateDialog">
                 Create
               </v-btn>
             </div>
@@ -309,23 +91,11 @@
 
         <!-- SEARCH BAR -->
         <div class="mb-4 position-relative">
-          <GuideBadge
-            v-if="sandboxMode === 'guide'"
-            :explanation="EXPLANATIONS.search"
-            location="bottom center"
-            @hover="openFeatureExplanation('search')"
-          />
-          <v-text-field
-            v-model="searchQuery"
-            placeholder="Search users by name, @username, or email..."
-            variant="outlined"
-            hide-details
-            density="compact"
-            rounded="lg"
-            clearable
-            prepend-inner-icon="mdi-magnify"
-            class="search-input"
-          />
+          <GuideBadge v-if="sandboxMode === 'guide'" :explanation="EXPLANATIONS.search" location="bottom center"
+            @hover="openFeatureExplanation('search')" />
+          <v-text-field v-model="searchQuery" placeholder="search here..."
+            variant="outlined" hide-details density="compact" rounded="lg" clearable prepend-inner-icon="mdi-magnify"
+            class="search-input" />
         </div>
 
         <!-- EMPTY STATE -->
@@ -347,160 +117,114 @@
 
         <!-- VIEW 1: GRID MODE (Cards) -->
         <div v-else-if="viewMode === 'grid'" class="position-relative">
-          <GuideBadge
-            v-if="sandboxMode === 'guide'"
-            :explanation="EXPLANATIONS.user_card"
-            location="bottom center"
-            @hover="openFeatureExplanation('user_card')"
-          />
+          <GuideBadge v-if="sandboxMode === 'guide'" :explanation="EXPLANATIONS.user_card" location="bottom center"
+            @hover="openFeatureExplanation('user_card')" />
 
           <v-row dense>
-            <v-col
-              v-for="user in paginatedUsers"
-              :key="user.id"
-              cols="12"
-              sm="6"
-              md="4"
-              lg="3"
-            >
-              <v-card
-                variant="outlined"
-                class="user-grid-card rounded-xl pa-4 h-100 d-flex flex-column justify-space-between transition-swing position-relative"
-                :class="{ 'card-highlight': sandboxMode === 'guide' }"
-                @click="onCardClick(user)"
-              >
-                <!-- Top Card: Status & Kebab Action Menu -->
-                <div>
-                  <div class="d-flex justify-space-between align-center mb-3">
-                    <v-chip
-                      size="x-small"
-                      :color="user.isActive ? 'success' : 'error'"
-                      variant="flat"
-                      class="font-weight-bold text-capitalize"
-                    >
-                      {{ user.isActive ? 'Active' : 'Inactive' }}
-                    </v-chip>
+            <v-col v-for="user in paginatedUsers" :key="user.id" cols="12" sm="6" md="4" lg="3">
+              <v-card variant="outlined"
+                class="user-card rounded-xl pa-4 transition-swing"
+                :class="{ 'card-highlight': sandboxMode === 'guide' }" @click="onCardClick(user)">
+                <!-- Top Card: Status & Horizontal Dots Action Menu -->
+                <div class="d-flex justify-space-between align-center mb-3">
+                  <v-chip size="x-small" :color="user.isActive ? 'success' : 'error'" variant="flat"
+                    class="font-weight-medium px-2 text-capitalize flex-shrink-0">
+                    {{ user.isActive ? 'Active' : 'Inactive' }}
+                  </v-chip>
 
-                    <!-- Kebab Menu -->
-                    <div class="position-relative">
-                      <GuideBadge
-                        v-if="sandboxMode === 'guide'"
-                        :explanation="EXPLANATIONS.action_menu"
-                        small
-                        location="left center"
-                        @hover="openFeatureExplanation('action_menu')"
-                      />
-                      <v-menu location="bottom end">
-                        <template #activator="{ props: menuProps }">
-                          <v-btn
-                            v-bind="menuProps"
-                            icon="mdi-dots-vertical"
-                            size="x-small"
-                            variant="text"
-                            color="medium-emphasis"
-                            @click.stop
-                          />
-                        </template>
-                        <v-list density="compact" class="rounded-lg" elevation="2">
-                          <v-list-item
-                            prepend-icon="mdi-eye-outline"
-                            title="View Profile"
-                            @click="viewUser(user)"
-                          />
-                          <v-list-item
-                            prepend-icon="mdi-pencil-outline"
-                            title="Edit User"
-                            @click="editUser(user)"
-                          />
-                          <v-divider class="my-1" />
-                          <v-list-item
-                            :prepend-icon="user.isActive ? 'mdi-account-cancel-outline' : 'mdi-account-check-outline'"
-                            :title="user.isActive ? 'Deactivate Account' : 'Activate Account'"
-                            :color="user.isActive ? 'error' : 'success'"
-                            @click="toggleUserStatus(user)"
-                          />
-                        </v-list>
-                      </v-menu>
-                    </div>
+                  <!-- Horizontal 3 dots menu -->
+                  <div class="position-relative">
+                    <GuideBadge v-if="sandboxMode === 'guide'" :explanation="EXPLANATIONS.action_menu" small
+                      location="left center" @hover="openFeatureExplanation('action_menu')" />
+                    <v-menu location="bottom end">
+                      <template #activator="{ props: menuProps }">
+                        <v-btn v-bind="menuProps" icon="mdi-dots-horizontal" size="x-small" variant="text"
+                          color="medium-emphasis" @click.stop />
+                      </template>
+                      <v-list density="compact" class="rounded-lg" elevation="2">
+                        <v-list-item prepend-icon="mdi-eye-outline" title="View Profile" @click="viewUser(user)" />
+                      </v-list>
+                    </v-menu>
                   </div>
+                </div>
 
-                  <!-- Avatar Initials / Photo -->
-                  <div class="d-flex justify-center align-center mb-2">
-                    <v-avatar size="52" :color="user.avatarColor" class="elevation-1 text-white font-weight-bold text-subtitle-2">
+                <!-- Avatar Initials -->
+                <div class="d-flex justify-center align-center mb-3">
+                  <v-avatar size="48" rounded="circle" class="user-avatar elevation-1">
+                    <div class="avatar-fallback w-100 h-100 d-flex align-center justify-center font-weight-bold">
                       {{ user.initials }}
-                    </v-avatar>
-                  </div>
+                    </div>
+                  </v-avatar>
+                </div>
 
-                  <!-- Name & Username -->
-                  <div class="text-center mb-1">
+                <!-- Name & Username -->
+                <div class="d-flex justify-center align-center">
+                  <div class="d-flex flex-column align-center">
                     <div
-                      class="text-subtitle-2 font-weight-bold text-truncate text-high-emphasis cursor-pointer hover-primary"
-                      :title="user.fullName"
-                    >
+                      class="text-subtitle-1 font-weight-bold text-truncate cursor-pointer user-title"
+                      :title="user.fullName" @click.stop="viewUser(user)">
                       {{ user.fullName }}
                     </div>
-                    <div class="text-caption text-medium-emphasis">
+                    <div class="text-caption text-medium-emphasis" :title="user.username">
                       &#64;{{ user.username }}
-                    </div>
-                  </div>
-
-                  <!-- Email -->
-                  <div class="d-flex align-center justify-center text-caption text-medium-emphasis mb-3 text-truncate">
-                    <v-icon icon="mdi-email-outline" size="13" class="mr-1 flex-shrink-0" />
-                    <span class="text-truncate">{{ user.email }}</span>
-                  </div>
-
-                  <v-divider class="my-2 opacity-30" />
-
-                  <!-- Org Block Grid -->
-                  <div class="org-block-grid">
-                    <div class="org-cell mb-1">
-                      <div class="text-caption text-disabled text-uppercase font-weight-bold letter-spacing-1" style="font-size: 0.65rem;">
-                        Entity
-                      </div>
-                      <div class="text-caption font-weight-medium text-truncate" :title="user.entity">
-                        {{ user.entity }}
-                      </div>
-                    </div>
-                    <div class="org-cell mb-1">
-                      <div class="text-caption text-disabled text-uppercase font-weight-bold letter-spacing-1" style="font-size: 0.65rem;">
-                        Branch
-                      </div>
-                      <div class="text-caption font-weight-medium text-truncate" :title="user.branch">
-                        {{ user.branch }}
-                      </div>
-                    </div>
-                    <div class="org-cell">
-                      <div class="text-caption text-disabled text-uppercase font-weight-bold letter-spacing-1" style="font-size: 0.65rem;">
-                        Department
-                      </div>
-                      <div class="text-caption font-weight-medium text-truncate" :title="user.department">
-                        {{ user.department }}
-                      </div>
-                    </div>
-                    <div class="org-cell">
-                      <div class="text-caption text-disabled text-uppercase font-weight-bold letter-spacing-1" style="font-size: 0.65rem;">
-                        Role
-                      </div>
-                      <div class="text-caption font-weight-medium text-truncate text-primary" :title="user.role">
-                        {{ user.role }}
-                      </div>
                     </div>
                   </div>
                 </div>
 
-                <!-- Bottom Quick Action -->
-                <div class="mt-3 pt-2 border-t d-flex align-center justify-space-between">
-                  <v-btn
-                    size="x-small"
-                    variant="tonal"
-                    color="primary"
-                    class="text-none font-weight-medium w-100"
-                    prepend-icon="mdi-eye-outline"
-                    @click.stop="viewUser(user)"
-                  >
-                    Inspect Profile
-                  </v-btn>
+                <!-- Email -->
+                <div class="d-flex justify-center align-center mb-3">
+                  <div class="d-flex align-center text-caption text-medium-emphasis" :title="user.email">
+                    <v-icon icon="mdi-email-outline" size="14" class="mr-1 flex-shrink-0" />
+                    <span class="text-truncate">{{ user.email }}</span>
+                  </div>
+                </div>
+
+                <v-divider class="my-3 opacity-20" />
+
+                <!-- Org Block Grid -->
+                <v-row dense class="org-block text-start mb-1">
+                  <v-col cols="6">
+                    <div class="text-caption text-medium-emphasis text-uppercase letter-spacing-1">
+                      ENTITY
+                    </div>
+                    <div class="text-body-2 text-truncate" :title="user.entity">
+                      {{ user.entity || '—' }}
+                    </div>
+                  </v-col>
+                  <v-col cols="6">
+                    <div class="text-caption text-medium-emphasis text-uppercase letter-spacing-1">
+                      BRANCH
+                    </div>
+                    <div class="text-body-2 text-truncate" :title="user.branch">
+                      {{ user.branch || '—' }}
+                    </div>
+                  </v-col>
+                  <v-col cols="6">
+                    <div class="text-caption text-medium-emphasis text-uppercase letter-spacing-1">
+                      DEPARTMENT
+                    </div>
+                    <div class="text-body-2 text-truncate" :title="user.department">
+                      {{ user.department || '—' }}
+                    </div>
+                  </v-col>
+                  <v-col cols="6">
+                    <div class="text-caption text-medium-emphasis text-uppercase letter-spacing-1">
+                      DIVISION
+                    </div>
+                    <div class="text-body-2 text-truncate" :title="user.division || '—'">
+                      {{ user.division || '—' }}
+                    </div>
+                  </v-col>
+                </v-row>
+
+                <v-divider class="my-3 opacity-20" />
+
+                <!-- Bottom Row: Role -->
+                <div class="d-flex justify-center align-center ga-2">
+                  <span class="text-caption font-weight-bold letter-spacing-1 text-medium-emphasis text-uppercase text-truncate"
+                    :title="user.role">
+                    {{ user.role }}
+                  </span>
                 </div>
               </v-card>
             </v-col>
@@ -509,12 +233,8 @@
 
         <!-- VIEW 2: LIST MODE (v-data-table) -->
         <div v-else class="position-relative">
-          <GuideBadge
-            v-if="sandboxMode === 'guide'"
-            :explanation="EXPLANATIONS.user_card"
-            location="bottom center"
-            @hover="openFeatureExplanation('user_card')"
-          />
+          <GuideBadge v-if="sandboxMode === 'guide'" :explanation="EXPLANATIONS.user_card" location="bottom center"
+            @hover="openFeatureExplanation('user_card')" />
 
           <v-card variant="outlined" class="rounded-xl overflow-hidden">
             <v-table density="compact" hover class="sim-user-table">
@@ -532,12 +252,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr
-                  v-for="user in paginatedUsers"
-                  :key="user.id"
-                  class="cursor-pointer"
-                  @click="onCardClick(user)"
-                >
+                <tr v-for="user in paginatedUsers" :key="user.id" class="cursor-pointer" @click="onCardClick(user)">
                   <td>
                     <v-avatar size="32" :color="user.avatarColor" class="text-white text-caption font-weight-bold">
                       {{ user.initials }}
@@ -569,52 +284,21 @@
                     </v-chip>
                   </td>
                   <td class="text-center">
-                    <v-chip
-                      size="x-small"
-                      :color="user.isActive ? 'success' : 'error'"
-                      variant="flat"
-                      class="font-weight-bold"
-                    >
+                    <v-chip size="x-small" :color="user.isActive ? 'success' : 'error'" variant="flat"
+                      class="font-weight-bold">
                       {{ user.isActive ? 'Active' : 'Inactive' }}
                     </v-chip>
                   </td>
                   <td class="text-right">
                     <div class="position-relative d-inline-block">
-                      <GuideBadge
-                        v-if="sandboxMode === 'guide'"
-                        :explanation="EXPLANATIONS.action_menu"
-                        small
-                        location="left center"
-                        @hover="openFeatureExplanation('action_menu')"
-                      />
+                      <GuideBadge v-if="sandboxMode === 'guide'" :explanation="EXPLANATIONS.action_menu" small
+                        location="left center" @hover="openFeatureExplanation('action_menu')" />
                       <v-menu location="bottom end">
                         <template #activator="{ props: menuProps }">
-                          <v-btn
-                            v-bind="menuProps"
-                            icon="mdi-dots-vertical"
-                            size="small"
-                            variant="text"
-                            @click.stop
-                          />
+                          <v-btn v-bind="menuProps" icon="mdi-dots-vertical" size="small" variant="text" @click.stop />
                         </template>
                         <v-list density="compact" class="rounded-lg">
-                          <v-list-item
-                            prepend-icon="mdi-eye-outline"
-                            title="View Profile"
-                            @click="viewUser(user)"
-                          />
-                          <v-list-item
-                            prepend-icon="mdi-pencil-outline"
-                            title="Edit User"
-                            @click="editUser(user)"
-                          />
-                          <v-divider class="my-1" />
-                          <v-list-item
-                            :prepend-icon="user.isActive ? 'mdi-account-cancel-outline' : 'mdi-account-check-outline'"
-                            :title="user.isActive ? 'Deactivate' : 'Activate'"
-                            :color="user.isActive ? 'error' : 'success'"
-                            @click="toggleUserStatus(user)"
-                          />
+                          <v-list-item prepend-icon="mdi-eye-outline" title="View Profile" @click="viewUser(user)" />
                         </v-list>
                       </v-menu>
                     </div>
@@ -627,16 +311,13 @@
 
         <!-- BOTTOM PAGINATION BAR -->
         <div class="d-flex flex-wrap align-center justify-space-between ga-3 mt-4 pt-3 border-t position-relative">
-          <GuideBadge
-            v-if="sandboxMode === 'guide'"
-            :explanation="EXPLANATIONS.pagination"
-            small
-            location="top center"
-            @hover="openFeatureExplanation('pagination')"
-          />
+          <GuideBadge v-if="sandboxMode === 'guide'" :explanation="EXPLANATIONS.pagination" small location="top center"
+            @hover="openFeatureExplanation('pagination')" />
 
           <div class="text-caption text-medium-emphasis">
-            Showing <strong>{{ paginationStart }}-{{ paginationEnd }}</strong> of <strong>{{ filteredUsers.length }}</strong> simulated users
+            Showing <strong>{{ paginationStart }}-{{ paginationEnd }}</strong> of <strong>{{ filteredUsers.length
+              }}</strong>
+            simulated users
           </div>
 
           <div class="d-flex align-center ga-3">
@@ -650,226 +331,352 @@
             </div>
 
             <div class="d-flex align-center ga-1">
-              <v-btn
-                icon="mdi-chevron-left"
-                size="x-small"
-                variant="outlined"
-                :disabled="currentPage === 1"
-                @click="currentPage--"
-              />
+              <v-btn icon="mdi-chevron-left" size="x-small" variant="outlined" :disabled="currentPage === 1"
+                @click="currentPage--" />
               <span class="text-caption font-weight-bold px-2">{{ currentPage }} / {{ totalPages }}</span>
-              <v-btn
-                icon="mdi-chevron-right"
-                size="x-small"
-                variant="outlined"
-                :disabled="currentPage >= totalPages"
-                @click="currentPage++"
-              />
+              <v-btn icon="mdi-chevron-right" size="x-small" variant="outlined" :disabled="currentPage >= totalPages"
+                @click="currentPage++" />
             </div>
           </div>
         </div>
       </v-card>
     </div>
 
-    <!-- DIALOG 1: VIEW USER PROFILE MODAL -->
+    <!-- DIALOG 1: VIEW USER PROFILE MODAL (Faithfully imitating HRIS User Information) -->
     <v-dialog v-model="viewDialog" max-width="500">
-      <v-card v-if="selectedUser" class="rounded-xl pa-5">
-        <div class="d-flex align-center justify-space-between mb-4">
-          <div class="d-flex align-center ga-2">
-            <v-icon icon="mdi-badge-account-outline" size="24" color="primary" />
-            <h3 class="text-h6 font-weight-bold mb-0">Simulated User Profile</h3>
-          </div>
-          <v-btn icon="mdi-close" size="small" variant="text" @click="viewDialog = false" />
-        </div>
+      <v-card v-if="selectedUser" class="rounded-2xl bg-surface">
+        <!-- Header -->
+        <v-card-item class="pb-3 px-6 pt-5">
+          <div class="d-flex justify-space-between align-center">
+            <div class="d-flex align-center">
+              <v-icon class="mr-2" size="24" color="high-emphasis">mdi-account-outline</v-icon>
+              <span class="text-h6 font-weight-bold text-high-emphasis">User Information</span>
+            </div>
 
-        <div class="d-flex align-center ga-4 mb-4 pa-3 rounded-lg bg-surface-variant">
-          <v-avatar size="60" :color="selectedUser.avatarColor" class="text-white text-h6 font-weight-bold">
-            {{ selectedUser.initials }}
-          </v-avatar>
-          <div>
-            <div class="text-subtitle-1 font-weight-bold">{{ selectedUser.fullName }}</div>
-            <div class="text-caption text-medium-emphasis">&#64;{{ selectedUser.username }}</div>
-            <div class="d-flex align-center ga-2 mt-1">
-              <v-chip size="x-small" :color="selectedUser.isActive ? 'success' : 'error'" variant="flat">
-                {{ selectedUser.isActive ? 'Active Status' : 'Inactive Status' }}
-              </v-chip>
-              <v-chip size="x-small" color="primary" variant="tonal">
-                {{ selectedUser.role }}
+            <v-btn
+              aria-label="Close"
+              color="error"
+              icon="mdi-close"
+              size="32"
+              variant="text"
+              style="color: #ff7a59 !important;"
+              @click="viewDialog = false"
+            />
+          </div>
+        </v-card-item>
+
+        <v-divider />
+
+        <!-- View Body -->
+        <v-card-text class="pt-5 px-6 pb-2">
+          <!-- Status & User Type Badges -->
+          <div class="d-flex align-center ga-2 mb-4 position-relative">
+            <GuideBadge
+              v-if="sandboxMode === 'guide'"
+              :explanation="EXPLANATIONS.view_status_role"
+              location="bottom center"
+              @hover="openFeatureExplanation('view_status_role')"
+            />
+            <v-chip
+              :color="selectedUser.isActive ? 'success' : 'secondary'"
+              size="small"
+              variant="tonal"
+              class="font-weight-medium rounded-pill px-3"
+            >
+              {{ selectedUser.isActive ? 'Active' : 'Inactive' }}
+            </v-chip>
+
+            <v-chip
+              color="secondary"
+              size="small"
+              variant="outlined"
+              class="font-weight-medium rounded-pill"
+            >
+              <v-icon start icon="mdi-badge-account-outline" size="15" class="mr-1" />
+              {{ selectedUser.role }}
+            </v-chip>
+          </div>
+
+          <!-- Photo -->
+          <div class="mb-5">
+            <div class="text-medium-emphasis mb-2 text-body-2">Photo</div>
+            <v-avatar class="elevation-2 bg-surface" rounded="circle" size="64">
+              <v-icon size="32" color="primary">mdi-account</v-icon>
+            </v-avatar>
+          </div>
+
+          <!-- Name -->
+          <div class="mb-5 position-relative">
+            <GuideBadge
+              v-if="sandboxMode === 'guide'"
+              :explanation="EXPLANATIONS.view_identity"
+              location="bottom center"
+              @hover="openFeatureExplanation('view_identity')"
+            />
+            <div class="text-medium-emphasis mb-1 text-body-2">Name</div>
+            <div class="d-flex align-center ga-2 flex-wrap">
+              <span class="text-h6 font-weight-bold text-high-emphasis">{{ selectedUser.fullName }}</span>
+              <v-chip
+                size="small"
+                variant="tonal"
+                color="primary"
+                class="font-weight-bold rounded-pill"
+              >
+                &#64;{{ selectedUser.username }}
               </v-chip>
             </div>
           </div>
-        </div>
 
-        <v-list density="compact" class="border rounded-lg pa-0 mb-4">
-          <v-list-item prepend-icon="mdi-email-outline">
-            <v-list-item-title class="text-caption text-medium-emphasis">Corporate Email</v-list-item-title>
-            <v-list-item-subtitle class="font-weight-medium text-high-emphasis">{{ selectedUser.email }}</v-list-item-subtitle>
-          </v-list-item>
-          <v-divider />
-          <v-list-item prepend-icon="mdi-domain">
-            <v-list-item-title class="text-caption text-medium-emphasis">Assigned Entity</v-list-item-title>
-            <v-list-item-subtitle class="font-weight-medium text-high-emphasis">{{ selectedUser.entity }}</v-list-item-subtitle>
-          </v-list-item>
-          <v-divider />
-          <v-list-item prepend-icon="mdi-storefront-outline">
-            <v-list-item-title class="text-caption text-medium-emphasis">Physical Branch</v-list-item-title>
-            <v-list-item-subtitle class="font-weight-medium text-high-emphasis">{{ selectedUser.branch }}</v-list-item-subtitle>
-          </v-list-item>
-          <v-divider />
-          <v-list-item prepend-icon="mdi-account-group-outline">
-            <v-list-item-title class="text-caption text-medium-emphasis">Department</v-list-item-title>
-            <v-list-item-subtitle class="font-weight-medium text-high-emphasis">{{ selectedUser.department }}</v-list-item-subtitle>
-          </v-list-item>
-        </v-list>
+          <!-- Email -->
+          <div class="mb-5">
+            <div class="text-medium-emphasis mb-1 text-body-2">Email</div>
+            <div class="text-h6 font-weight-bold text-high-emphasis" style="font-size: 1.05rem;">
+              {{ selectedUser.email }}
+            </div>
+          </div>
 
-        <div class="d-flex justify-end ga-2">
+          <!-- User Type -->
+          <div class="mb-4">
+            <div class="text-medium-emphasis mb-1 text-body-2">User Type</div>
+            <div class="text-h6 font-weight-bold text-high-emphasis" style="font-size: 1.05rem;">
+              {{ selectedUser.role }}
+            </div>
+          </div>
+        </v-card-text>
+
+        <v-divider class="my-2" />
+
+        <!-- Actions -->
+        <v-card-actions class="px-6 py-4 d-flex align-center ga-3">
+          <div v-if="sandboxMode === 'guide'" class="mr-auto d-flex align-center">
+            <GuideBadge
+              inline
+              :explanation="EXPLANATIONS.view_actions"
+              location="top start"
+              @hover="openFeatureExplanation('view_actions')"
+            />
+          </div>
+          <v-spacer v-else />
+
           <v-btn
-            variant="tonal"
-            :color="selectedUser.isActive ? 'error' : 'success'"
-            class="text-none font-weight-medium"
-            @click="toggleUserStatus(selectedUser); viewDialog = false"
+            color="error"
+            variant="flat"
+            class="text-capitalize rounded-lg font-weight-medium px-5"
+            style="background-color: #ff7a59 !important; color: white !important;"
+            @click="triggerSimDelete"
           >
-            {{ selectedUser.isActive ? 'Deactivate User' : 'Activate User' }}
+            Delete
           </v-btn>
-          <v-btn color="primary" class="text-none font-weight-medium" @click="viewDialog = false">
-            Close
+
+          <v-btn
+            variant="flat"
+            class="text-capitalize rounded-lg font-weight-medium px-5"
+            style="background-color: #5c6b77 !important; color: white !important;"
+            @click="switchToEditFromView"
+          >
+            Edit
           </v-btn>
-        </div>
+        </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <!-- DIALOG 2: CREATE / EDIT USER MODAL -->
-    <v-dialog v-model="createDialog" max-width="540" persistent>
-      <v-card class="rounded-xl pa-5">
-        <div class="d-flex align-center justify-space-between mb-3">
-          <div class="d-flex align-center ga-2">
-            <v-icon :icon="isEditing ? 'mdi-account-edit-outline' : 'mdi-account-plus-outline'" size="24" color="primary" />
-            <h3 class="text-h6 font-weight-bold mb-0">
-              {{ isEditing ? 'Simulated Edit User' : 'Simulated Create User' }}
-            </h3>
+    <!-- DIALOG 2: CREATE / EDIT USER MODAL (Faithfully imitating HRIS Edit User) -->
+    <v-dialog v-model="createDialog" max-width="520" persistent>
+      <v-card class="rounded-2xl bg-surface">
+        <!-- Header -->
+        <v-card-item class="pb-3 px-6 pt-5">
+          <div class="d-flex justify-space-between align-center">
+            <div class="d-flex align-center">
+              <v-icon class="mr-2" size="24" color="high-emphasis">mdi-account-outline</v-icon>
+              <span class="text-h6 font-weight-bold text-high-emphasis">
+                {{ isEditing ? 'Edit User' : 'Create User' }}
+              </span>
+            </div>
+            <v-btn
+              aria-label="Close"
+              color="error"
+              icon="mdi-close"
+              size="32"
+              variant="text"
+              style="color: #ff7a59 !important;"
+              @click="createDialog = false"
+            />
           </div>
-          <v-btn icon="mdi-close" size="small" variant="text" @click="createDialog = false" />
-        </div>
+        </v-card-item>
 
-        <p class="text-caption text-medium-emphasis mb-4">
-          Fill in simulated fields below to test account creation without affecting production data.
-        </p>
+        <v-divider />
 
-        <v-form @submit.prevent="saveUser">
-          <v-row dense>
-            <v-col cols="12" sm="6">
-              <v-text-field
-                v-model="formUser.firstName"
-                label="First Name *"
-                placeholder="e.g. Maria"
-                variant="outlined"
-                density="compact"
-                hide-details="auto"
-                class="mb-3"
+        <!-- Form Body -->
+        <v-card-text class="pt-4 px-6 pb-2">
+          <v-form @submit.prevent="saveUser">
+            <!-- Photo Section -->
+            <div class="mb-4 position-relative">
+              <GuideBadge
+                v-if="sandboxMode === 'guide'"
+                :explanation="EXPLANATIONS.edit_photo"
+                location="bottom center"
+                @hover="openFeatureExplanation('edit_photo')"
               />
-            </v-col>
-            <v-col cols="12" sm="6">
-              <v-text-field
-                v-model="formUser.lastName"
-                label="Last Name *"
-                placeholder="e.g. Santos"
-                variant="outlined"
-                density="compact"
-                hide-details="auto"
-                class="mb-3"
-              />
-            </v-col>
+              <label class="text-medium-emphasis mb-2 d-block">Photo</label>
+              <div class="d-flex align-center ga-4">
+                <v-avatar class="elevation-2 bg-surface" rounded="circle" size="68">
+                  <v-icon size="32" color="primary">mdi-account</v-icon>
+                </v-avatar>
 
-            <v-col cols="12" sm="6">
+                <div class="d-flex align-center ga-2">
+                  <v-btn
+                    variant="outlined"
+                    prepend-icon="mdi-tray-arrow-up"
+                    class="text-capitalize rounded-lg font-weight-medium"
+                    @click="triggerSimUploadPhoto"
+                  >
+                    Upload Photo
+                  </v-btn>
+                </div>
+              </div>
+            </div>
+
+            <!-- Username -->
+            <div class="mb-4">
+              <label class="text-medium-emphasis mb-1 d-block">Username</label>
               <v-text-field
                 v-model="formUser.username"
-                label="Username *"
-                placeholder="e.g. msantos"
-                prefix="@"
                 variant="outlined"
-                density="compact"
+                density="comfortable"
+                rounded="lg"
                 hide-details="auto"
-                class="mb-3"
               />
-            </v-col>
-            <v-col cols="12" sm="6">
+            </div>
+
+            <!-- Name Row (First, Middle, Last) -->
+            <div class="position-relative mb-2">
+              <GuideBadge
+                v-if="sandboxMode === 'guide'"
+                :explanation="EXPLANATIONS.edit_names"
+                location="bottom center"
+                @hover="openFeatureExplanation('edit_names')"
+              />
+              <v-row dense>
+                <v-col cols="12" sm="4">
+                  <label class="text-medium-emphasis mb-1 d-block">First Name</label>
+                  <v-text-field
+                    v-model="formUser.firstName"
+                    variant="outlined"
+                    density="comfortable"
+                    rounded="lg"
+                    hide-details="auto"
+                  />
+                </v-col>
+                <v-col cols="12" sm="4">
+                  <label class="text-medium-emphasis mb-1 d-block">Middle Name</label>
+                  <v-text-field
+                    v-model="formUser.middleName"
+                    placeholder="Middle Name"
+                    variant="outlined"
+                    density="comfortable"
+                    rounded="lg"
+                    hide-details="auto"
+                  />
+                </v-col>
+                <v-col cols="12" sm="4">
+                  <label class="text-medium-emphasis mb-1 d-block">Last Name</label>
+                  <v-text-field
+                    v-model="formUser.lastName"
+                    placeholder="Last Name"
+                    variant="outlined"
+                    density="comfortable"
+                    rounded="lg"
+                    hide-details="auto"
+                  />
+                </v-col>
+              </v-row>
+            </div>
+
+            <!-- Email -->
+            <div class="mb-4">
+              <label class="text-medium-emphasis mb-1 d-block">Email</label>
               <v-text-field
                 v-model="formUser.email"
-                label="Corporate Email *"
-                placeholder="msantos@goodlife.com"
+                placeholder="Email"
+                type="email"
                 variant="outlined"
-                density="compact"
+                density="comfortable"
+                rounded="lg"
                 hide-details="auto"
-                class="mb-3"
               />
-            </v-col>
+            </div>
 
-            <v-col cols="12" sm="6">
-              <v-select
-                v-model="formUser.entity"
-                :items="['Goodlife Plans Inc.', 'Damayan', 'GLPI', 'Goodlife Coop', 'Head Office']"
-                label="Entity *"
-                variant="outlined"
-                density="compact"
-                hide-details="auto"
-                class="mb-3"
+            <!-- User Type & Status Row -->
+            <div class="mb-2 position-relative">
+              <GuideBadge
+                v-if="sandboxMode === 'guide'"
+                :explanation="EXPLANATIONS.edit_role_status"
+                location="top center"
+                @hover="openFeatureExplanation('edit_role_status')"
               />
-            </v-col>
-            <v-col cols="12" sm="6">
-              <v-select
-                v-model="formUser.branch"
-                :items="['Head Office Branch', 'Bansalan Branch', 'Digos Branch', 'Cebu Branch', 'Davao Branch']"
-                label="Branch *"
-                variant="outlined"
-                density="compact"
-                hide-details="auto"
-                class="mb-3"
-              />
-            </v-col>
+              <v-row dense>
+                <v-col :cols="isEditing ? 6 : 12">
+                  <label class="text-medium-emphasis mb-1 d-block">User Type</label>
+                  <v-select
+                    v-model="formUser.role"
+                    :items="['Manager', 'HR Administrator', 'HR Specialist', 'Branch Manager', 'System Super Admin', 'Staff User']"
+                    placeholder="User Type"
+                    variant="outlined"
+                    density="comfortable"
+                    rounded="lg"
+                    hide-details="auto"
+                  />
+                </v-col>
+                <v-col v-if="isEditing" cols="6">
+                  <label class="text-medium-emphasis mb-1 d-block">Status</label>
+                  <v-select
+                    v-model="formUserStatus"
+                    :items="['Active', 'Inactive']"
+                    placeholder="Status"
+                    variant="outlined"
+                    density="comfortable"
+                    rounded="lg"
+                    hide-details="auto"
+                  />
+                </v-col>
+              </v-row>
+            </div>
+          </v-form>
+        </v-card-text>
 
-            <v-col cols="12" sm="6">
-              <v-select
-                v-model="formUser.department"
-                :items="['Human Resource', 'Finance Department', 'Information Technology', 'Claims Department', 'Operations']"
-                label="Department *"
-                variant="outlined"
-                density="compact"
-                hide-details="auto"
-                class="mb-3"
-              />
-            </v-col>
-            <v-col cols="12" sm="6">
-              <v-select
-                v-model="formUser.role"
-                :items="['HR Administrator', 'HR Specialist', 'Branch Manager', 'System Super Admin', 'Staff User']"
-                label="Assigned Role *"
-                variant="outlined"
-                density="compact"
-                hide-details="auto"
-                class="mb-3"
-              />
-            </v-col>
+        <v-divider class="my-2" />
 
-            <v-col cols="12">
-              <v-switch
-                v-model="formUser.isActive"
-                label="Active Account Status"
-                color="success"
-                density="compact"
-                hide-details
-              />
-            </v-col>
-          </v-row>
-
-          <div class="d-flex justify-end ga-2 mt-4 pt-3 border-t">
-            <v-btn variant="text" class="text-none font-weight-medium" @click="createDialog = false">
-              Cancel
-            </v-btn>
-            <v-btn color="primary" type="submit" class="text-none font-weight-medium" prepend-icon="mdi-content-save">
-              {{ isEditing ? 'Save Changes' : 'Create User' }}
-            </v-btn>
+        <!-- Actions -->
+        <v-card-actions class="px-6 py-4 d-flex align-center ga-3">
+          <div v-if="sandboxMode === 'guide'" class="mr-auto d-flex align-center">
+            <GuideBadge
+              inline
+              :explanation="EXPLANATIONS.edit_actions"
+              location="top start"
+              @hover="openFeatureExplanation('edit_actions')"
+            />
           </div>
-        </v-form>
+          <v-spacer v-else />
+
+          <v-btn
+            variant="flat"
+            class="text-capitalize rounded-lg font-weight-medium px-4"
+            style="background-color: #e2e8f0 !important; color: #334155 !important;"
+            @click="createDialog = false"
+          >
+            Cancel
+          </v-btn>
+
+          <v-btn
+            color="primary"
+            variant="flat"
+            class="text-capitalize rounded-lg font-weight-medium px-5 text-white"
+            style="background-color: #0284c7 !important;"
+            @click="saveUser"
+          >
+            Save
+          </v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
 
@@ -886,234 +693,20 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import GuideBadge from './GuideBadge.vue'
+import ViewToggle from './ViewToggle.vue'
+import SandboxHeader from './SandboxHeader.vue'
+import type { ExplanationInfo, SandboxMode, ViewMode } from '@/types/sandbox'
+import {
+  DEFAULT_USERS,
+  USER_EXPLANATIONS as EXPLANATIONS,
+  type DummyUser,
+} from '@/data/sandbox/userSandboxData'
 
-export interface DummyUser {
-  id: string
-  fullName: string
-  username: string
-  email: string
-  entity: string
-  branch: string
-  department: string
-  role: string
-  isActive: boolean
-  avatarColor: string
-  initials: string
-}
-
-export interface ExplanationInfo {
-  id: string
-  badgeNumber: number
-  name: string
-  icon: string
-  location: string
-  purpose: string
-  action: string
-  permission: string
-  tip: string
-}
-
-const DEFAULT_USERS: DummyUser[] = [
-  {
-    id: 'usr-1',
-    fullName: 'Maria Santos',
-    username: 'msantos',
-    email: 'maria.santos@goodlife.com',
-    entity: 'Goodlife Plans Inc.',
-    branch: 'Head Office Branch',
-    department: 'Human Resource',
-    role: 'HR Specialist',
-    isActive: true,
-    avatarColor: 'indigo',
-    initials: 'MS',
-  },
-  {
-    id: 'usr-2',
-    fullName: 'John Doe',
-    username: 'jdoe',
-    email: 'john.doe@goodlife.com',
-    entity: 'Goodlife Plans Inc.',
-    branch: 'Head Office Branch',
-    department: 'Information Technology',
-    role: 'System Super Admin',
-    isActive: true,
-    avatarColor: 'teal',
-    initials: 'JD',
-  },
-  {
-    id: 'usr-3',
-    fullName: 'Sarah Connor',
-    username: 'sconnor',
-    email: 'sarah.connor@goodlife.com',
-    entity: 'Goodlife Plans Inc.',
-    branch: 'Bansalan Branch',
-    department: 'Claims Department',
-    role: 'HR Administrator',
-    isActive: true,
-    avatarColor: 'purple',
-    initials: 'SC',
-  },
-  {
-    id: 'usr-4',
-    fullName: 'Alex Vance',
-    username: 'avance',
-    email: 'alex.vance@goodlife.com',
-    entity: 'GLPI',
-    branch: 'Digos Branch',
-    department: 'Operations',
-    role: 'Branch Manager',
-    isActive: true,
-    avatarColor: 'blue-grey',
-    initials: 'AV',
-  },
-  {
-    id: 'usr-5',
-    fullName: 'Elena Rostova',
-    username: 'erostova',
-    email: 'elena.rostova@goodlife.com',
-    entity: 'Goodlife Coop',
-    branch: 'Cebu Branch',
-    department: 'Finance Department',
-    role: 'Staff User',
-    isActive: false,
-    avatarColor: 'red',
-    initials: 'ER',
-  },
-  {
-    id: 'usr-6',
-    fullName: 'Roberto Gomez',
-    username: 'rgomez',
-    email: 'roberto.gomez@goodlife.com',
-    entity: 'Damayan',
-    branch: 'Head Office Branch',
-    department: 'Human Resource',
-    role: 'HR Administrator',
-    isActive: true,
-    avatarColor: 'deep-orange',
-    initials: 'RG',
-  },
-  {
-    id: 'usr-7',
-    fullName: 'Jasmine Lee',
-    username: 'jlee',
-    email: 'jasmine.lee@goodlife.com',
-    entity: 'Goodlife Plans Inc.',
-    branch: 'Davao Branch',
-    department: 'Finance Department',
-    role: 'Staff User',
-    isActive: true,
-    avatarColor: 'cyan',
-    initials: 'JL',
-  },
-  {
-    id: 'usr-8',
-    fullName: 'Carlos Mendoza',
-    username: 'cmendoza',
-    email: 'carlos.mendoza@goodlife.com',
-    entity: 'Goodlife Plans Inc.',
-    branch: 'Digos Branch',
-    department: 'Operations',
-    role: 'Branch Manager',
-    isActive: true,
-    avatarColor: 'brown',
-    initials: 'CM',
-  },
-]
-
-// Explanations Dictionary for Guide Mode
-const EXPLANATIONS: Record<string, ExplanationInfo> = {
-  filters: {
-    id: 'filters',
-    badgeNumber: 1,
-    name: 'Cascading Org Hierarchy Filters',
-    icon: 'mdi-filter-variant',
-    location: 'Top Toolbar (Left)',
-    purpose: 'Isolates employee accounts by corporate Entity, physical Branch, and Department functional unit.',
-    action: 'Select an Entity to narrow available branches. Selecting a Branch then narrows available departments, strictly following corporate hierarchy.',
-    permission: 'user.read',
-    tip: 'Parent-First Configuration Rule: Branch options depend on Entity. Click "Clear" at any time to return to full company roster.',
-  },
-  search: {
-    id: 'search',
-    badgeNumber: 2,
-    name: 'Instant Keyword Search Bar',
-    icon: 'mdi-magnify',
-    location: 'Below Toolbar',
-    purpose: 'Instant real-time search across multiple user account attributes without reloading.',
-    action: 'Type any text to simultaneously filter across Full Name, Username handle (@username), and Corporate Email.',
-    permission: 'user.read',
-    tip: 'Search is non-case-sensitive and operates instantly as you type each keystroke.',
-  },
-  refresh: {
-    id: 'refresh',
-    badgeNumber: 3,
-    name: 'Live Data Refresh',
-    icon: 'mdi-refresh',
-    location: 'Top Toolbar (Right)',
-    purpose: 'Fetches the freshest account statuses, biometric links, and credentials from the server.',
-    action: 'Triggers an asynchronous fetch without reloading the browser window.',
-    permission: 'user.read',
-    tip: 'Useful after another administrator issues credentials or updates an account role.',
-  },
-  view_toggle: {
-    id: 'view_toggle',
-    badgeNumber: 4,
-    name: 'Grid vs List View Switcher',
-    icon: 'mdi-view-grid-outline',
-    location: 'Top Toolbar (Right)',
-    purpose: 'Allows switching between visual profile cards and compact data table mode.',
-    action: 'Click Grid for photo card view with organizational badges; click List for dense data table suitable for bulk reviews.',
-    permission: 'user.read',
-    tip: 'Your view mode preference is remembered during your active session.',
-  },
-  create_user: {
-    id: 'create_user',
-    badgeNumber: 5,
-    name: 'Create User Action Button',
-    icon: 'mdi-plus',
-    location: 'Top Toolbar (Far Right)',
-    purpose: 'Opens the User Provisioning modal dialog to issue new credentials and assign initial roles.',
-    action: 'Opens modal where HR specifies Full Name, Username, Corporate Email, Entity, Branch, Department, and Role.',
-    permission: 'user.create (HR Administrator / Super Admin)',
-    tip: 'Ensure the target Entity, Branch, and Department exist before provisioning the user.',
-  },
-  user_card: {
-    id: 'user_card',
-    badgeNumber: 6,
-    name: 'User Identity & Org Card',
-    icon: 'mdi-card-account-details-outline',
-    location: 'Main Workspace Roster',
-    purpose: 'Presents user identity, status pill, email, and 4-tier organizational assignment at a glance.',
-    action: 'Clicking anywhere on the card or clicking "Inspect Profile" opens detailed profile view modal.',
-    permission: 'user.read',
-    tip: 'Colors and badges follow corporate theme tokens. Red pills flag Inactive accounts.',
-  },
-  action_menu: {
-    id: 'action_menu',
-    badgeNumber: 7,
-    name: 'Contextual Kebab (3-Dots) Action Menu',
-    icon: 'mdi-dots-vertical',
-    location: 'Top-right corner of each card or row',
-    purpose: 'Provides quick actions per user: View Profile, Edit User, or Toggle Active/Inactive status.',
-    action: 'Click the 3 dots to open the contextual action dropdown for that specific user account.',
-    permission: 'user.update / user.delete',
-    tip: 'Always choose "Deactivate" rather than permanently deleting accounts with historical logs.',
-  },
-  pagination: {
-    id: 'pagination',
-    badgeNumber: 8,
-    name: 'Roster Pagination & Rows Selector',
-    icon: 'mdi-page-layout-footer',
-    location: 'Bottom Footer Bar',
-    purpose: 'Controls record density and navigation across multi-page employee rosters.',
-    action: 'Adjust rows per page (4, 8, 12) or use previous/next arrows to traverse pages.',
-    permission: 'user.read',
-    tip: 'Keeps screen rendering snappy even with large enterprise workforces.',
-  },
-}
+export type { DummyUser } from '@/data/sandbox/userSandboxData'
+export type { ExplanationInfo } from '@/types/sandbox'
 
 // Sandbox state
-const sandboxMode = ref<'play' | 'guide'>('guide')
+const sandboxMode = ref<SandboxMode>('guide')
 const users = ref<DummyUser[]>([...DEFAULT_USERS])
 const selectedExplanation = ref<ExplanationInfo | null>(EXPLANATIONS.filters)
 
@@ -1122,7 +715,7 @@ const searchQuery = ref('')
 const selectedEntity = ref<string | null>(null)
 const selectedBranch = ref<string | null>(null)
 const selectedDepartment = ref<string | null>(null)
-const viewMode = ref<'grid' | 'list'>('grid')
+const viewMode = ref<ViewMode>('grid')
 const isRefreshing = ref(false)
 const lastSyncTime = ref('Just now')
 
@@ -1140,15 +733,27 @@ const selectedUser = ref<DummyUser | null>(null)
 const formUser = ref({
   id: '',
   firstName: '',
+  middleName: '',
   lastName: '',
   username: '',
   email: '',
   entity: 'Goodlife Plans Inc.',
   branch: 'Head Office Branch',
   department: 'Human Resource',
-  role: 'HR Specialist',
+  role: 'Manager',
   isActive: true,
 })
+
+const formUserStatus = computed({
+  get: () => (formUser.value.isActive ? 'Active' : 'Inactive'),
+  set: (val: string) => {
+    formUser.value.isActive = val === 'Active'
+  },
+})
+
+const triggerSimUploadPhoto = () => {
+  triggerToast('Simulated Photo Upload: Profile photo updated', 'info', 'mdi-tray-arrow-up')
+}
 
 // Toast notification
 const snackbar = ref(false)
@@ -1287,10 +892,27 @@ const viewUser = (user: DummyUser) => {
 const editUser = (user: DummyUser) => {
   isEditing.value = true
   const parts = user.fullName.split(' ')
+  let first = user.firstName !== undefined ? user.firstName : ''
+  let middle = user.middleName !== undefined ? user.middleName : ''
+  let last = user.lastName !== undefined ? user.lastName : ''
+
+  if (!first && parts.length >= 3) {
+    first = parts[0]
+    middle = parts[1]
+    last = parts.slice(2).join(' ')
+  } else if (!first && parts.length === 2) {
+    first = parts[0]
+    middle = ''
+    last = parts[1]
+  } else if (!first) {
+    first = user.fullName
+  }
+
   formUser.value = {
     id: user.id,
-    firstName: parts[0] || '',
-    lastName: parts.slice(1).join(' ') || '',
+    firstName: first,
+    middleName: middle,
+    lastName: last,
     username: user.username,
     email: user.email,
     entity: user.entity,
@@ -1311,13 +933,14 @@ const openCreateDialog = () => {
   formUser.value = {
     id: `usr-${Date.now()}`,
     firstName: '',
+    middleName: '',
     lastName: '',
     username: '',
     email: '',
     entity: selectedEntity.value || 'Goodlife Plans Inc.',
     branch: selectedBranch.value || 'Head Office Branch',
     department: selectedDepartment.value || 'Human Resource',
-    role: 'HR Specialist',
+    role: 'Manager',
     isActive: true,
   }
   createDialog.value = true
@@ -1330,8 +953,9 @@ const saveUser = () => {
     return
   }
 
-  const fullName = `${formUser.value.firstName.trim()} ${formUser.value.lastName.trim()}`.trim()
-  const initials = `${formUser.value.firstName.charAt(0)}${formUser.value.lastName.charAt(0) || ''}`.toUpperCase()
+  const nameParts = [formUser.value.firstName.trim(), formUser.value.middleName.trim(), formUser.value.lastName.trim()].filter(Boolean)
+  const fullName = nameParts.join(' ')
+  const initials = `${formUser.value.firstName.charAt(0)}${formUser.value.lastName.charAt(0) || formUser.value.middleName.charAt(0) || ''}`.toUpperCase()
 
   if (isEditing.value) {
     const idx = users.value.findIndex(u => u.id === formUser.value.id)
@@ -1339,6 +963,9 @@ const saveUser = () => {
       users.value[idx] = {
         ...users.value[idx],
         fullName,
+        firstName: formUser.value.firstName.trim(),
+        middleName: formUser.value.middleName.trim(),
+        lastName: formUser.value.lastName.trim(),
         username: formUser.value.username.replace('@', ''),
         email: formUser.value.email || `${formUser.value.username}@goodlife.com`,
         entity: formUser.value.entity,
@@ -1354,6 +981,9 @@ const saveUser = () => {
     const newUser: DummyUser = {
       id: `usr-${Date.now()}`,
       fullName,
+      firstName: formUser.value.firstName.trim(),
+      middleName: formUser.value.middleName.trim(),
+      lastName: formUser.value.lastName.trim(),
       username: formUser.value.username.replace('@', ''),
       email: formUser.value.email || `${formUser.value.username}@goodlife.com`,
       entity: formUser.value.entity,
@@ -1379,6 +1009,24 @@ const toggleUserStatus = (user: DummyUser) => {
     user.isActive ? 'success' : 'error',
     user.isActive ? 'mdi-account-check' : 'mdi-account-cancel'
   )
+}
+
+// Delete from view dialog
+const triggerSimDelete = () => {
+  if (!selectedUser.value) return
+  const name = selectedUser.value.fullName
+  const id = selectedUser.value.id
+  users.value = users.value.filter(u => u.id !== id)
+  viewDialog.value = false
+  triggerToast(`Simulated User "${name}" deleted from roster`, 'error', 'mdi-delete-outline')
+}
+
+// Switch from view to edit dialog
+const switchToEditFromView = () => {
+  if (!selectedUser.value) return
+  const user = selectedUser.value
+  viewDialog.value = false
+  editUser(user)
 }
 
 // Reset data
@@ -1414,38 +1062,47 @@ const resetDummyData = () => {
   max-width: 100%;
 }
 
-.user-grid-card {
-  transition: all 0.2s ease-in-out;
-  border-color: rgba(var(--v-theme-on-surface), 0.12);
-  background-color: rgb(var(--v-theme-surface));
+.search-input :deep(.v-field__outline) {
+  --v-field-border-opacity: 0.12;
 }
 
-.user-grid-card:hover {
+.user-card {
+  position: relative;
+  background-color: rgb(var(--v-theme-surface));
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-radius: 18px !important;
+  transition: all 0.2s ease-in-out;
+}
+
+.user-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(var(--v-theme-primary), 0.5);
-  box-shadow: 0 4px 14px rgba(var(--v-theme-primary), 0.08);
+  border-color: rgba(var(--v-theme-primary), 0.45) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.user-avatar {
+  background-color: #f0f7ff;
+  border: 1px solid rgba(2, 132, 199, 0.12);
+}
+
+.avatar-fallback {
+  background-color: rgba(2, 132, 199, 0.08);
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  color: #0284c7 !important;
+}
+
+.user-title:hover {
+  color: rgb(var(--v-theme-primary));
 }
 
 .card-highlight {
   cursor: pointer;
 }
 
-.hover-primary:hover {
-  color: rgb(var(--v-theme-primary)) !important;
-}
-
-.org-block-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.org-cell {
-  overflow: hidden;
-}
-
 .letter-spacing-1 {
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  font-size: 0.68rem;
 }
 
 .main-imitation-card {

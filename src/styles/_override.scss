@@ -1,7 +1,14 @@
 @use './variables' as *;
 
 html {
-  .bg-success, .bg-primary, .bg-secondary, .bg-warning, .bg-error, .bg-info, .bg-indigo {
+
+  .bg-success,
+  .bg-primary,
+  .bg-secondary,
+  .bg-warning,
+  .bg-error,
+  .bg-info,
+  .bg-indigo {
     color: white !important;
   }
 }
@@ -32,9 +39,11 @@ html {
 .rounded-2xl {
   border-radius: 8px !important;
 }
+
 .rounded-lg {
   border-radius: 8px !important;
 }
+
 .rounded-md {
   border-radius: 6px !important;
 }
@@ -48,6 +57,7 @@ html {
 }
 
 .v-theme--dark {
+
   .inner-card,
   .bg-surface-variant {
     background-color: #172033 !important;
@@ -73,3 +83,65 @@ html {
   width: 100%;
 }
 
+// Segmented Tactile Pill Toggle (Option 1 - Stripe / Apple style button affordance)
+.tactile-segmented-toggle {
+  background-color: #e2e8f0 !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  border-radius: 12px !important;
+  padding: 4px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+  height: auto !important;
+
+  .v-btn {
+    border-radius: 9px !important;
+    font-weight: 600 !important;
+    font-size: 0.82rem !important;
+    color: #475569 !important;
+    background-color: transparent !important;
+    border: none !important;
+    height: 34px !important;
+    padding: 0 14px !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    cursor: pointer !important;
+    letter-spacing: normal !important;
+    text-transform: none !important;
+
+    &:not(.v-btn--active):hover {
+      background-color: rgba(255, 255, 255, 0.75) !important;
+      color: #0f172a !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+    }
+
+    &.v-btn--active {
+      background-color: #ffffff !important;
+      color: #0284c7 !important;
+      font-weight: 700 !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.06) !important;
+    }
+  }
+}
+
+.v-theme--dark {
+  .tactile-segmented-toggle {
+    background-color: #1e293b !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+
+    .v-btn {
+      color: #94a3b8 !important;
+
+      &:not(.v-btn--active):hover {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+        color: #f8fafc !important;
+      }
+
+      &.v-btn--active {
+        background-color: #0f172a !important;
+        color: #38bdf8 !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+      }
+    }
+  }
+}
