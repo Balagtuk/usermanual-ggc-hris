@@ -259,9 +259,15 @@
                       Step {{ step.number }}: {{ step.title }}
                     </span>
                   </div>
-                  <v-chip size="x-small" variant="tonal" color="primary" class="d-none d-sm-inline-flex flex-shrink-0">
-                    Screenshot Reference
-                  </v-chip>
+                  <div class="d-none d-sm-flex align-center ga-2 flex-shrink-0">
+                    <v-chip v-if="step.badges && step.badges.length > 0" size="x-small" variant="flat" color="primary" class="font-weight-medium">
+                      <v-icon start icon="mdi-cursor-default-click-outline" size="12" />
+                      Hover badges for info
+                    </v-chip>
+                    <v-chip size="x-small" variant="tonal" color="primary">
+                      Screenshot Reference
+                    </v-chip>
+                  </div>
                 </div>
 
                 <!-- Real Image View -->
@@ -275,11 +281,76 @@
                     </template>
                   </v-img>
 
+                  <!-- Dynamic Numbered Badges Overlay on Preview with Hover Pop-up -->
+                  <template v-if="step.badges && step.badges.length > 0">
+                    <v-menu
+                      v-for="b in step.badges"
+                      :key="b.number"
+                      open-on-hover
+                      :open-delay="80"
+                      :close-delay="150"
+                      :location="getBadgeMenuLocation(b)"
+                      :close-on-content-click="false"
+                      max-width="340"
+                    >
+                      <template #activator="{ props: menuProps }">
+                        <button
+                          v-bind="menuProps"
+                          type="button"
+                          class="screenshot-badge-pin badge-pin-preview"
+                          :style="{ left: `${b.x}%`, top: `${b.y}%` }"
+                          :aria-label="`Badge ${b.number}: ${b.title}`"
+                          @click.stop="openLightbox(step)"
+                        >
+                          <span>{{ b.number }}</span>
+                        </button>
+                      </template>
+
+                      <!-- Floating Hover Pop-Up Card -->
+                      <v-card class="guide-popup-card rounded-xl pa-3 elevation-10 border bg-surface text-start" max-width="340">
+                        <div class="d-flex align-start ga-2 mb-2">
+                          <div class="badge-number-indicator flex-shrink-0">
+                            {{ b.number }}
+                          </div>
+                          <div class="flex-grow-1 min-w-0">
+                            <h4 class="text-subtitle-2 font-weight-bold text-high-emphasis mb-0 leading-tight">
+                              {{ b.title }}
+                            </h4>
+                            <div v-if="b.location" class="text-caption text-primary font-weight-medium" style="font-size: 0.72rem;">
+                              {{ b.location }}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="mb-2">
+                          <div class="text-caption font-weight-bold text-medium-emphasis mb-0.5" style="font-size: 0.68rem; text-transform: uppercase;">
+                            Operational Purpose
+                          </div>
+                          <p class="text-caption text-high-emphasis mb-0 leading-relaxed" style="font-size: 0.74rem;">
+                            {{ b.purpose }}
+                          </p>
+                        </div>
+
+                        <v-divider class="my-2 opacity-30" />
+
+                        <div>
+                          <div class="text-caption font-weight-bold text-primary mb-0.5 d-flex align-center ga-1" style="font-size: 0.68rem; text-transform: uppercase;">
+                            <v-icon icon="mdi-play-circle-outline" size="13" />
+                            <span>Action Guidance</span>
+                          </div>
+                          <p class="text-caption text-medium-emphasis mb-0 leading-relaxed" style="font-size: 0.73rem;">
+                            {{ b.action }}
+                          </p>
+                        </div>
+                      </v-card>
+                    </v-menu>
+                  </template>
+
                   <!-- Hover Overlay -->
                   <div class="step-image-overlay d-flex align-center justify-center">
-                    <v-chip color="white" variant="flat" class="text-primary font-weight-bold">
+                    <v-chip color="white" variant="flat" class="text-primary font-weight-bold shadow-md">
                       <v-icon start icon="mdi-arrow-expand" />
-                      Click to View Full-Size Screenshot
+                      Click to View Full-Size &amp; Numbered Guide
                     </v-chip>
                   </div>
                 </div>
@@ -419,8 +490,6 @@
             {{ module.num }}. {{ module.title }} &mdash; {{ lightboxTitle }}
           </v-toolbar-title>
           <v-spacer />
-          <v-btn :icon="isLightboxZoomed ? 'mdi-magnify-minus-outline' : 'mdi-magnify-plus-outline'" variant="text"
-            :title="isLightboxZoomed ? 'Reset zoom' : 'Enlarge image'" @click="isLightboxZoomed = !isLightboxZoomed" />
           <v-btn icon="mdi-close" variant="text" title="Close (Esc)" @click="lightboxOpen = false" />
         </v-toolbar>
 
@@ -438,12 +507,86 @@
                 {{ feat }}
               </v-chip>
             </div>
+
+            <!-- Instruction to hover badges -->
+            <div
+              v-if="activeLightboxStep?.badges && activeLightboxStep.badges.length > 0"
+              class="d-flex align-center ga-2 mt-2 pt-2 border-t text-caption text-primary font-weight-medium"
+            >
+              <v-icon icon="mdi-information-outline" size="16" />
+              <span>Hover over any numbered badge on the screenshot to view detailed component and feature information.</span>
+            </div>
           </div>
 
-          <div class="rounded-lg border overflow-hidden bg-surface text-center">
-            <v-img :src="lightboxImage" :alt="lightboxTitle" class="w-100 transition-all"
-              :style="{ transform: isLightboxZoomed ? 'scale(1.25)' : 'none', transformOrigin: 'top center' }"
-              max-height="750" contain />
+          <!-- Badged Screenshot Container -->
+          <div class="rounded-lg border overflow-hidden bg-surface text-center position-relative">
+            <div class="position-relative d-inline-block w-100">
+              <v-img :src="lightboxImage" :alt="lightboxTitle" class="w-100" max-height="780" contain />
+
+              <!-- Dynamic Numbered Badges in Lightbox with Hover Pop-up -->
+              <template v-if="activeLightboxStep?.badges && activeLightboxStep.badges.length > 0">
+                <v-menu
+                  v-for="b in activeLightboxStep.badges"
+                  :key="b.number"
+                  open-on-hover
+                  :open-delay="80"
+                  :close-delay="150"
+                  :location="getBadgeMenuLocation(b)"
+                  :close-on-content-click="false"
+                  max-width="360"
+                >
+                  <template #activator="{ props: menuProps }">
+                    <button
+                      v-bind="menuProps"
+                      type="button"
+                      class="screenshot-badge-pin"
+                      :style="{ left: `${b.x}%`, top: `${b.y}%` }"
+                      :aria-label="`Badge ${b.number}: ${b.title}`"
+                    >
+                      <span>{{ b.number }}</span>
+                    </button>
+                  </template>
+
+                  <!-- Floating Hover Pop-Up Card -->
+                  <v-card class="guide-popup-card rounded-xl pa-3 pa-sm-4 elevation-12 border bg-surface text-start" max-width="360">
+                    <div class="d-flex align-start ga-2 mb-2">
+                      <div class="badge-number-indicator flex-shrink-0">
+                        {{ b.number }}
+                      </div>
+                      <div class="flex-grow-1 min-w-0">
+                        <h4 class="text-subtitle-2 font-weight-bold text-high-emphasis mb-0 leading-tight">
+                          {{ b.title }}
+                        </h4>
+                        <div v-if="b.location" class="text-caption text-primary font-weight-medium" style="font-size: 0.72rem;">
+                          {{ b.location }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="mb-2">
+                      <div class="text-caption font-weight-bold text-medium-emphasis mb-0.5" style="font-size: 0.68rem; text-transform: uppercase;">
+                        Operational Purpose
+                      </div>
+                      <p class="text-caption text-high-emphasis mb-0 leading-relaxed" style="font-size: 0.75rem;">
+                        {{ b.purpose }}
+                      </p>
+                    </div>
+
+                    <v-divider class="my-2 opacity-30" />
+
+                    <div>
+                      <div class="text-caption font-weight-bold text-primary mb-0.5 d-flex align-center ga-1" style="font-size: 0.68rem; text-transform: uppercase;">
+                        <v-icon icon="mdi-play-circle-outline" size="13" />
+                        <span>Action Guidance</span>
+                      </div>
+                      <p class="text-caption text-medium-emphasis mb-0 leading-relaxed" style="font-size: 0.73rem;">
+                        {{ b.action }}
+                      </p>
+                    </div>
+                  </v-card>
+                </v-menu>
+              </template>
+            </div>
           </div>
         </v-card-text>
 
@@ -1080,7 +1223,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useDisplay } from 'vuetify'
-import type { ModuleDoc, StepItem, UIFeatureControl } from '@/data/manualData'
+import type { ModuleDoc, StepItem, StepBadge, UIFeatureControl } from '@/data/manualData'
 import ModuleScreenshot from '@/components/ModuleScreenshot.vue'
 import BaseBreadcrumb from '@/components/BaseBreadcrumb.vue'
 import UserManagementSandbox from '@/components/sandbox/UserManagementSandbox.vue'
@@ -1114,7 +1257,7 @@ const lightboxImage = ref('')
 const lightboxTitle = ref('')
 const lightboxCaption = ref('')
 const lightboxHighlights = ref<string[]>([])
-const isLightboxZoomed = ref(false)
+const activeLightboxStep = ref<StepItem | null>(null)
 const copiedStep = ref<number | null>(null)
 
 // -------------------------------------------------------------
@@ -1680,9 +1823,16 @@ const jumpToStep = (ctrl: UIFeatureControl) => {
   }, 250)
 }
 
+const getBadgeMenuLocation = (b: StepBadge): any => {
+  if (b.y < 28) return 'bottom center'
+  if (b.x > 72) return 'top end'
+  if (b.x < 28) return 'top start'
+  return 'top center'
+}
+
 const openLightbox = (step: StepItem) => {
   if (!step.image) return
-  isLightboxZoomed.value = false
+  activeLightboxStep.value = step
   lightboxImage.value = step.image
   lightboxTitle.value = `Step ${step.number}: ${step.title}`
   lightboxCaption.value = step.caption || step.description
@@ -2008,5 +2158,67 @@ const calloutColor = computed(() => {
     border-bottom: 2px solid rgb(var(--v-theme-primary)) !important;
     background-color: transparent;
   }
+}
+
+/* Dynamic Screenshot Number Badges (Option A) */
+.screenshot-badge-pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.95) 0%, rgba(3, 105, 161, 0.98) 100%);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 11px;
+  line-height: 1;
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.4), 0 0 0 1.5px rgba(2, 132, 199, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 5;
+  user-select: none;
+  outline: none;
+}
+
+/* Compact preview badges on handbook cards */
+.badge-pin-preview {
+  width: 17px;
+  height: 17px;
+  font-size: 9.5px;
+  border: 1px solid #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
+}
+
+.screenshot-badge-pin:hover,
+.screenshot-badge-pin.is-active {
+  transform: translate(-50%, -50%) scale(1.22);
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.6), 0 0 0 3px rgba(245, 158, 11, 0.35);
+  z-index: 10;
+}
+
+/* Floating Hover Popup Card for Badges */
+.guide-popup-card {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(var(--v-theme-on-surface), 0.08) !important;
+  backdrop-filter: blur(8px);
+  pointer-events: auto;
+}
+
+.badge-number-indicator {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
