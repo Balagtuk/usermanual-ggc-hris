@@ -108,8 +108,6 @@
         <PositionManagementSandbox v-else-if="module.id === 'mod-position'" ref="posSandboxRef" />
       </section>
 
-      <!-- Standard Walkthrough & Screenshots Mode -->
-      <template v-else>
         <!-- Module Overview & Purpose -->
         <section class="mb-8">
         <h2 class="section-title mb-2">
@@ -189,9 +187,6 @@
                     @click.stop="openControlSimulator(ctrl)"
                   >
                     {{ hasSandbox ? 'Try in Sandbox' : 'Simulate' }}
-                  <v-btn size="x-small" variant="tonal" color="primary" class="text-none font-weight-bold"
-                    prepend-icon="mdi-play-circle-outline" @click.stop="openControlSimulator(ctrl)">
-                    Simulate
                   </v-btn>
                 </td>
               </tr>
