@@ -143,24 +143,17 @@
       </section>
 
       <!-- Modern Documentation Underline Tabs (User, Entity, and Branch Modules) -->
-      <div v-if="module.id === 'mod-user' || module.id === 'mod-entity' || module.id === 'mod-branch'" class="module-docs-tabs-wrapper mb-6">
+      <div v-if="module.id === 'mod-user' || module.id === 'mod-entity' || module.id === 'mod-branch'"
+        class="module-docs-tabs-wrapper mb-6">
         <div class="module-docs-tabs d-flex align-center ga-1 border-b">
-          <button
-            type="button"
-            class="module-doc-tab d-inline-flex align-center ga-2 text-none font-weight-medium"
-            :class="{ 'is-active': experienceTab === 'walkthrough' }"
-            @click="experienceTab = 'walkthrough'"
-          >
+          <button type="button" class="module-doc-tab d-inline-flex align-center ga-2 text-none font-weight-medium"
+            :class="{ 'is-active': experienceTab === 'walkthrough' }" @click="experienceTab = 'walkthrough'">
             <v-icon icon="mdi-book-open-page-variant-outline" size="18" />
             <span>Handbook Walkthrough</span>
           </button>
 
-          <button
-            type="button"
-            class="module-doc-tab d-inline-flex align-center ga-2 text-none font-weight-medium"
-            :class="{ 'is-active': experienceTab === 'sandbox' }"
-            @click="experienceTab = 'sandbox'"
-          >
+          <button type="button" class="module-doc-tab d-inline-flex align-center ga-2 text-none font-weight-medium"
+            :class="{ 'is-active': experienceTab === 'sandbox' }" @click="experienceTab = 'sandbox'">
             <v-icon icon="mdi-flask-outline" size="18" />
             <span>Interactive Sandbox</span>
             <v-chip size="x-small" color="primary" variant="tonal" class="font-weight-bold ml-1">
@@ -260,7 +253,8 @@
                     </span>
                   </div>
                   <div class="d-none d-sm-flex align-center ga-2 flex-shrink-0">
-                    <v-chip v-if="step.badges && step.badges.length > 0" size="x-small" variant="flat" color="primary" class="font-weight-medium">
+                    <v-chip v-if="step.badges && step.badges.length > 0" size="x-small" variant="flat" color="primary"
+                      class="font-weight-medium">
                       <v-icon start icon="mdi-cursor-default-click-outline" size="12" />
                       Hover badges for info
                     </v-chip>
@@ -283,31 +277,19 @@
 
                   <!-- Dynamic Numbered Badges Overlay on Preview with Hover Pop-up -->
                   <template v-if="step.badges && step.badges.length > 0">
-                    <v-menu
-                      v-for="b in step.badges"
-                      :key="b.number"
-                      open-on-hover
-                      :open-delay="80"
-                      :close-delay="150"
-                      :location="getBadgeMenuLocation(b)"
-                      :close-on-content-click="false"
-                      max-width="340"
-                    >
+                    <v-menu v-for="b in step.badges" :key="b.number" open-on-hover :open-delay="80" :close-delay="150"
+                      :location="getBadgeMenuLocation(b)" :close-on-content-click="false" max-width="340">
                       <template #activator="{ props: menuProps }">
-                        <button
-                          v-bind="menuProps"
-                          type="button"
-                          class="screenshot-badge-pin badge-pin-preview"
-                          :style="{ left: `${b.x}%`, top: `${b.y}%` }"
-                          :aria-label="`Badge ${b.number}: ${b.title}`"
-                          @click.stop="openLightbox(step)"
-                        >
+                        <button v-bind="menuProps" type="button" class="screenshot-badge-pin badge-pin-preview"
+                          :style="{ left: `${b.x}%`, top: `${b.y}%` }" :aria-label="`Badge ${b.number}: ${b.title}`"
+                          @click.stop="openLightbox(step)">
                           <span>{{ b.number }}</span>
                         </button>
                       </template>
 
                       <!-- Floating Hover Pop-Up Card -->
-                      <v-card class="guide-popup-card rounded-xl pa-3 elevation-10 border bg-surface text-start" max-width="340">
+                      <v-card class="guide-popup-card rounded-xl pa-3 elevation-10 border bg-surface text-start"
+                        max-width="340">
                         <div class="d-flex align-start ga-2 mb-2">
                           <div class="badge-number-indicator flex-shrink-0">
                             {{ b.number }}
@@ -316,14 +298,16 @@
                             <h4 class="text-subtitle-2 font-weight-bold text-high-emphasis mb-0 leading-tight">
                               {{ b.title }}
                             </h4>
-                            <div v-if="b.location" class="text-caption text-primary font-weight-medium" style="font-size: 0.72rem;">
+                            <div v-if="b.location" class="text-caption text-primary font-weight-medium"
+                              style="font-size: 0.72rem;">
                               {{ b.location }}
                             </div>
                           </div>
                         </div>
 
                         <div class="mb-2">
-                          <div class="text-caption font-weight-bold text-medium-emphasis mb-0.5" style="font-size: 0.68rem; text-transform: uppercase;">
+                          <div class="text-caption font-weight-bold text-medium-emphasis mb-0.5"
+                            style="font-size: 0.68rem; text-transform: uppercase;">
                             Operational Purpose
                           </div>
                           <p class="text-caption text-high-emphasis mb-0 leading-relaxed" style="font-size: 0.74rem;">
@@ -334,7 +318,8 @@
                         <v-divider class="my-2 opacity-30" />
 
                         <div>
-                          <div class="text-caption font-weight-bold text-primary mb-0.5 d-flex align-center ga-1" style="font-size: 0.68rem; text-transform: uppercase;">
+                          <div class="text-caption font-weight-bold text-primary mb-0.5 d-flex align-center ga-1"
+                            style="font-size: 0.68rem; text-transform: uppercase;">
                             <v-icon icon="mdi-play-circle-outline" size="13" />
                             <span>Action Guidance</span>
                           </div>
@@ -373,34 +358,27 @@
                   </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Highlights & Notes Footer when no image is specified -->
-            <div
-              v-else-if="step.caption || (step.highlights && step.highlights.length > 0)"
-              class="pa-4 bg-surface rounded-lg border mt-2"
-            >
-              <p v-if="step.caption" class="text-body-2 font-weight-medium text-high-emphasis mb-2 leading-relaxed">
-                {{ step.caption }}
-              </p>
+              <!-- Highlights & Notes Footer when no image is specified -->
+              <div v-else-if="step.caption || (step.highlights && step.highlights.length > 0)"
+                class="pa-4 bg-surface rounded-lg border mt-2">
+                <p v-if="step.caption" class="text-body-2 font-weight-medium text-high-emphasis mb-2 leading-relaxed">
+                  {{ step.caption }}
+                </p>
 
-              <div v-if="step.highlights && step.highlights.length > 0" class="d-flex flex-wrap align-center ga-1 pt-1">
-                <span class="text-caption font-weight-bold text-medium-emphasis mr-1">Visible Features & Controls:</span>
-                <v-chip
-                  v-for="hl in step.highlights"
-                  :key="hl"
-                  size="x-small"
-                  variant="tonal"
-                  color="primary"
-                  class="font-weight-medium"
-                >
-                  <v-icon start icon="mdi-check-circle-outline" size="12" />
-                  {{ hl }}
-                </v-chip>
+                <div v-if="step.highlights && step.highlights.length > 0"
+                  class="d-flex flex-wrap align-center ga-1 pt-1">
+                  <span class="text-caption font-weight-bold text-medium-emphasis mr-1">Visible Features &
+                    Controls:</span>
+                  <v-chip v-for="hl in step.highlights" :key="hl" size="x-small" variant="tonal" color="primary"
+                    class="font-weight-medium">
+                    <v-icon start icon="mdi-check-circle-outline" size="12" />
+                    {{ hl }}
+                  </v-chip>
+                </div>
               </div>
-            </div>
-          </v-card>
-        </div>
+            </v-card>
+          </div>
 
           <!-- Standard Compact Grid for Modules 4-9 (No step images) -->
           <v-row v-else dense>
@@ -535,12 +513,11 @@
             </div>
 
             <!-- Instruction to hover badges -->
-            <div
-              v-if="activeLightboxStep?.badges && activeLightboxStep.badges.length > 0"
-              class="d-flex align-center ga-2 mt-2 pt-2 border-t text-caption text-primary font-weight-medium"
-            >
+            <div v-if="activeLightboxStep?.badges && activeLightboxStep.badges.length > 0"
+              class="d-flex align-center ga-2 mt-2 pt-2 border-t text-caption text-primary font-weight-medium">
               <v-icon icon="mdi-information-outline" size="16" />
-              <span>Hover over any numbered badge on the screenshot to view detailed component and feature information.</span>
+              <span>Hover over any numbered badge on the screenshot to view detailed component and feature
+                information.</span>
             </div>
           </div>
 
@@ -551,30 +528,19 @@
 
               <!-- Dynamic Numbered Badges in Lightbox with Hover Pop-up -->
               <template v-if="activeLightboxStep?.badges && activeLightboxStep.badges.length > 0">
-                <v-menu
-                  v-for="b in activeLightboxStep.badges"
-                  :key="b.number"
-                  open-on-hover
-                  :open-delay="80"
-                  :close-delay="150"
-                  :location="getBadgeMenuLocation(b)"
-                  :close-on-content-click="false"
-                  max-width="360"
-                >
+                <v-menu v-for="b in activeLightboxStep.badges" :key="b.number" open-on-hover :open-delay="80"
+                  :close-delay="150" :location="getBadgeMenuLocation(b)" :close-on-content-click="false"
+                  max-width="360">
                   <template #activator="{ props: menuProps }">
-                    <button
-                      v-bind="menuProps"
-                      type="button"
-                      class="screenshot-badge-pin"
-                      :style="{ left: `${b.x}%`, top: `${b.y}%` }"
-                      :aria-label="`Badge ${b.number}: ${b.title}`"
-                    >
+                    <button v-bind="menuProps" type="button" class="screenshot-badge-pin"
+                      :style="{ left: `${b.x}%`, top: `${b.y}%` }" :aria-label="`Badge ${b.number}: ${b.title}`">
                       <span>{{ b.number }}</span>
                     </button>
                   </template>
 
                   <!-- Floating Hover Pop-Up Card -->
-                  <v-card class="guide-popup-card rounded-xl pa-3 pa-sm-4 elevation-12 border bg-surface text-start" max-width="360">
+                  <v-card class="guide-popup-card rounded-xl pa-3 pa-sm-4 elevation-12 border bg-surface text-start"
+                    max-width="360">
                     <div class="d-flex align-start ga-2 mb-2">
                       <div class="badge-number-indicator flex-shrink-0">
                         {{ b.number }}
@@ -583,14 +549,16 @@
                         <h4 class="text-subtitle-2 font-weight-bold text-high-emphasis mb-0 leading-tight">
                           {{ b.title }}
                         </h4>
-                        <div v-if="b.location" class="text-caption text-primary font-weight-medium" style="font-size: 0.72rem;">
+                        <div v-if="b.location" class="text-caption text-primary font-weight-medium"
+                          style="font-size: 0.72rem;">
                           {{ b.location }}
                         </div>
                       </div>
                     </div>
 
                     <div class="mb-2">
-                      <div class="text-caption font-weight-bold text-medium-emphasis mb-0.5" style="font-size: 0.68rem; text-transform: uppercase;">
+                      <div class="text-caption font-weight-bold text-medium-emphasis mb-0.5"
+                        style="font-size: 0.68rem; text-transform: uppercase;">
                         Operational Purpose
                       </div>
                       <p class="text-caption text-high-emphasis mb-0 leading-relaxed" style="font-size: 0.75rem;">
@@ -601,7 +569,8 @@
                     <v-divider class="my-2 opacity-30" />
 
                     <div>
-                      <div class="text-caption font-weight-bold text-primary mb-0.5 d-flex align-center ga-1" style="font-size: 0.68rem; text-transform: uppercase;">
+                      <div class="text-caption font-weight-bold text-primary mb-0.5 d-flex align-center ga-1"
+                        style="font-size: 0.68rem; text-transform: uppercase;">
                         <v-icon icon="mdi-play-circle-outline" size="13" />
                         <span>Action Guidance</span>
                       </div>
@@ -860,9 +829,12 @@
                   {{ simRecordStatus ? '✓ Record is Active' : '✕ Record is Suspended (Inactive)' }}
                 </div>
                 <p class="text-caption text-medium-emphasis mb-0 leading-relaxed">
-                  {{ simRecordStatus
-                    ? 'The employee has active portal access and can log into authorized modules. Profile appears in department rosters and organizational charts.'
-                    : 'The employee session is immediately revoked and system login is blocked. The record remains permanently safely preserved in the database for historical audit and reporting.' }}
+                  <span v-if="simRecordStatus">
+                    The employee has active portal access and can log into authorized modules. Profile appears in department rosters and organizational charts.
+                  </span>
+                  <span v-else>
+                    The employee session is immediately revoked and system login is blocked. The record remains permanently safely preserved in the database for historical audit and reporting.
+                  </span>
                 </p>
               </div>
             </div>
