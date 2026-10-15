@@ -428,23 +428,26 @@ const previewRows = computed(() => {
   }
   if (modId === 'mod-departments') {
     return [
-      { values: ['Human Resources Department', 'HRD'] },
-      { values: ['Information Technology', 'ITD'] },
-      { values: ['Finance & Accounting', 'FIN'] },
+      { values: ['Audit Department', 'Head Office'] },
+      { values: ['Finance Department', 'Head Office'] },
+      { values: ['Human Resource', 'Head Office'] },
+      { values: ['Information Technology', 'Head Office'] },
     ]
   }
   if (modId === 'mod-division') {
     return [
-      { values: ['Talent Acquisition & Staffing', 'Human Resources Department'] },
-      { values: ['Compensation & Benefits', 'Human Resources Department'] },
-      { values: ['Core Infrastructure & DevOps', 'Information Technology'] },
+      { values: ['Recruitment Division', 'Human Resource'] },
+      { values: ['IT Support Division', 'Information Technology'] },
+      { values: ['Internal Audit Division', 'Audit Department'] },
+      { values: ['Accounting Division', 'Finance Department'] },
     ]
   }
   if (modId === 'mod-position') {
     return [
-      { values: ['Executive Director', '1'] },
-      { values: ['Department Manager', '3'] },
-      { values: ['Senior Technical Lead', '5'] },
+      { values: ['Manager', 'Role', 'Sep 21, 2026'] },
+      { values: ['Director', 'Role', 'Sep 21, 2026'] },
+      { values: ['Senior', 'Role', 'Sep 21, 2026'] },
+      { values: ['Rank & File I', 'Role', 'Sep 21, 2026'] },
     ]
   }
   if (modId === 'mod-job-title') {
