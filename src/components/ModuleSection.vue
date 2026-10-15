@@ -61,53 +61,6 @@
 
       <v-divider class="my-5 opacity-40" />
 
-      <!-- Top Experience Mode Switcher (Handbook Walkthrough vs Live Sandbox) -->
-      <div v-if="hasSandbox" class="experience-switcher-top mb-6 pa-3 rounded-xl border bg-surface-variant d-flex align-center justify-space-between flex-wrap ga-3">
-        <div class="d-flex align-center ga-3">
-          <v-avatar size="36" color="primary" variant="flat">
-            <v-icon icon="mdi-flask-outline" size="20" color="white" />
-          </v-avatar>
-          <div>
-            <div class="d-flex align-center ga-2 flex-wrap">
-              <span class="text-subtitle-2 font-weight-bold text-high-emphasis">
-                Interactive Sandbox Experience Available
-              </span>
-              <v-chip size="x-small" color="primary" variant="flat" class="font-weight-bold">
-                Live Simulation
-              </v-chip>
-            </div>
-            <div class="text-caption text-medium-emphasis">
-              Explore the live simulated {{ module.title.toLowerCase() }} interface or follow the step-by-step handbook walkthrough.
-            </div>
-          </div>
-        </div>
-
-        <v-btn-toggle
-          v-model="experienceTab"
-          mandatory
-          density="compact"
-          color="primary"
-          rounded="lg"
-          class="border bg-surface"
-        >
-          <v-btn value="walkthrough" size="small" class="text-none font-weight-medium px-4">
-            <v-icon start icon="mdi-book-open-page-variant-outline" size="16" />
-            Handbook Walkthrough
-          </v-btn>
-          <v-btn value="sandbox" size="small" class="text-none font-weight-bold px-4">
-            <v-icon start icon="mdi-flask-outline" size="16" />
-            Interactive Sandbox 🧪
-          </v-btn>
-        </v-btn-toggle>
-      </div>
-
-      <!-- Live Sandbox Mode (Promoted to Top) -->
-      <section v-if="hasSandbox && experienceTab === 'sandbox'" :id="module.id + '-sandbox-section'" class="mb-8">
-        <DepartmentManagementSandbox v-if="module.id === 'mod-departments'" ref="deptSandboxRef" />
-        <DivisionManagementSandbox v-else-if="module.id === 'mod-division'" ref="divSandboxRef" />
-        <PositionManagementSandbox v-else-if="module.id === 'mod-position'" ref="posSandboxRef" />
-      </section>
-
         <!-- Module Overview & Purpose -->
         <section class="mb-8">
         <h2 class="section-title mb-2">
@@ -195,9 +148,8 @@
         </v-card>
       </section>
 
-      <!-- Modern Documentation Underline Tabs (User, Entity, and Branch Modules) -->
-      <div v-if="module.id === 'mod-user' || module.id === 'mod-entity' || module.id === 'mod-branch'"
-        class="module-docs-tabs-wrapper mb-6">
+      <!-- Modern Documentation Underline Tabs (Modules with Interactive Sandboxes) -->
+      <div v-if="hasSandbox" class="module-docs-tabs-wrapper mb-6">
         <div class="module-docs-tabs d-flex align-center ga-1 border-b">
           <button type="button" class="module-doc-tab d-inline-flex align-center ga-2 text-none font-weight-medium"
             :class="{ 'is-active': experienceTab === 'walkthrough' }" @click="experienceTab = 'walkthrough'">
@@ -217,16 +169,13 @@
       </div>
 
       <!-- Live Sandbox Mode -->
-      <section v-if="module.id === 'mod-user' && experienceTab === 'sandbox'" class="mb-8">
-        <UserManagementSandbox />
-      </section>
-
-      <section v-else-if="module.id === 'mod-entity' && experienceTab === 'sandbox'" class="mb-8">
-        <EntityManagementSandbox />
-      </section>
-
-      <section v-else-if="module.id === 'mod-branch' && experienceTab === 'sandbox'" class="mb-8">
-        <BranchManagementSandbox />
+      <section v-if="hasSandbox && experienceTab === 'sandbox'" :id="module.id + '-sandbox-section'" class="mb-8">
+        <UserManagementSandbox v-if="module.id === 'mod-user'" />
+        <EntityManagementSandbox v-else-if="module.id === 'mod-entity'" />
+        <BranchManagementSandbox v-else-if="module.id === 'mod-branch'" />
+        <DepartmentManagementSandbox v-else-if="module.id === 'mod-departments'" ref="deptSandboxRef" />
+        <DivisionManagementSandbox v-else-if="module.id === 'mod-division'" ref="divSandboxRef" />
+        <PositionManagementSandbox v-else-if="module.id === 'mod-position'" ref="posSandboxRef" />
       </section>
 
       <!-- Standard Walkthrough & Screenshots Mode -->
@@ -254,19 +203,34 @@
             </v-chip>
           </div>
 
-          <!-- Sequential Visual Walkthrough (Handbook Style for User, Entity, Branch) -->
+          <!-- Sequential Visual Walkthrough (Handbook Style for User, Entity, Branch, Dept, Div, Pos) -->
           <div v-if="hasVisualSteps" class="d-flex flex-column ga-6">
             <v-card v-for="step in module.steps" :key="step.number"
-              class="visual-step-card rounded-lg pa-4 pa-sm-5 pa-md-6 inner-card" elevation="0">
+              class="visual-step-card rounded-lg pa-4 pa-sm-5 pa-md-6 inner-card"
+              elevation="0">
               <!-- Step Header Bar -->
               <div class="d-flex flex-wrap align-center justify-space-between ga-3 mb-3">
-                <div class="d-flex align-center ga-3">
+                <div class="d-flex align-center ga-3 flex-wrap">
                   <span class="step-badge">STEP 0{{ step.number }}</span>
                   <h3 class="text-subtitle-1 font-weight-bold mb-0 text-high-emphasis">
                     {{ step.title }}
                   </h3>
                 </div>
-                <div class="d-flex align-center ga-2">
+                <div class="d-flex align-center ga-2 flex-wrap">
+                  <!-- Play Guided Spotlight Tour Button -->
+                  <v-btn
+                    v-if="isTargetModule && step.badges && step.badges.length > 0"
+                    size="x-small"
+                    variant="flat"
+                    color="primary"
+                    prepend-icon="mdi-play-circle"
+                    class="text-none font-weight-bold shadow-sm"
+                    title="Start an interactive tour highlighting each field and button"
+                    @click="startGuidedTour(step)"
+                  >
+                    Play Tour
+                  </v-btn>
+
                   <v-btn size="x-small" variant="text" color="medium-emphasis"
                     :prepend-icon="copiedStep === step.number ? 'mdi-check' : 'mdi-link-variant'"
                     class="text-none font-weight-medium"
@@ -330,20 +294,31 @@
 
                   <!-- Dynamic Numbered Badges Overlay on Preview with Hover Pop-up -->
                   <template v-if="step.badges && step.badges.length > 0">
-                    <v-menu v-for="b in step.badges" :key="b.number" open-on-hover :open-delay="80" :close-delay="150"
-                      :location="getBadgeMenuLocation(b)" :close-on-content-click="false" max-width="340">
+                    <v-menu
+                      v-for="b in step.badges"
+                      :key="b.number"
+                      open-on-hover
+                      :open-delay="70"
+                      :close-delay="150"
+                      :location="getBadgeMenuLocation(b)"
+                      :offset="10"
+                      :close-on-content-click="false"
+                      max-width="340"
+                    >
                       <template #activator="{ props: menuProps }">
-                        <button v-bind="menuProps" type="button" class="screenshot-badge-pin badge-pin-preview"
+                        <button v-bind="menuProps" type="button"
+                          class="screenshot-badge-pin badge-pin-preview"
+                          :class="{ 'is-tour-focused': isTargetModule && activeTourStep?.number === step.number && activeTourBadge?.number === b.number }"
                           :style="{ left: `${b.x}%`, top: `${b.y}%` }" :aria-label="`Badge ${b.number}: ${b.title}`"
                           @click.stop="openLightbox(step)">
                           <span>{{ b.number }}</span>
                         </button>
                       </template>
 
-                      <!-- Floating Hover Pop-Up Card -->
-                      <v-card class="guide-popup-card rounded-xl pa-3 elevation-10 border bg-surface text-start"
+                      <!-- Floating Hover Pop-Up Card (Always above the number) -->
+                      <v-card class="guide-popup-card rounded-xl pa-3 elevation-12 border bg-surface text-start"
                         max-width="340">
-                        <div class="d-flex align-start ga-2 mb-2">
+                        <div class="d-flex align-start ga-2 mb-1.5">
                           <div class="badge-number-indicator flex-shrink-0">
                             {{ b.number }}
                           </div>
@@ -358,7 +333,7 @@
                           </div>
                         </div>
 
-                        <div class="mb-2">
+                        <div class="mb-1.5">
                           <div class="text-caption font-weight-bold text-medium-emphasis mb-0.5"
                             style="font-size: 0.68rem; text-transform: uppercase;">
                             Operational Purpose
@@ -368,7 +343,7 @@
                           </p>
                         </div>
 
-                        <v-divider class="my-2 opacity-30" />
+                        <v-divider class="my-1.5 opacity-30" />
 
                         <div>
                           <div class="text-caption font-weight-bold text-primary mb-0.5 d-flex align-center ga-1"
@@ -379,6 +354,20 @@
                           <p class="text-caption text-medium-emphasis mb-0 leading-relaxed" style="font-size: 0.73rem;">
                             {{ b.action }}
                           </p>
+                        </div>
+
+                        <!-- Try in Sandbox button (Department, Division, Position) -->
+                        <div v-if="hasSandbox && isTargetModule" class="mt-2 pt-1.5 border-t d-flex justify-end">
+                          <v-btn
+                            size="x-small"
+                            variant="flat"
+                            color="primary"
+                            class="text-none font-weight-bold"
+                            prepend-icon="mdi-flask-outline"
+                            @click.stop="jumpToSandboxFeature(b)"
+                          >
+                            Try in Sandbox
+                          </v-btn>
                         </div>
                       </v-card>
                     </v-menu>
@@ -540,14 +529,49 @@
 
     <!-- Lightbox Dialog for Step Screenshots with Zoom, Fullscreen on mobile, and Esc support -->
     <v-dialog v-model="lightboxOpen" max-width="1200" scrollable :fullscreen="smAndDown"
-      @keydown.esc="lightboxOpen = false">
+      @keydown.esc="onLightboxEsc"
+      @keydown="handleTourKeydown">
       <v-card class="rounded-lg overflow-hidden">
         <v-toolbar color="primary" density="comfortable" class="text-white">
-          <v-toolbar-title class="text-subtitle-1 font-weight-bold">
+          <v-toolbar-title class="text-subtitle-1 font-weight-bold text-truncate">
             {{ module.num }}. {{ module.title }} &mdash; {{ lightboxTitle }}
           </v-toolbar-title>
           <v-spacer />
-          <v-btn icon="mdi-close" variant="text" title="Close (Esc)" @click="lightboxOpen = false" />
+
+          <!-- Play Tour Button in Toolbar -->
+          <v-btn
+            v-if="isTargetModule && activeLightboxStep?.badges && activeLightboxStep.badges.length > 0"
+            variant="flat"
+            color="white"
+            size="small"
+            prepend-icon="mdi-play-circle"
+            class="text-none font-weight-bold mr-2 text-primary shadow-sm"
+            @click="toggleModalTour"
+          >
+            {{ activeTourStep ? 'Exit Tour' : 'Play Tour' }}
+          </v-btn>
+
+          <!-- Step Navigation Buttons in Lightbox -->
+          <div class="d-none d-sm-flex align-center ga-1 mr-2">
+            <v-btn
+              icon="mdi-chevron-left"
+              variant="text"
+              size="small"
+              :disabled="!canPrevLightbox"
+              title="Previous Step Screenshot"
+              @click="prevLightboxStep"
+            />
+            <v-btn
+              icon="mdi-chevron-right"
+              variant="text"
+              size="small"
+              :disabled="!canNextLightbox"
+              title="Next Step Screenshot"
+              @click="nextLightboxStep"
+            />
+          </div>
+
+          <v-btn icon="mdi-close" variant="text" title="Close (Esc)" @click="onLightboxEsc" />
         </v-toolbar>
 
         <v-card-text class="pa-4 bg-background">
@@ -565,12 +589,16 @@
               </v-chip>
             </div>
 
-            <!-- Instruction to hover badges -->
+            <!-- Instruction to hover badges or play tour -->
             <div v-if="activeLightboxStep?.badges && activeLightboxStep.badges.length > 0"
-              class="d-flex align-center ga-2 mt-2 pt-2 border-t text-caption text-primary font-weight-medium">
-              <v-icon icon="mdi-information-outline" size="16" />
-              <span>Hover over any numbered badge on the screenshot to view detailed component and feature
-                information.</span>
+              class="d-flex align-center justify-space-between flex-wrap ga-2 mt-2 pt-2 border-t text-caption text-primary font-weight-medium">
+              <div class="d-flex align-center ga-2">
+                <v-icon icon="mdi-information-outline" size="16" />
+                <span>Hover over any badge for details, or click <strong>Play Tour</strong> to spotlight each field sequentially.</span>
+              </div>
+              <span v-if="activeTourStep && activeTourBadge" class="text-caption font-weight-bold text-primary">
+                Control {{ activeTourBadgeIndex + 1 }} of {{ activeTourStep.badges?.length || 0 }}
+              </span>
             </div>
           </div>
 
@@ -581,20 +609,29 @@
 
               <!-- Dynamic Numbered Badges in Lightbox with Hover Pop-up -->
               <template v-if="activeLightboxStep?.badges && activeLightboxStep.badges.length > 0">
-                <v-menu v-for="b in activeLightboxStep.badges" :key="b.number" open-on-hover :open-delay="80"
-                  :close-delay="150" :location="getBadgeMenuLocation(b)" :close-on-content-click="false"
-                  max-width="360">
+                <v-menu
+                  v-for="b in activeLightboxStep.badges"
+                  :key="b.number"
+                  open-on-hover
+                  :open-delay="70"
+                  :close-delay="150"
+                  :location="getBadgeMenuLocation(b)"
+                  :offset="10"
+                  :close-on-content-click="false"
+                  max-width="350"
+                >
                   <template #activator="{ props: menuProps }">
                     <button v-bind="menuProps" type="button" class="screenshot-badge-pin"
+                      :class="{ 'is-tour-focused': isTargetModule && activeTourStep && activeTourBadge?.number === b.number }"
                       :style="{ left: `${b.x}%`, top: `${b.y}%` }" :aria-label="`Badge ${b.number}: ${b.title}`">
                       <span>{{ b.number }}</span>
                     </button>
                   </template>
 
-                  <!-- Floating Hover Pop-Up Card -->
-                  <v-card class="guide-popup-card rounded-xl pa-3 pa-sm-4 elevation-12 border bg-surface text-start"
-                    max-width="360">
-                    <div class="d-flex align-start ga-2 mb-2">
+                  <!-- Floating Hover Pop-Up Card (Always above the number) -->
+                  <v-card class="guide-popup-card rounded-xl pa-3 elevation-14 border bg-surface text-start"
+                    max-width="350">
+                    <div class="d-flex align-start ga-2 mb-1.5">
                       <div class="badge-number-indicator flex-shrink-0">
                         {{ b.number }}
                       </div>
@@ -609,17 +646,17 @@
                       </div>
                     </div>
 
-                    <div class="mb-2">
+                    <div class="mb-1.5">
                       <div class="text-caption font-weight-bold text-medium-emphasis mb-0.5"
                         style="font-size: 0.68rem; text-transform: uppercase;">
                         Operational Purpose
                       </div>
-                      <p class="text-caption text-high-emphasis mb-0 leading-relaxed" style="font-size: 0.75rem;">
+                      <p class="text-caption text-high-emphasis mb-0 leading-relaxed" style="font-size: 0.74rem;">
                         {{ b.purpose }}
                       </p>
                     </div>
 
-                    <v-divider class="my-2 opacity-30" />
+                    <v-divider class="my-1.5 opacity-30" />
 
                     <div>
                       <div class="text-caption font-weight-bold text-primary mb-0.5 d-flex align-center ga-1"
@@ -631,9 +668,144 @@
                         {{ b.action }}
                       </p>
                     </div>
+
+                    <!-- Try in Sandbox button (Department, Division, Position) -->
+                    <div v-if="hasSandbox && isTargetModule" class="mt-2 pt-1.5 border-t d-flex justify-end">
+                      <v-btn
+                        size="x-small"
+                        variant="flat"
+                        color="primary"
+                        class="text-none font-weight-bold"
+                        prepend-icon="mdi-flask-outline"
+                        @click.stop="jumpToSandboxFeature(b)"
+                      >
+                        Try in Sandbox
+                      </v-btn>
+                    </div>
                   </v-card>
                 </v-menu>
               </template>
+
+              <!-- Enhanced Guided Spotlight Tour Layer Inside Modal Preview -->
+              <div
+                v-if="isTargetModule && activeTourStep && activeTourBadge"
+                class="tour-spotlight-layer"
+                @click="exitGuidedTour"
+              >
+                <!-- Crystal-Clear Spotlight Cutout Window Around Field/Button -->
+                <div class="tour-field-spotlight-cutout" :style="tourCutoutStyle" @click.stop>
+                  <!-- Animated Luminous Corner Brackets -->
+                  <span class="cutout-corner corner-tl" />
+                  <span class="cutout-corner corner-tr" />
+                  <span class="cutout-corner corner-bl" />
+                  <span class="cutout-corner corner-br" />
+
+                  <!-- Floating Pill Badge on Target Field -->
+                  <div class="field-focus-badge-pill" :class="{ 'pill-at-bottom': !isTourCardBelow }">
+                    <span class="pill-number">{{ activeTourBadge.number }}</span>
+                    <span class="pill-title text-truncate">{{ activeTourBadge.title }}</span>
+                  </div>
+                </div>
+
+                <!-- High-Visibility Floating Guidance Card (Follows navigation & dynamically avoids covering main object) -->
+                <v-card
+                  class="floating-tour-card rounded-xl pa-3 elevation-20 border bg-surface text-start"
+                  :style="tourCardStyle"
+                  :class="{ 'card-placement-below': isTourCardBelow, 'card-placement-above': !isTourCardBelow }"
+                  @click.stop
+                >
+                  <!-- Header Row: Indicator, Title, Screen Location & Close Button -->
+                  <div class="d-flex align-start justify-space-between ga-2 mb-1.5">
+                    <div class="d-flex align-center ga-1.5 flex-grow-1 min-w-0">
+                      <v-avatar size="22" color="primary" variant="flat" class="font-weight-bold text-caption flex-shrink-0 shadow-sm" style="font-size: 11px;">
+                        {{ activeTourBadge.number }}
+                      </v-avatar>
+                      <div class="min-w-0">
+                        <div class="d-flex align-center ga-1.5 flex-wrap">
+                          <span class="text-caption font-weight-bold text-primary text-uppercase" style="font-size: 0.65rem; letter-spacing: 0.05em;">
+                            Control {{ activeTourBadgeIndex + 1 }} of {{ activeTourStep.badges?.length || 0 }}
+                          </span>
+                          <v-chip v-if="activeTourBadge.location" size="x-small" density="compact" variant="tonal" color="secondary" class="font-weight-medium" style="font-size: 0.65rem; height: 18px;">
+                            <v-icon start icon="mdi-map-marker-outline" size="10" />
+                            {{ activeTourBadge.location }}
+                          </v-chip>
+                        </div>
+                        <h4 class="text-subtitle-2 font-weight-bold text-high-emphasis mb-0 leading-tight text-truncate">
+                          {{ activeTourBadge.title }}
+                        </h4>
+                      </div>
+                    </div>
+
+                    <v-btn
+                      icon="mdi-close"
+                      size="x-small"
+                      variant="text"
+                      color="medium-emphasis"
+                      title="Exit Tour (Esc)"
+                      density="compact"
+                      @click="exitGuidedTour"
+                    />
+                  </div>
+
+                  <!-- Operational Purpose & Action Box -->
+                  <div class="mb-2">
+                    <p class="text-caption text-high-emphasis mb-1.5 leading-relaxed" style="font-size: 0.74rem;">
+                      {{ activeTourBadge.purpose }}
+                    </p>
+                    <div class="tour-action-callout pa-1.5 rounded-lg border d-flex align-start ga-1.5">
+                      <v-icon icon="mdi-gesture-tap-button" size="15" color="primary" class="mt-0-5 flex-shrink-0" />
+                      <div class="text-caption font-weight-medium text-high-emphasis leading-tight" style="font-size: 0.72rem;">
+                        <strong class="text-primary text-uppercase mr-1" style="font-size: 0.65rem;">Action:</strong>
+                        {{ activeTourBadge.action }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Tour Navigation & Action Controls -->
+                  <div class="d-flex align-center justify-space-between flex-wrap ga-1 pt-1.5 border-t">
+                    <div class="d-flex align-center ga-1">
+                      <v-btn
+                        size="x-small"
+                        variant="outlined"
+                        color="medium-emphasis"
+                        class="text-none font-weight-medium"
+                        :disabled="activeTourBadgeIndex === 0"
+                        prepend-icon="mdi-chevron-left"
+                        @click="prevTourBadge"
+                      >
+                        Prev
+                      </v-btn>
+                      <v-btn
+                        size="x-small"
+                        variant="flat"
+                        color="primary"
+                        class="text-none font-weight-bold shadow-sm"
+                        :append-icon="activeTourBadgeIndex === (activeTourStep.badges?.length || 0) - 1 ? 'mdi-check' : 'mdi-chevron-right'"
+                        @click="nextTourBadge"
+                      >
+                        {{ activeTourBadgeIndex === (activeTourStep.badges?.length || 0) - 1 ? 'Finish' : 'Next' }}
+                      </v-btn>
+                    </div>
+
+                    <div class="d-flex align-center ga-1.5">
+                      <span class="text-caption text-medium-emphasis d-none d-sm-inline" style="font-size: 0.65rem;">
+                        <kbd class="tour-kbd">←</kbd> <kbd class="tour-kbd">→</kbd> <kbd class="tour-kbd">Esc</kbd>
+                      </span>
+                      <v-btn
+                        v-if="hasSandbox"
+                        size="x-small"
+                        variant="tonal"
+                        color="primary"
+                        class="text-none font-weight-bold"
+                        prepend-icon="mdi-flask-outline"
+                        @click="jumpToSandboxFeature(activeTourBadge)"
+                      >
+                        Sandbox
+                      </v-btn>
+                    </div>
+                  </div>
+                </v-card>
+              </div>
             </div>
           </div>
         </v-card-text>
@@ -645,7 +817,17 @@
               module.num }}
           </span>
           <v-spacer />
-          <v-btn color="primary" variant="flat" class="text-none" @click="lightboxOpen = false">
+          <v-btn
+            v-if="isTargetModule && activeLightboxStep?.badges && activeLightboxStep.badges.length > 0"
+            color="primary"
+            variant="tonal"
+            prepend-icon="mdi-play-circle"
+            class="text-none font-weight-bold mr-2"
+            @click="toggleModalTour"
+          >
+            {{ activeTourStep ? 'Exit Tour' : 'Play Tour' }}
+          </v-btn>
+          <v-btn color="primary" variant="flat" class="text-none font-weight-bold" @click="lightboxOpen = false">
             Close Preview
           </v-btn>
         </v-card-actions>
@@ -1268,11 +1450,27 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- Deep-link Feedback Toast (Department, Division, Position) -->
+    <v-snackbar
+      v-model="sandboxToastActive"
+      location="bottom end"
+      color="primary"
+      variant="elevated"
+      :timeout="3500"
+      rounded="lg"
+      class="mb-4 mr-4"
+    >
+      <div class="d-flex align-center ga-2 text-white">
+        <v-icon icon="mdi-flask-outline" size="18" />
+        <span class="text-caption font-weight-bold">{{ sandboxNoticeToast }}</span>
+      </div>
+    </v-snackbar>
   </article>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { useDisplay } from 'vuetify'
 import type { ModuleDoc, StepItem, StepBadge, UIFeatureControl } from '@/data/manualData'
 import ModuleScreenshot from '@/components/ModuleScreenshot.vue'
@@ -1361,6 +1559,9 @@ const mapControlToFeatureKey = (moduleId: string, ctrlName: string): string => {
 }
 
 const hasSandbox = computed(() => [
+  'mod-user',
+  'mod-entity',
+  'mod-branch',
   'mod-departments',
   'mod-division',
   'mod-position'
@@ -1968,11 +2169,66 @@ const jumpToStep = (ctrl: UIFeatureControl) => {
 }
 
 const getBadgeMenuLocation = (b: StepBadge): any => {
-  if (b.y < 28) return 'bottom center'
-  if (b.x > 72) return 'top end'
-  if (b.x < 28) return 'top start'
+  // Always position pop-up above the number to avoid extending downward and causing scrolling
+  if (b.x > 75) return 'top end'
+  if (b.x < 25) return 'top start'
   return 'top center'
 }
+
+const isTargetModule = computed(() => ['mod-departments', 'mod-division', 'mod-position'].includes(props.module.id))
+
+// -------------------------------------------------------------
+// Lightbox Step Navigation
+// -------------------------------------------------------------
+const prevLightboxStep = () => {
+  if (!props.module.steps || !activeLightboxStep.value) return
+  const visualSteps = props.module.steps.filter(s => !!s.image)
+  const idx = visualSteps.findIndex(s => s.number === activeLightboxStep.value?.number)
+  if (idx > 0) {
+    const prev = visualSteps[idx - 1]
+    openLightbox(prev)
+    if (activeTourStep.value) {
+      if (prev.badges && prev.badges.length > 0) {
+        activeTourStep.value = prev
+        activeTourBadgeIndex.value = 0
+      } else {
+        activeTourStep.value = null
+      }
+    }
+  }
+}
+
+const nextLightboxStep = () => {
+  if (!props.module.steps || !activeLightboxStep.value) return
+  const visualSteps = props.module.steps.filter(s => !!s.image)
+  const idx = visualSteps.findIndex(s => s.number === activeLightboxStep.value?.number)
+  if (idx !== -1 && idx < visualSteps.length - 1) {
+    const next = visualSteps[idx + 1]
+    openLightbox(next)
+    if (activeTourStep.value) {
+      if (next.badges && next.badges.length > 0) {
+        activeTourStep.value = next
+        activeTourBadgeIndex.value = 0
+      } else {
+        activeTourStep.value = null
+      }
+    }
+  }
+}
+
+const canPrevLightbox = computed(() => {
+  if (!props.module.steps || !activeLightboxStep.value) return false
+  const visualSteps = props.module.steps.filter(s => !!s.image)
+  const idx = visualSteps.findIndex(s => s.number === activeLightboxStep.value?.number)
+  return idx > 0
+})
+
+const canNextLightbox = computed(() => {
+  if (!props.module.steps || !activeLightboxStep.value) return false
+  const visualSteps = props.module.steps.filter(s => !!s.image)
+  const idx = visualSteps.findIndex(s => s.number === activeLightboxStep.value?.number)
+  return idx !== -1 && idx < visualSteps.length - 1
+})
 
 const openLightbox = (step: StepItem) => {
   if (!step.image) return
@@ -1983,6 +2239,299 @@ const openLightbox = (step: StepItem) => {
   lightboxHighlights.value = step.highlights || []
   lightboxOpen.value = true
 }
+
+const onLightboxEsc = () => {
+  if (activeTourStep.value) {
+    exitGuidedTour()
+  } else {
+    lightboxOpen.value = false
+  }
+}
+
+watch(lightboxOpen, (val) => {
+  if (!val) {
+    activeTourStep.value = null
+  }
+})
+
+// -------------------------------------------------------------
+// Enhanced Guided Spotlight Tour (Department, Division, Position)
+// -------------------------------------------------------------
+const activeTourStep = ref<StepItem | null>(null)
+const activeTourBadgeIndex = ref(0)
+
+const activeTourBadge = computed<StepBadge | null>(() => {
+  if (!activeTourStep.value?.badges || activeTourStep.value.badges.length === 0) return null
+  return activeTourStep.value.badges[activeTourBadgeIndex.value] || null
+})
+
+// Calculate optimal spotlight cutout dimensions to make target fields and buttons 100% visible
+const tourCutoutStyle = computed(() => {
+  if (!activeTourBadge.value) return {}
+  const title = (activeTourBadge.value.title || '').toLowerCase()
+  const loc = (activeTourBadge.value.location || '').toLowerCase()
+
+  let w = 180
+  let h = 48
+  let radius = 10
+
+  if (title.includes('search') || title.includes('field') || title.includes('input') || title.includes('name') || title.includes('email') || title.includes('dropdown') || title.includes('selector') || loc.includes('row')) {
+    w = 260
+    h = 54
+    radius = 10
+  } else if (title.includes('avatar') || title.includes('icon') || title.includes('logo') || title.includes('dot')) {
+    w = 64
+    h = 64
+    radius = 32
+  } else if (title.includes('header') || title.includes('modal top') || title.includes('toolbar')) {
+    w = 320
+    h = 46
+    radius = 8
+  } else if (title.includes('button') || title.includes('action') || title.includes('save') || title.includes('cancel') || title.includes('refresh') || title.includes('toggle')) {
+    w = 160
+    h = 46
+    radius = 10
+  }
+
+  return {
+    left: `${activeTourBadge.value.x}%`,
+    top: `${activeTourBadge.value.y}%`,
+    width: `${w}px`,
+    height: `${h}px`,
+    borderRadius: `${radius}px`,
+  }
+})
+
+// Dynamic positioning: card tracks the active control and strictly avoids covering the highlighted object
+const isTourCardBelow = computed(() => {
+  if (!activeTourBadge.value) return true
+  // If control is in the upper 48% of the screen, place the card safely below it
+  // If control is in the lower half (> 48%), place the card safely above it
+  return activeTourBadge.value.y <= 48
+})
+
+const tourCardStyle = computed(() => {
+  if (!activeTourBadge.value) return {}
+  const b = activeTourBadge.value
+  const below = isTourCardBelow.value
+
+  const title = (b.title || '').toLowerCase()
+  const loc = (b.location || '').toLowerCase()
+  let halfH = 24
+  if (title.includes('search') || title.includes('field') || title.includes('input') || loc.includes('row')) {
+    halfH = 27
+  } else if (title.includes('avatar') || title.includes('icon') || title.includes('logo')) {
+    halfH = 32
+  } else if (title.includes('button') || title.includes('action')) {
+    halfH = 23
+  }
+
+  // Safe distance between target cutout and guidance card
+  const clearance = halfH + 18
+
+  // Follow horizontal navigation, clamped between 18% and 82% so compact card stays on-screen
+  let targetX = b.x
+  if (targetX < 18) targetX = 18
+  if (targetX > 82) targetX = 82
+
+  if (below) {
+    return {
+      left: `${targetX}%`,
+      top: `calc(${b.y}% + ${clearance}px)`,
+      bottom: 'auto',
+      transform: 'translateX(-50%)',
+    }
+  } else {
+    return {
+      left: `${targetX}%`,
+      bottom: `calc(100% - ${b.y}% + ${clearance}px)`,
+      top: 'auto',
+      transform: 'translateX(-50%)',
+    }
+  }
+})
+
+const startGuidedTour = (step: StepItem) => {
+  if (!step.badges || step.badges.length === 0) return
+  if (!lightboxOpen.value || activeLightboxStep.value?.number !== step.number) {
+    openLightbox(step)
+  }
+  activeTourStep.value = step
+  activeTourBadgeIndex.value = 0
+}
+
+const toggleModalTour = () => {
+  if (activeTourStep.value) {
+    exitGuidedTour()
+  } else if (activeLightboxStep.value) {
+    startGuidedTour(activeLightboxStep.value)
+  }
+}
+
+const nextTourBadge = () => {
+  if (!activeTourStep.value?.badges) return
+  if (activeTourBadgeIndex.value < activeTourStep.value.badges.length - 1) {
+    activeTourBadgeIndex.value++
+  } else {
+    activeTourStep.value = null
+  }
+}
+
+const prevTourBadge = () => {
+  if (activeTourBadgeIndex.value > 0) {
+    activeTourBadgeIndex.value--
+  }
+}
+
+const exitGuidedTour = () => {
+  activeTourStep.value = null
+}
+
+const handleTourKeydown = (e: KeyboardEvent) => {
+  // If user is typing in an input/textarea in the page or sandbox, don't intercept
+  const target = e.target as HTMLElement | null
+  if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+    return
+  }
+
+  if (activeTourStep.value) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'Enter') {
+      e.preventDefault()
+      e.stopPropagation()
+      e.stopImmediatePropagation()
+      nextTourBadge()
+      return
+    }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault()
+      e.stopPropagation()
+      e.stopImmediatePropagation()
+      prevTourBadge()
+      return
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault()
+      e.stopPropagation()
+      e.stopImmediatePropagation()
+      exitGuidedTour()
+      return
+    }
+  } else if (lightboxOpen.value) {
+    if (e.key === 'ArrowRight') {
+      e.preventDefault()
+      e.stopPropagation()
+      e.stopImmediatePropagation()
+      if (canNextLightbox.value) nextLightboxStep()
+      return
+    }
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault()
+      e.stopPropagation()
+      e.stopImmediatePropagation()
+      if (canPrevLightbox.value) prevLightboxStep()
+      return
+    }
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleTourKeydown, true)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleTourKeydown, true)
+})
+
+// -------------------------------------------------------------
+// Direct Badge-to-Sandbox Deep Linking
+// -------------------------------------------------------------
+const sandboxToastActive = ref(false)
+const sandboxNoticeToast = ref('')
+
+const jumpToSandboxFeature = (badge: StepBadge | UIFeatureControl) => {
+  experienceTab.value = 'sandbox'
+  lightboxOpen.value = false
+  activeTourStep.value = null
+
+  nextTick(() => {
+    const targetEl = document.getElementById(`${props.module.id}-sandbox-section`)
+    if (targetEl) {
+      targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+
+    const sandbox = getActiveSandbox()
+    if (!sandbox) return
+
+    const title = ('title' in badge ? badge.title : badge.name) || ''
+    const lower = title.toLowerCase()
+    const purpose = ('purpose' in badge ? badge.purpose : '')?.toLowerCase() || ''
+    const action = ('action' in badge ? badge.action : '')?.toLowerCase() || ''
+    const fullText = `${lower} ${purpose} ${action}`
+
+    // 1. Create Modal
+    if (fullText.includes('create') || fullText.includes('add ') || fullText.includes('+ add') || fullText.includes('new ') || fullText.includes('modal header')) {
+      if (typeof sandbox.openCreateDialog === 'function') {
+        sandbox.setMode?.('play')
+        sandbox.openCreateDialog()
+      } else {
+        const key = mapControlToFeatureKey(props.module.id, title)
+        sandbox.focusFeature?.(key)
+      }
+    }
+    // 2. Edit Modal
+    else if (fullText.includes('edit') || fullText.includes('update') || fullText.includes('modify')) {
+      if (typeof sandbox.openEdit === 'function') {
+        sandbox.setMode?.('play')
+        sandbox.openEdit()
+      } else {
+        sandbox.focusFeature?.('action_menu')
+      }
+    }
+    // 3. View Profile / Details Modal
+    else if (fullText.includes('profile') || fullText.includes('view') || fullText.includes('avatar') || fullText.includes('card') || fullText.includes('row item')) {
+      if (typeof sandbox.openProfile === 'function') {
+        sandbox.setMode?.('play')
+        sandbox.openProfile()
+      } else {
+        const key = mapControlToFeatureKey(props.module.id, title)
+        sandbox.focusFeature?.(key)
+      }
+    }
+    // 4. Search
+    else if (fullText.includes('search') || fullText.includes('magnify')) {
+      sandbox.setMode?.('play')
+      if (props.module.id === 'mod-departments') sandbox.setSearch?.('Finance')
+      else if (props.module.id === 'mod-division') sandbox.setSearch?.('Operations')
+      else sandbox.setSearch?.('Manager')
+    }
+    // 5. Filter
+    else if (fullText.includes('filter') || fullText.includes('entity') || fullText.includes('department') || fullText.includes('tier') || fullText.includes('dropdown')) {
+      sandbox.focusFeature?.(mapControlToFeatureKey(props.module.id, title))
+    }
+    // 6. Refresh
+    else if (fullText.includes('refresh') || fullText.includes('sync')) {
+      if (typeof sandbox.triggerRefresh === 'function') {
+        sandbox.setMode?.('play')
+        sandbox.triggerRefresh()
+      } else {
+        sandbox.focusFeature?.('refresh')
+      }
+    }
+    // Fallback
+    else {
+      const key = mapControlToFeatureKey(props.module.id, title)
+      sandbox.focusFeature?.(key)
+    }
+
+    sandboxNoticeToast.value = `Switched to Interactive Sandbox & opened: ${title}`
+    sandboxToastActive.value = true
+  })
+}
+
+// Watch module change to reset tour state
+watch(() => props.module.id, () => {
+  activeTourStep.value = null
+}, { immediate: true })
 
 const copyStepLink = (stepNum: number) => {
   const url = `${window.location.origin}${window.location.pathname}#step-${stepNum}`
@@ -2346,11 +2895,13 @@ const calloutColor = computed(() => {
   z-index: 10;
 }
 
-/* Floating Hover Popup Card for Badges */
+/* Floating Hover Popup Card for Badges (Positioned strictly above number) */
 .guide-popup-card {
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(var(--v-theme-on-surface), 0.08) !important;
-  backdrop-filter: blur(8px);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.32), 0 0 0 1px rgba(var(--v-theme-on-surface), 0.08) !important;
+  backdrop-filter: blur(10px);
   pointer-events: auto;
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
 }
 
 .badge-number-indicator {
@@ -2364,5 +2915,176 @@ const calloutColor = computed(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Guided Spotlight Tour Elements (Department, Division, Position) */
+.screenshot-badge-pin.is-tour-focused {
+  transform: translate(-50%, -50%) scale(1.35) !important;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.5), 0 0 20px rgba(245, 158, 11, 0.9) !important;
+  z-index: 25 !important;
+}
+
+.tour-spotlight-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: auto;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+/* Crystal-Clear Cutout: Everything OUTSIDE is dimmed, target field/button inside remains 100% visible & sharp */
+.tour-field-spotlight-cutout {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  background: transparent !important;
+  box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.68), 0 0 0 2px rgb(var(--v-theme-primary)), 0 0 24px rgba(2, 132, 199, 0.75);
+  border-radius: 10px;
+  z-index: 22;
+  pointer-events: none;
+  transition: left 0.32s cubic-bezier(0.34, 1.3, 0.64, 1),
+              top 0.32s cubic-bezier(0.34, 1.3, 0.64, 1),
+              width 0.28s ease,
+              height 0.28s ease,
+              border-radius 0.28s ease;
+}
+
+.cutout-corner {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-color: #38bdf8;
+  border-style: solid;
+  pointer-events: none;
+}
+
+.corner-tl {
+  top: -3px;
+  left: -3px;
+  border-width: 3px 0 0 3px;
+  border-top-left-radius: 4px;
+}
+
+.corner-tr {
+  top: -3px;
+  right: -3px;
+  border-width: 3px 3px 0 0;
+  border-top-right-radius: 4px;
+}
+
+.corner-bl {
+  bottom: -3px;
+  left: -3px;
+  border-width: 0 0 3px 3px;
+  border-bottom-left-radius: 4px;
+}
+
+.corner-br {
+  bottom: -3px;
+  right: -3px;
+  border-width: 0 3px 3px 0;
+  border-bottom-right-radius: 4px;
+}
+
+/* Floating Pill Badge Directly Labeling the Active Field */
+.field-focus-badge-pill {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.95);
+  color: #ffffff;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1.5px solid #38bdf8;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45), 0 0 12px rgba(56, 189, 248, 0.4);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: pill-bounce 0.25s ease-out;
+}
+
+.field-focus-badge-pill.pill-at-bottom {
+  bottom: auto;
+  top: calc(100% + 10px);
+}
+
+.field-focus-badge-pill .pill-number {
+  background: #0284c7;
+  color: #ffffff;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.field-focus-badge-pill .pill-title {
+  max-width: 180px;
+  font-size: 0.73rem;
+}
+
+@keyframes pill-bounce {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Floating Guidance Card: dynamically follows navigation target with collision avoidance */
+.floating-tour-card {
+  position: absolute;
+  width: 350px;
+  max-width: calc(100% - 24px);
+  z-index: 30;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(var(--v-theme-on-surface), 0.12) !important;
+  backdrop-filter: blur(14px);
+  pointer-events: auto;
+  animation: tour-card-appear 0.22s ease-out;
+  transition: left 0.32s cubic-bezier(0.25, 1, 0.5, 1),
+              top 0.32s cubic-bezier(0.25, 1, 0.5, 1),
+              bottom 0.32s cubic-bezier(0.25, 1, 0.5, 1),
+              opacity 0.2s ease;
+}
+
+.tour-action-callout {
+  background: rgba(var(--v-theme-primary), 0.08);
+  border-color: rgba(var(--v-theme-primary), 0.25) !important;
+}
+
+.tour-kbd {
+  display: inline-block;
+  padding: 1px 5px;
+  font-size: 11px;
+  font-family: inherit;
+  font-weight: 700;
+  line-height: 1.4;
+  color: rgb(var(--v-theme-on-surface));
+  background-color: rgba(var(--v-theme-surface-variant), 0.8);
+  border: 1px solid rgba(var(--v-border-color), 0.3);
+  border-radius: 4px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes tour-card-appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 </style>

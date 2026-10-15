@@ -1235,7 +1235,21 @@ const focusFeature = (key: string) => {
 
 defineExpose({
   focusFeature,
-  setMode: (mode: 'play' | 'guide') => { sandboxMode.value = mode }
+  setMode: (mode: 'play' | 'guide') => { sandboxMode.value = mode },
+  openCreateDialog,
+  openProfile: (dept?: DummyDepartment) => {
+    viewDepartment(dept || departments.value[0])
+  },
+  openEdit: (dept?: DummyDepartment) => {
+    editDepartment(dept || departments.value[0])
+  },
+  setSearch: (query: string) => {
+    searchQuery.value = query
+  },
+  setEntity: (ent: string) => {
+    selectedEntity.value = ent
+  },
+  triggerRefresh,
 })
 </script>
 

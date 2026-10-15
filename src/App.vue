@@ -348,7 +348,12 @@ const handlePrint = () => {
 const handleKeyDown = (e: KeyboardEvent) => {
   // Ignore arrow navigation if user is typing in an input or textarea
   const target = e.target as HTMLElement
-  if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+  if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+    return
+  }
+
+  // If a dialog or modal is open (e.g. lightbox preview or tour), do not turn book chapters
+  if (document.querySelector('.v-overlay--active') || document.body.classList.contains('v-overlay--scroll-blocked')) {
     return
   }
 
