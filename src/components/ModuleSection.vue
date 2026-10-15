@@ -1,10 +1,7 @@
 <template>
   <article :id="module.id" class="module-wrapper mb-8">
     <!-- Top Minimal Breadcrumb -->
-    <BaseBreadcrumb
-      :title="module.title"
-      :breadcrumbs="breadcrumbs"
-    />
+    <BaseBreadcrumb :title="module.title" :breadcrumbs="breadcrumbs" />
 
     <!-- Main Module Documentation Card (Borderless) -->
     <v-card class="module-card pa-4 pa-sm-6 pa-md-8 rounded-lg bg-surface" elevation="0">
@@ -20,13 +17,7 @@
                 {{ module.title }}
               </h1>
               <!-- Menu Navigation Path (User-friendly) -->
-              <v-chip
-                v-if="module.menuPath"
-                size="x-small"
-                color="primary"
-                variant="tonal"
-                class="font-weight-medium"
-              >
+              <v-chip v-if="module.menuPath" size="x-small" color="primary" variant="tonal" class="font-weight-medium">
                 <v-icon start icon="mdi-navigation-variant-outline" size="13" />
                 Menu: {{ module.menuPath }}
               </v-chip>
@@ -49,29 +40,18 @@
           <span class="text-caption font-weight-semibold text-primary">
             Chapter {{ module.num }} of 10
           </span>
-          <div v-if="module.authorizedRoles && module.authorizedRoles.length > 0" class="d-flex flex-wrap align-center ga-1">
+          <div v-if="module.authorizedRoles && module.authorizedRoles.length > 0"
+            class="d-flex flex-wrap align-center ga-1">
             <span class="text-caption font-weight-medium text-medium-emphasis mr-1">Authorized Roles:</span>
-            <v-chip
-              v-for="role in module.authorizedRoles"
-              :key="role"
-              size="x-small"
-              variant="tonal"
-              color="primary"
-              class="font-weight-medium"
-            >
+            <v-chip v-for="role in module.authorizedRoles" :key="role" size="x-small" variant="tonal" color="primary"
+              class="font-weight-medium">
               <v-icon start icon="mdi-account-lock-outline" size="13" />
               {{ role }}
             </v-chip>
           </div>
           <div v-else class="d-flex flex-wrap ga-1">
-            <v-chip
-              v-for="perm in module.permissions"
-              :key="perm"
-              size="x-small"
-              variant="tonal"
-              color="secondary"
-              class="font-weight-medium"
-            >
+            <v-chip v-for="perm in module.permissions" :key="perm" size="x-small" variant="tonal" color="secondary"
+              class="font-weight-medium">
               <v-icon start icon="mdi-shield-check-outline" size="13" />
               {{ perm }}
             </v-chip>
@@ -171,17 +151,13 @@
                 <th class="font-weight-bold text-caption text-uppercase" style="width: 220px;">Component / Button</th>
                 <th class="font-weight-bold text-caption text-uppercase" style="width: 160px;">Screen Location</th>
                 <th class="font-weight-bold text-caption text-uppercase">Operational Purpose & Functionality</th>
-                <th class="font-weight-bold text-caption text-uppercase text-right" style="width: 120px;">Try Simulation</th>
+                <th class="font-weight-bold text-caption text-uppercase text-right" style="width: 120px;">Try Simulation
+                </th>
               </tr>
             </thead>
             <tbody>
-              <tr
-                v-for="ctrl in module.uiFeatures"
-                :key="ctrl.name"
-                class="control-row cursor-pointer"
-                title="Click to test interactive simulation"
-                @click="openControlSimulator(ctrl)"
-              >
+              <tr v-for="ctrl in module.uiFeatures" :key="ctrl.name" class="control-row cursor-pointer"
+                title="Click to test interactive simulation" @click="openControlSimulator(ctrl)">
                 <td class="py-3">
                   <div class="d-flex align-center ga-2">
                     <v-avatar size="28" color="primary" variant="tonal" class="rounded control-avatar">
@@ -213,6 +189,9 @@
                     @click.stop="openControlSimulator(ctrl)"
                   >
                     {{ hasSandbox ? 'Try in Sandbox' : 'Simulate' }}
+                  <v-btn size="x-small" variant="tonal" color="primary" class="text-none font-weight-bold"
+                    prepend-icon="mdi-play-circle-outline" @click.stop="openControlSimulator(ctrl)">
+                    Simulate
                   </v-btn>
                 </td>
               </tr>
@@ -221,197 +200,262 @@
         </v-card>
       </section>
 
+      <!-- Modern Documentation Underline Tabs (User, Entity, and Branch Modules) -->
+      <div v-if="module.id === 'mod-user' || module.id === 'mod-entity' || module.id === 'mod-branch'"
+        class="module-docs-tabs-wrapper mb-6">
+        <div class="module-docs-tabs d-flex align-center ga-1 border-b">
+          <button type="button" class="module-doc-tab d-inline-flex align-center ga-2 text-none font-weight-medium"
+            :class="{ 'is-active': experienceTab === 'walkthrough' }" @click="experienceTab = 'walkthrough'">
+            <v-icon icon="mdi-book-open-page-variant-outline" size="18" />
+            <span>Handbook Walkthrough</span>
+          </button>
+
+          <button type="button" class="module-doc-tab d-inline-flex align-center ga-2 text-none font-weight-medium"
+            :class="{ 'is-active': experienceTab === 'sandbox' }" @click="experienceTab = 'sandbox'">
+            <v-icon icon="mdi-flask-outline" size="18" />
+            <span>Interactive Sandbox</span>
+            <v-chip size="x-small" color="primary" variant="tonal" class="font-weight-bold ml-1">
+              Live
+            </v-chip>
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Sandbox Mode -->
+      <section v-if="module.id === 'mod-user' && experienceTab === 'sandbox'" class="mb-8">
+        <UserManagementSandbox />
+      </section>
+
+      <section v-else-if="module.id === 'mod-entity' && experienceTab === 'sandbox'" class="mb-8">
+        <EntityManagementSandbox />
+      </section>
+
+      <section v-else-if="module.id === 'mod-branch' && experienceTab === 'sandbox'" class="mb-8">
+        <BranchManagementSandbox />
+      </section>
+
+      <!-- Standard Walkthrough & Screenshots Mode -->
+      <template v-else>
         <!-- Interface Screenshot Visual Reference (Only for modules without visual step handbook) -->
         <section v-if="!hasVisualSteps" class="mb-8">
           <ModuleScreenshot :module="module" />
         </section>
 
-      <!-- Step-by-Step Operating Procedure -->
-      <section v-if="module.steps && module.steps.length > 0" class="mb-8">
-        <div class="d-flex align-center justify-space-between mb-4 flex-wrap ga-2">
-          <div>
-            <h2 class="section-title mb-1">
-              {{ hasVisualSteps ? 'Step-by-Step Handbook Walkthrough' : 'Step-by-Step Procedure' }}
-            </h2>
-            <p v-if="hasVisualSteps" class="text-caption text-medium-emphasis mb-0">
-              Follow each visual step below to complete standard operations in this module. Click any screenshot to view full resolution.
-            </p>
-          </div>
-          <v-chip v-if="hasVisualSteps" size="small" color="primary" variant="tonal" class="font-weight-bold">
-            <v-icon start icon="mdi-book-open-page-variant-outline" size="16" />
-            {{ module.steps.length }} Visual Steps
-          </v-chip>
-        </div>
-
-        <!-- Sequential Visual Walkthrough (Handbook Style for User, Entity, Branch) -->
-        <div v-if="hasVisualSteps" class="d-flex flex-column ga-6">
-          <v-card
-            v-for="step in module.steps"
-            :key="step.number"
-            class="visual-step-card rounded-lg pa-4 pa-sm-5 pa-md-6 inner-card"
-            elevation="0"
-          >
-            <!-- Step Header Bar -->
-            <div class="d-flex flex-wrap align-center justify-space-between ga-3 mb-3">
-              <div class="d-flex align-center ga-3">
-                <span class="step-badge">STEP 0{{ step.number }}</span>
-                <h3 class="text-subtitle-1 font-weight-bold mb-0 text-high-emphasis">
-                  {{ step.title }}
-                </h3>
-              </div>
-              <div class="d-flex align-center ga-2">
-                <v-btn
-                  size="x-small"
-                  variant="text"
-                  color="medium-emphasis"
-                  :prepend-icon="copiedStep === step.number ? 'mdi-check' : 'mdi-link-variant'"
-                  class="text-none font-weight-medium"
-                  :title="copiedStep === step.number ? 'Link copied!' : 'Copy direct link to this step'"
-                  aria-label="Copy step link"
-                  @click="copyStepLink(step.number)"
-                >
-                  {{ copiedStep === step.number ? 'Copied!' : 'Copy link' }}
-                </v-btn>
-                <v-chip
-                  v-if="step.image"
-                  size="x-small"
-                  variant="tonal"
-                  color="primary"
-                  class="font-weight-medium cursor-pointer"
-                  @click="openLightbox(step)"
-                >
-                  <v-icon start icon="mdi-magnify-plus-outline" size="13" />
-                  Expand image
-                </v-chip>
-              </div>
+        <!-- Step-by-Step Operating Procedure -->
+        <section v-if="module.steps && module.steps.length > 0" class="mb-8">
+          <div class="d-flex align-center justify-space-between mb-4 flex-wrap ga-2">
+            <div>
+              <h2 class="section-title mb-1">
+                {{ hasVisualSteps ? 'Step-by-Step Handbook Walkthrough' : 'Step-by-Step Procedure' }}
+              </h2>
+              <p v-if="hasVisualSteps" class="text-caption text-medium-emphasis mb-0">
+                Follow each visual step below to complete standard operations in this module. Click any screenshot to
+                view full resolution.
+              </p>
             </div>
+            <v-chip v-if="hasVisualSteps" size="small" color="primary" variant="tonal" class="font-weight-bold">
+              <v-icon start icon="mdi-book-open-page-variant-outline" size="16" />
+              {{ module.steps.length }} Visual Steps
+            </v-chip>
+          </div>
 
-            <!-- Step Operational Guidance Text -->
-            <p class="text-body-2 text-high-emphasis leading-relaxed mb-4">
-              {{ step.description }}
-            </p>
-
-            <!-- Embedded Step Screenshot Frame -->
-            <div
-              v-if="step.image"
-              class="step-image-frame rounded-lg overflow-hidden border cursor-pointer bg-background position-relative"
-              @click="openLightbox(step)"
-            >
-              <!-- Window top bar -->
-              <div class="window-bar px-3 px-sm-4 py-2 bg-surface-variant d-flex align-center justify-space-between border-b">
-                <div class="d-flex align-center ga-2 text-truncate">
-                  <span class="window-dot d-none d-sm-inline-block" style="background-color: rgba(var(--v-theme-on-surface), 0.25);" />
-                  <span class="window-dot d-none d-sm-inline-block" style="background-color: rgba(var(--v-theme-on-surface), 0.25);" />
-                  <span class="window-dot d-none d-sm-inline-block" style="background-color: rgba(var(--v-theme-on-surface), 0.25);" />
-                  <span class="text-caption font-weight-medium ml-1 ml-sm-2 text-medium-emphasis text-truncate">
-                    Step {{ step.number }}: {{ step.title }}
-                  </span>
+          <!-- Sequential Visual Walkthrough (Handbook Style for User, Entity, Branch) -->
+          <div v-if="hasVisualSteps" class="d-flex flex-column ga-6">
+            <v-card v-for="step in module.steps" :key="step.number"
+              class="visual-step-card rounded-lg pa-4 pa-sm-5 pa-md-6 inner-card" elevation="0">
+              <!-- Step Header Bar -->
+              <div class="d-flex flex-wrap align-center justify-space-between ga-3 mb-3">
+                <div class="d-flex align-center ga-3">
+                  <span class="step-badge">STEP 0{{ step.number }}</span>
+                  <h3 class="text-subtitle-1 font-weight-bold mb-0 text-high-emphasis">
+                    {{ step.title }}
+                  </h3>
                 </div>
-                <v-chip size="x-small" variant="tonal" color="primary" class="d-none d-sm-inline-flex flex-shrink-0">
-                  Screenshot Reference
-                </v-chip>
-              </div>
-
-              <!-- Real Image View -->
-              <div class="position-relative">
-                <v-img
-                  :src="step.image"
-                  :alt="step.alt || step.title"
-                  max-height="460"
-                  cover
-                  class="step-screenshot-img"
-                >
-                  <template #placeholder>
-                    <div class="d-flex align-center justify-center fill-height bg-surface-variant pa-8">
-                      <v-progress-circular indeterminate color="primary" size="32" />
-                    </div>
-                  </template>
-                </v-img>
-
-                <!-- Hover Overlay -->
-                <div class="step-image-overlay d-flex align-center justify-center">
-                  <v-chip color="white" variant="flat" class="text-primary font-weight-bold">
-                    <v-icon start icon="mdi-arrow-expand" />
-                    Click to View Full-Size Screenshot
+                <div class="d-flex align-center ga-2">
+                  <v-btn size="x-small" variant="text" color="medium-emphasis"
+                    :prepend-icon="copiedStep === step.number ? 'mdi-check' : 'mdi-link-variant'"
+                    class="text-none font-weight-medium"
+                    :title="copiedStep === step.number ? 'Link copied!' : 'Copy direct link to this step'"
+                    aria-label="Copy step link" @click="copyStepLink(step.number)">
+                    {{ copiedStep === step.number ? 'Copied!' : 'Copy link' }}
+                  </v-btn>
+                  <v-chip v-if="step.image" size="x-small" variant="tonal" color="primary"
+                    class="font-weight-medium cursor-pointer" @click="openLightbox(step)">
+                    <v-icon start icon="mdi-magnify-plus-outline" size="13" />
+                    Expand image
                   </v-chip>
                 </div>
               </div>
 
-              <!-- Caption & Highlights Footer -->
-              <div class="pa-4 bg-surface border-t">
+              <!-- Step Operational Guidance Text -->
+              <p class="text-body-2 text-high-emphasis leading-relaxed mb-4">
+                {{ step.description }}
+              </p>
+
+              <!-- Embedded Step Screenshot Frame -->
+              <div v-if="step.image"
+                class="step-image-frame rounded-lg overflow-hidden border cursor-pointer bg-background position-relative"
+                @click="openLightbox(step)">
+                <!-- Window top bar -->
+                <div
+                  class="window-bar px-3 px-sm-4 py-2 bg-surface-variant d-flex align-center justify-space-between border-b">
+                  <div class="d-flex align-center ga-2 text-truncate">
+                    <span class="window-dot d-none d-sm-inline-block"
+                      style="background-color: rgba(var(--v-theme-on-surface), 0.25);" />
+                    <span class="window-dot d-none d-sm-inline-block"
+                      style="background-color: rgba(var(--v-theme-on-surface), 0.25);" />
+                    <span class="window-dot d-none d-sm-inline-block"
+                      style="background-color: rgba(var(--v-theme-on-surface), 0.25);" />
+                    <span class="text-caption font-weight-medium ml-1 ml-sm-2 text-medium-emphasis text-truncate">
+                      Step {{ step.number }}: {{ step.title }}
+                    </span>
+                  </div>
+                  <div class="d-none d-sm-flex align-center ga-2 flex-shrink-0">
+                    <v-chip v-if="step.badges && step.badges.length > 0" size="x-small" variant="flat" color="primary"
+                      class="font-weight-medium">
+                      <v-icon start icon="mdi-cursor-default-click-outline" size="12" />
+                      Hover badges for info
+                    </v-chip>
+                    <v-chip size="x-small" variant="tonal" color="primary">
+                      Screenshot Reference
+                    </v-chip>
+                  </div>
+                </div>
+
+                <!-- Real Image View -->
+                <div class="position-relative">
+                  <v-img :src="step.image" :alt="step.alt || step.title" max-height="460" cover
+                    class="step-screenshot-img">
+                    <template #placeholder>
+                      <div class="d-flex align-center justify-center fill-height bg-surface-variant pa-8">
+                        <v-progress-circular indeterminate color="primary" size="32" />
+                      </div>
+                    </template>
+                  </v-img>
+
+                  <!-- Dynamic Numbered Badges Overlay on Preview with Hover Pop-up -->
+                  <template v-if="step.badges && step.badges.length > 0">
+                    <v-menu v-for="b in step.badges" :key="b.number" open-on-hover :open-delay="80" :close-delay="150"
+                      :location="getBadgeMenuLocation(b)" :close-on-content-click="false" max-width="340">
+                      <template #activator="{ props: menuProps }">
+                        <button v-bind="menuProps" type="button" class="screenshot-badge-pin badge-pin-preview"
+                          :style="{ left: `${b.x}%`, top: `${b.y}%` }" :aria-label="`Badge ${b.number}: ${b.title}`"
+                          @click.stop="openLightbox(step)">
+                          <span>{{ b.number }}</span>
+                        </button>
+                      </template>
+
+                      <!-- Floating Hover Pop-Up Card -->
+                      <v-card class="guide-popup-card rounded-xl pa-3 elevation-10 border bg-surface text-start"
+                        max-width="340">
+                        <div class="d-flex align-start ga-2 mb-2">
+                          <div class="badge-number-indicator flex-shrink-0">
+                            {{ b.number }}
+                          </div>
+                          <div class="flex-grow-1 min-w-0">
+                            <h4 class="text-subtitle-2 font-weight-bold text-high-emphasis mb-0 leading-tight">
+                              {{ b.title }}
+                            </h4>
+                            <div v-if="b.location" class="text-caption text-primary font-weight-medium"
+                              style="font-size: 0.72rem;">
+                              {{ b.location }}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="mb-2">
+                          <div class="text-caption font-weight-bold text-medium-emphasis mb-0.5"
+                            style="font-size: 0.68rem; text-transform: uppercase;">
+                            Operational Purpose
+                          </div>
+                          <p class="text-caption text-high-emphasis mb-0 leading-relaxed" style="font-size: 0.74rem;">
+                            {{ b.purpose }}
+                          </p>
+                        </div>
+
+                        <v-divider class="my-2 opacity-30" />
+
+                        <div>
+                          <div class="text-caption font-weight-bold text-primary mb-0.5 d-flex align-center ga-1"
+                            style="font-size: 0.68rem; text-transform: uppercase;">
+                            <v-icon icon="mdi-play-circle-outline" size="13" />
+                            <span>Action Guidance</span>
+                          </div>
+                          <p class="text-caption text-medium-emphasis mb-0 leading-relaxed" style="font-size: 0.73rem;">
+                            {{ b.action }}
+                          </p>
+                        </div>
+                      </v-card>
+                    </v-menu>
+                  </template>
+
+                  <!-- Hover Overlay -->
+                  <div class="step-image-overlay d-flex align-center justify-center">
+                    <v-chip color="white" variant="flat" class="text-primary font-weight-bold shadow-md">
+                      <v-icon start icon="mdi-arrow-expand" />
+                      Click to View Full-Size &amp; Numbered Guide
+                    </v-chip>
+                  </div>
+                </div>
+
+                <!-- Caption & Highlights Footer -->
+                <div class="pa-4 bg-surface border-t">
+                  <p v-if="step.caption" class="text-body-2 font-weight-medium text-high-emphasis mb-2 leading-relaxed">
+                    {{ step.caption }}
+                  </p>
+
+                  <div v-if="step.highlights && step.highlights.length > 0"
+                    class="d-flex flex-wrap align-center ga-1 pt-1">
+                    <span class="text-caption font-weight-bold text-medium-emphasis mr-1">Visible Features &
+                      Controls:</span>
+                    <v-chip v-for="hl in step.highlights" :key="hl" size="x-small" variant="tonal" color="primary"
+                      class="font-weight-medium">
+                      <v-icon start icon="mdi-check-circle-outline" size="12" />
+                      {{ hl }}
+                    </v-chip>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Highlights & Notes Footer when no image is specified -->
+              <div v-else-if="step.caption || (step.highlights && step.highlights.length > 0)"
+                class="pa-4 bg-surface rounded-lg border mt-2">
                 <p v-if="step.caption" class="text-body-2 font-weight-medium text-high-emphasis mb-2 leading-relaxed">
                   {{ step.caption }}
                 </p>
 
-                <div v-if="step.highlights && step.highlights.length > 0" class="d-flex flex-wrap align-center ga-1 pt-1">
-                  <span class="text-caption font-weight-bold text-medium-emphasis mr-1">Visible Features & Controls:</span>
-                  <v-chip
-                    v-for="hl in step.highlights"
-                    :key="hl"
-                    size="x-small"
-                    variant="tonal"
-                    color="primary"
-                    class="font-weight-medium"
-                  >
+                <div v-if="step.highlights && step.highlights.length > 0"
+                  class="d-flex flex-wrap align-center ga-1 pt-1">
+                  <span class="text-caption font-weight-bold text-medium-emphasis mr-1">Visible Features &
+                    Controls:</span>
+                  <v-chip v-for="hl in step.highlights" :key="hl" size="x-small" variant="tonal" color="primary"
+                    class="font-weight-medium">
                     <v-icon start icon="mdi-check-circle-outline" size="12" />
                     {{ hl }}
                   </v-chip>
                 </div>
               </div>
-            </div>
+            </v-card>
+          </div>
 
-            <!-- Highlights & Notes Footer when no image is specified -->
-            <div
-              v-else-if="step.caption || (step.highlights && step.highlights.length > 0)"
-              class="pa-4 bg-surface rounded-lg border mt-2"
-            >
-              <p v-if="step.caption" class="text-body-2 font-weight-medium text-high-emphasis mb-2 leading-relaxed">
-                {{ step.caption }}
-              </p>
-
-              <div v-if="step.highlights && step.highlights.length > 0" class="d-flex flex-wrap align-center ga-1 pt-1">
-                <span class="text-caption font-weight-bold text-medium-emphasis mr-1">Visible Features & Controls:</span>
-                <v-chip
-                  v-for="hl in step.highlights"
-                  :key="hl"
-                  size="x-small"
-                  variant="tonal"
-                  color="primary"
-                  class="font-weight-medium"
-                >
-                  <v-icon start icon="mdi-check-circle-outline" size="12" />
-                  {{ hl }}
-                </v-chip>
+          <!-- Standard Compact Grid for Modules 4-9 (No step images) -->
+          <v-row v-else dense>
+            <v-col v-for="step in module.steps" :key="step.number" cols="12" sm="6" md="6" lg="3">
+              <div class="step-card pa-4 rounded-lg h-100 inner-card">
+                <div class="d-flex align-center ga-2 mb-2">
+                  <span class="step-circle">{{ step.number }}</span>
+                  <h3 class="text-subtitle-2 font-weight-bold mb-0">
+                    {{ step.title }}
+                  </h3>
+                </div>
+                <p class="text-caption text-medium-emphasis mb-0 leading-relaxed">
+                  {{ step.description }}
+                </p>
               </div>
-            </div>
-          </v-card>
-        </div>
-
-        <!-- Standard Compact Grid for Modules 4-9 (No step images) -->
-        <v-row v-else dense>
-          <v-col
-            v-for="step in module.steps"
-            :key="step.number"
-            cols="12"
-            sm="6"
-            md="6"
-            lg="3"
-          >
-            <div class="step-card pa-4 rounded-lg h-100 inner-card">
-              <div class="d-flex align-center ga-2 mb-2">
-                <span class="step-circle">{{ step.number }}</span>
-                <h3 class="text-subtitle-2 font-weight-bold mb-0">
-                  {{ step.title }}
-                </h3>
-              </div>
-              <p class="text-caption text-medium-emphasis mb-0 leading-relaxed">
-                {{ step.description }}
-              </p>
-            </div>
-          </v-col>
-        </v-row>
-      </section>
-    </template>
+            </v-col>
+          </v-row>
+        </section>
+      </template>
 
       <!-- Form Fields Reference Table -->
       <section v-if="module.fields && module.fields.length > 0" class="mb-8">
@@ -434,12 +478,8 @@
                   <code class="field-name-code">{{ field.name }}</code>
                 </td>
                 <td>
-                  <v-chip
-                    size="x-small"
-                    :color="field.requirement === 'Required' ? 'primary' : 'secondary'"
-                    variant="flat"
-                    class="font-weight-bold"
-                  >
+                  <v-chip size="x-small" :color="field.requirement === 'Required' ? 'primary' : 'secondary'"
+                    variant="flat" class="font-weight-bold">
                     {{ field.requirement }}
                   </v-chip>
                 </td>
@@ -466,10 +506,7 @@
           <v-table density="comfortable" hover class="doc-table">
             <thead>
               <tr>
-                <th
-                  v-for="h in module.additionalTable.headers"
-                  :key="h"
-                >
+                <th v-for="h in module.additionalTable.headers" :key="h">
                   {{ h }}
                 </th>
               </tr>
@@ -492,13 +529,8 @@
       </section>
 
       <!-- Administrative Best Practices / Callout Alert with Distinct Visual Treatments -->
-      <v-alert
-        v-if="module.callout"
-        :color="calloutColor"
-        variant="tonal"
-        class="rounded-lg mt-5 border-s-4"
-        density="comfortable"
-      >
+      <v-alert v-if="module.callout" :color="calloutColor" variant="tonal" class="rounded-lg mt-5 border-s-4"
+        density="comfortable">
         <template #prepend>
           <v-icon :icon="calloutIcon" size="22" class="me-2" />
         </template>
@@ -512,19 +544,14 @@
     </v-card>
 
     <!-- Lightbox Dialog for Step Screenshots with Zoom, Fullscreen on mobile, and Esc support -->
-    <v-dialog v-model="lightboxOpen" max-width="1200" scrollable :fullscreen="smAndDown" @keydown.esc="lightboxOpen = false">
+    <v-dialog v-model="lightboxOpen" max-width="1200" scrollable :fullscreen="smAndDown"
+      @keydown.esc="lightboxOpen = false">
       <v-card class="rounded-lg overflow-hidden">
         <v-toolbar color="primary" density="comfortable" class="text-white">
           <v-toolbar-title class="text-subtitle-1 font-weight-bold">
             {{ module.num }}. {{ module.title }} &mdash; {{ lightboxTitle }}
           </v-toolbar-title>
           <v-spacer />
-          <v-btn
-            :icon="isLightboxZoomed ? 'mdi-magnify-minus-outline' : 'mdi-magnify-plus-outline'"
-            variant="text"
-            :title="isLightboxZoomed ? 'Reset zoom' : 'Enlarge image'"
-            @click="isLightboxZoomed = !isLightboxZoomed"
-          />
           <v-btn icon="mdi-close" variant="text" title="Close (Esc)" @click="lightboxOpen = false" />
         </v-toolbar>
 
@@ -537,34 +564,90 @@
 
             <div v-if="lightboxHighlights.length > 0" class="d-flex flex-wrap align-center ga-1 pt-1">
               <span class="text-caption font-weight-bold text-medium-emphasis mr-1">Visible Actions & Features:</span>
-              <v-chip
-                v-for="feat in lightboxHighlights"
-                :key="feat"
-                size="x-small"
-                variant="tonal"
-                color="primary"
-              >
+              <v-chip v-for="feat in lightboxHighlights" :key="feat" size="x-small" variant="tonal" color="primary">
                 <v-icon start icon="mdi-check-circle-outline" size="12" />
                 {{ feat }}
               </v-chip>
             </div>
+
+            <!-- Instruction to hover badges -->
+            <div v-if="activeLightboxStep?.badges && activeLightboxStep.badges.length > 0"
+              class="d-flex align-center ga-2 mt-2 pt-2 border-t text-caption text-primary font-weight-medium">
+              <v-icon icon="mdi-information-outline" size="16" />
+              <span>Hover over any numbered badge on the screenshot to view detailed component and feature
+                information.</span>
+            </div>
           </div>
 
-          <div class="rounded-lg border overflow-hidden bg-surface text-center">
-            <v-img
-              :src="lightboxImage"
-              :alt="lightboxTitle"
-              class="w-100 transition-all"
-              :style="{ transform: isLightboxZoomed ? 'scale(1.25)' : 'none', transformOrigin: 'top center' }"
-              max-height="750"
-              contain
-            />
+          <!-- Badged Screenshot Container -->
+          <div class="rounded-lg border overflow-hidden bg-surface text-center position-relative">
+            <div class="position-relative d-inline-block w-100">
+              <v-img :src="lightboxImage" :alt="lightboxTitle" class="w-100" max-height="780" contain />
+
+              <!-- Dynamic Numbered Badges in Lightbox with Hover Pop-up -->
+              <template v-if="activeLightboxStep?.badges && activeLightboxStep.badges.length > 0">
+                <v-menu v-for="b in activeLightboxStep.badges" :key="b.number" open-on-hover :open-delay="80"
+                  :close-delay="150" :location="getBadgeMenuLocation(b)" :close-on-content-click="false"
+                  max-width="360">
+                  <template #activator="{ props: menuProps }">
+                    <button v-bind="menuProps" type="button" class="screenshot-badge-pin"
+                      :style="{ left: `${b.x}%`, top: `${b.y}%` }" :aria-label="`Badge ${b.number}: ${b.title}`">
+                      <span>{{ b.number }}</span>
+                    </button>
+                  </template>
+
+                  <!-- Floating Hover Pop-Up Card -->
+                  <v-card class="guide-popup-card rounded-xl pa-3 pa-sm-4 elevation-12 border bg-surface text-start"
+                    max-width="360">
+                    <div class="d-flex align-start ga-2 mb-2">
+                      <div class="badge-number-indicator flex-shrink-0">
+                        {{ b.number }}
+                      </div>
+                      <div class="flex-grow-1 min-w-0">
+                        <h4 class="text-subtitle-2 font-weight-bold text-high-emphasis mb-0 leading-tight">
+                          {{ b.title }}
+                        </h4>
+                        <div v-if="b.location" class="text-caption text-primary font-weight-medium"
+                          style="font-size: 0.72rem;">
+                          {{ b.location }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="mb-2">
+                      <div class="text-caption font-weight-bold text-medium-emphasis mb-0.5"
+                        style="font-size: 0.68rem; text-transform: uppercase;">
+                        Operational Purpose
+                      </div>
+                      <p class="text-caption text-high-emphasis mb-0 leading-relaxed" style="font-size: 0.75rem;">
+                        {{ b.purpose }}
+                      </p>
+                    </div>
+
+                    <v-divider class="my-2 opacity-30" />
+
+                    <div>
+                      <div class="text-caption font-weight-bold text-primary mb-0.5 d-flex align-center ga-1"
+                        style="font-size: 0.68rem; text-transform: uppercase;">
+                        <v-icon icon="mdi-play-circle-outline" size="13" />
+                        <span>Action Guidance</span>
+                      </div>
+                      <p class="text-caption text-medium-emphasis mb-0 leading-relaxed" style="font-size: 0.73rem;">
+                        {{ b.action }}
+                      </p>
+                    </div>
+                  </v-card>
+                </v-menu>
+              </template>
+            </div>
           </div>
         </v-card-text>
 
         <v-card-actions class="px-4 py-3 bg-surface border-t">
           <span class="text-caption text-medium-emphasis">
-            <span v-if="module.menuPath">Menu: {{ module.menuPath }} &bull; </span>GGC HRIS Admin Handbook &bull; Chapter {{ module.num }}
+            <span v-if="module.menuPath">Menu: {{ module.menuPath }} &bull; </span>GGC HRIS Admin Handbook &bull;
+            Chapter {{
+              module.num }}
           </span>
           <v-spacer />
           <v-btn color="primary" variant="flat" class="text-none" @click="lightboxOpen = false">
@@ -575,12 +658,7 @@
     </v-dialog>
 
     <!-- Interactive Control Inspector & Micro-Simulator Modal (Option 1) -->
-    <v-dialog
-      v-model="simModalOpen"
-      :fullscreen="smAndDown"
-      max-width="680"
-      transition="dialog-bottom-transition"
-    >
+    <v-dialog v-model="simModalOpen" :fullscreen="smAndDown" max-width="680" transition="dialog-bottom-transition">
       <v-card v-if="selectedControl" class="rounded-xl overflow-hidden elevation-12 border bg-surface">
         <!-- Dialog Header Bar -->
         <v-toolbar color="surface" density="comfortable" class="border-b px-4">
@@ -634,21 +712,16 @@
             <!-- 1. REFRESH SIMULATOR -->
             <div v-if="controlType === 'refresh'" class="py-2 text-center">
               <div class="d-flex justify-center align-center ga-3 mb-4">
-                <v-btn
-                  color="primary"
-                  variant="flat"
-                  size="large"
-                  :loading="simRefreshSpinning"
-                  class="text-none font-weight-bold px-6 shadow-sm"
-                  prepend-icon="mdi-refresh"
-                  @click="triggerSimRefresh"
-                >
+                <v-btn color="primary" variant="flat" size="large" :loading="simRefreshSpinning"
+                  class="text-none font-weight-bold px-6 shadow-sm" prepend-icon="mdi-refresh"
+                  @click="triggerSimRefresh">
                   Click to Refresh Data
                 </v-btn>
               </div>
 
               <v-fade-transition>
-                <div v-if="simSyncSuccess" class="sync-success-pill pa-3 rounded-lg border d-inline-flex align-center ga-2 text-caption font-weight-medium">
+                <div v-if="simSyncSuccess"
+                  class="sync-success-pill pa-3 rounded-lg border d-inline-flex align-center ga-2 text-caption font-weight-medium">
                   <v-icon icon="mdi-check-circle" color="success" size="18" />
                   <span>Synchronized with Central HRIS Database at <strong>{{ simLastSynced }}</strong></span>
                 </div>
@@ -663,10 +736,12 @@
               <div class="d-flex align-center justify-space-between mb-4 flex-wrap ga-2">
                 <span class="text-caption font-weight-bold text-medium-emphasis">Toggle Display Format:</span>
                 <v-btn-toggle v-model="simViewMode" mandatory density="comfortable" color="primary" variant="outlined">
-                  <v-btn value="grid" prepend-icon="mdi-view-grid-outline" class="text-none text-caption font-weight-bold">
+                  <v-btn value="grid" prepend-icon="mdi-view-grid-outline"
+                    class="text-none text-caption font-weight-bold">
                     Grid Cards
                   </v-btn>
-                  <v-btn value="list" prepend-icon="mdi-format-list-bulleted" class="text-none text-caption font-weight-bold">
+                  <v-btn value="list" prepend-icon="mdi-format-list-bulleted"
+                    class="text-none text-caption font-weight-bold">
                     Spreadsheet List
                   </v-btn>
                 </v-btn-toggle>
@@ -674,7 +749,8 @@
 
               <!-- Animated View Canvas -->
               <div v-if="simViewMode === 'grid'" class="sim-grid-container ga-3">
-                <v-card v-for="emp in simEmployees.slice(0, 2)" :key="emp.name" class="pa-3 rounded-lg border bg-surface" elevation="0">
+                <v-card v-for="emp in simEmployees.slice(0, 2)" :key="emp.name"
+                  class="pa-3 rounded-lg border bg-surface" elevation="0">
                   <div class="d-flex align-center ga-3 mb-2">
                     <v-avatar color="primary" variant="tonal" size="36" class="font-weight-bold">
                       {{ emp.avatar }}
@@ -692,7 +768,8 @@
               </div>
 
               <div v-else class="rounded-lg border overflow-hidden bg-surface">
-                <div v-for="emp in simEmployees.slice(0, 2)" :key="emp.name" class="d-flex align-center justify-space-between pa-3 border-b text-caption">
+                <div v-for="emp in simEmployees.slice(0, 2)" :key="emp.name"
+                  class="d-flex align-center justify-space-between pa-3 border-b text-caption">
                   <div class="d-flex align-center ga-2 text-truncate">
                     <v-avatar color="primary" variant="tonal" size="24" class="font-weight-bold text-caption">
                       {{ emp.avatar }}
@@ -710,16 +787,9 @@
 
             <!-- 3. REAL-TIME SEARCH SIMULATOR -->
             <div v-else-if="controlType === 'search'" class="py-1">
-              <v-text-field
-                v-model="simSearchQuery"
-                density="compact"
-                variant="outlined"
+              <v-text-field v-model="simSearchQuery" density="compact" variant="outlined"
                 placeholder="Type name, title, or branch (e.g., 'Sarah', 'Admin', 'Cebu')..."
-                prepend-inner-icon="mdi-magnify"
-                clearable
-                hide-details
-                class="mb-3"
-              />
+                prepend-inner-icon="mdi-magnify" clearable hide-details class="mb-3" />
 
               <div class="d-flex align-center justify-space-between mb-2">
                 <span class="text-caption font-weight-bold text-medium-emphasis">
@@ -731,11 +801,8 @@
               </div>
 
               <div class="rounded-lg border overflow-hidden bg-surface max-h-180 overflow-y-auto">
-                <div
-                  v-for="emp in simFilteredEmployees"
-                  :key="emp.name"
-                  class="d-flex align-center justify-space-between pa-3 border-b text-caption"
-                >
+                <div v-for="emp in simFilteredEmployees" :key="emp.name"
+                  class="d-flex align-center justify-space-between pa-3 border-b text-caption">
                   <div class="d-flex align-center ga-2 text-truncate">
                     <v-avatar color="primary" variant="tonal" size="26" class="font-weight-bold">
                       {{ emp.avatar }}
@@ -749,7 +816,8 @@
                     {{ emp.active ? 'Active' : 'Inactive' }}
                   </v-chip>
                 </div>
-                <div v-if="simFilteredEmployees.length === 0" class="pa-4 text-center text-caption text-medium-emphasis">
+                <div v-if="simFilteredEmployees.length === 0"
+                  class="pa-4 text-center text-caption text-medium-emphasis">
                   No matching employees found for "{{ simSearchQuery }}".
                 </div>
               </div>
@@ -771,49 +839,32 @@
                 <!-- 3-Dots Menu Button -->
                 <v-menu location="bottom end" transition="slide-y-transition">
                   <template #activator="{ props: menuProps }">
-                    <v-btn
-                      v-bind="menuProps"
-                      icon="mdi-dots-vertical"
-                      variant="tonal"
-                      color="primary"
-                      size="small"
-                      title="Click to open operational actions"
-                    />
+                    <v-btn v-bind="menuProps" icon="mdi-dots-vertical" variant="tonal" color="primary" size="small"
+                      title="Click to open operational actions" />
                   </template>
                   <v-list density="compact" elevation="6" class="rounded-lg border py-1" min-width="190">
-                    <v-list-item
-                      prepend-icon="mdi-card-account-details-outline"
-                      title="View Profile Details"
-                      @click="triggerSimMenuAction('View Profile Details')"
-                    />
-                    <v-list-item
-                      prepend-icon="mdi-pencil-outline"
-                      title="Edit Record"
-                      @click="triggerSimMenuAction('Edit Record')"
-                    />
-                    <v-list-item
-                      prepend-icon="mdi-shield-account-outline"
-                      title="Manage Permissions"
-                      @click="triggerSimMenuAction('Manage Permissions')"
-                    />
+                    <v-list-item prepend-icon="mdi-card-account-details-outline" title="View Profile Details"
+                      @click="triggerSimMenuAction('View Profile Details')" />
+                    <v-list-item prepend-icon="mdi-pencil-outline" title="Edit Record"
+                      @click="triggerSimMenuAction('Edit Record')" />
+                    <v-list-item prepend-icon="mdi-shield-account-outline" title="Manage Permissions"
+                      @click="triggerSimMenuAction('Manage Permissions')" />
                     <v-divider class="my-1" />
-                    <v-list-item
-                      prepend-icon="mdi-account-off-outline"
-                      title="Deactivate Account"
-                      color="error"
-                      @click="triggerSimMenuAction('Deactivate Account')"
-                    />
+                    <v-list-item prepend-icon="mdi-account-off-outline" title="Deactivate Account" color="error"
+                      @click="triggerSimMenuAction('Deactivate Account')" />
                   </v-list>
                 </v-menu>
               </div>
 
               <v-fade-transition>
-                <div v-if="simMenuToast" class="pa-3 rounded-lg border bg-primary-lighten-5 text-primary text-caption font-weight-medium d-flex align-center ga-2">
+                <div v-if="simMenuToast"
+                  class="pa-3 rounded-lg border bg-primary-lighten-5 text-primary text-caption font-weight-medium d-flex align-center ga-2">
                   <v-icon icon="mdi-check-circle-outline" size="16" />
                   <span>{{ simMenuToast }}</span>
                 </div>
                 <div v-else class="text-caption text-medium-emphasis text-center">
-                  Click the <strong>⋮ (3-dots)</strong> button on the right of the user card to inspect available operational actions.
+                  Click the <strong>⋮ (3-dots)</strong> button on the right of the user card to inspect available
+                  operational actions.
                 </div>
               </v-fade-transition>
             </div>
@@ -822,26 +873,26 @@
             <div v-else-if="controlType === 'status'" class="py-2 text-center">
               <div class="d-flex justify-center align-center ga-4 mb-4">
                 <span class="text-body-2 font-weight-bold text-high-emphasis">Simulated Record State:</span>
-                <v-btn
-                  :color="simRecordStatus ? 'success' : 'secondary'"
-                  variant="flat"
-                  size="small"
+                <v-btn :color="simRecordStatus ? 'success' : 'secondary'" variant="flat" size="small"
                   class="text-none font-weight-bold px-4"
                   :prepend-icon="simRecordStatus ? 'mdi-check-circle' : 'mdi-close-circle-outline'"
-                  @click="simRecordStatus = !simRecordStatus"
-                >
+                  @click="simRecordStatus = !simRecordStatus">
                   {{ simRecordStatus ? 'Active' : 'Inactive' }} (Click to Toggle)
                 </v-btn>
               </div>
 
               <div class="pa-3 rounded-lg border bg-surface text-left">
-                <div class="text-caption font-weight-bold mb-1" :class="simRecordStatus ? 'text-success' : 'text-medium-emphasis'">
+                <div class="text-caption font-weight-bold mb-1"
+                  :class="simRecordStatus ? 'text-success' : 'text-medium-emphasis'">
                   {{ simRecordStatus ? '✓ Record is Active' : '✕ Record is Suspended (Inactive)' }}
                 </div>
                 <p class="text-caption text-medium-emphasis mb-0 leading-relaxed">
-                  {{ simRecordStatus
-                    ? 'The employee has active portal access and can log into authorized modules. Profile appears in department rosters and organizational charts.'
-                    : 'The employee session is immediately revoked and system login is blocked. The record remains permanently safely preserved in the database for historical audit and reporting.' }}
+                  <span v-if="simRecordStatus">
+                    The employee has active portal access and can log into authorized modules. Profile appears in department rosters and organizational charts.
+                  </span>
+                  <span v-else>
+                    The employee session is immediately revoked and system login is blocked. The record remains permanently safely preserved in the database for historical audit and reporting.
+                  </span>
                 </p>
               </div>
             </div>
@@ -849,13 +900,8 @@
             <!-- 6. CREATE RECORD SIMULATOR -->
             <div v-else-if="controlType === 'create'" class="py-1">
               <div class="d-flex justify-center mb-3">
-                <v-btn
-                  color="primary"
-                  variant="flat"
-                  prepend-icon="mdi-plus"
-                  class="text-none font-weight-bold px-6 shadow-sm"
-                  @click="simCreateModal = true"
-                >
+                <v-btn color="primary" variant="flat" prepend-icon="mdi-plus"
+                  class="text-none font-weight-bold px-6 shadow-sm" @click="simCreateModal = true">
                   {{ selectedControl.name }}
                 </v-btn>
               </div>
@@ -867,28 +913,17 @@
                     <span class="text-subtitle-2 font-weight-bold">Create New Record Dialog</span>
                     <v-btn icon="mdi-close" size="x-small" variant="text" @click="simCreateModal = false" />
                   </div>
-                  <v-text-field
-                    v-model="simCreateName"
-                    label="Full Name / Record Title *"
-                    density="compact"
-                    variant="outlined"
-                    class="mb-3"
-                    hide-details
-                  />
-                  <v-select
-                    v-model="simCreateRole"
+                  <v-text-field v-model="simCreateName" label="Full Name / Record Title *" density="compact"
+                    variant="outlined" class="mb-3" hide-details />
+                  <v-select v-model="simCreateRole"
                     :items="['HR Specialist', 'Branch Manager', 'Operations Lead', 'IT Administrator']"
-                    label="Assigned Role *"
-                    density="compact"
-                    variant="outlined"
-                    class="mb-3"
-                    hide-details
-                  />
+                    label="Assigned Role *" density="compact" variant="outlined" class="mb-3" hide-details />
                   <div class="d-flex justify-end ga-2 pt-2">
                     <v-btn size="small" variant="text" class="text-none" @click="simCreateModal = false">
                       Cancel
                     </v-btn>
-                    <v-btn size="small" color="primary" variant="flat" class="text-none font-weight-bold" @click="triggerSimCreateSubmit">
+                    <v-btn size="small" color="primary" variant="flat" class="text-none font-weight-bold"
+                      @click="triggerSimCreateSubmit">
                       Save Record
                     </v-btn>
                   </div>
@@ -896,7 +931,8 @@
               </v-expand-transition>
 
               <v-fade-transition>
-                <div v-if="simCreateSuccess" class="pa-3 mt-3 rounded-lg border bg-success-lighten-5 text-success text-caption font-weight-medium d-flex align-center ga-2">
+                <div v-if="simCreateSuccess"
+                  class="pa-3 mt-3 rounded-lg border bg-success-lighten-5 text-success text-caption font-weight-medium d-flex align-center ga-2">
                   <v-icon icon="mdi-check-circle" size="18" />
                   <span>Success: New record registered and appended to active roster!</span>
                 </div>
@@ -917,58 +953,29 @@
               <v-row dense class="mb-2">
                 <!-- 1. Province Dropdown -->
                 <v-col cols="12" sm="4">
-                  <v-select
-                    :model-value="simProvince"
-                    :items="provinceList"
-                    label="1. Province *"
-                    density="compact"
-                    variant="outlined"
-                    prepend-inner-icon="mdi-map-marker-radius-outline"
-                    hide-details
-                    @update:model-value="onProvinceChange"
-                  />
+                  <v-select :model-value="simProvince" :items="provinceList" label="1. Province *" density="compact"
+                    variant="outlined" prepend-inner-icon="mdi-map-marker-radius-outline" hide-details
+                    @update:model-value="onProvinceChange" />
                 </v-col>
 
                 <!-- 2. City / Municipality Dropdown -->
                 <v-col cols="12" sm="4">
-                  <v-select
-                    :model-value="simCity"
-                    :items="cityList"
-                    label="2. City / Municipality *"
-                    density="compact"
-                    variant="outlined"
-                    prepend-inner-icon="mdi-city-variant-outline"
-                    hide-details
-                    @update:model-value="onCityChange"
-                  />
+                  <v-select :model-value="simCity" :items="cityList" label="2. City / Municipality *" density="compact"
+                    variant="outlined" prepend-inner-icon="mdi-city-variant-outline" hide-details
+                    @update:model-value="onCityChange" />
                 </v-col>
 
                 <!-- 3. Barangay Dropdown -->
                 <v-col cols="12" sm="4">
-                  <v-select
-                    v-model="simBarangay"
-                    :items="barangayList"
-                    label="3. Barangay *"
-                    density="compact"
-                    variant="outlined"
-                    prepend-inner-icon="mdi-home-city-outline"
-                    hide-details
-                  />
+                  <v-select v-model="simBarangay" :items="barangayList" label="3. Barangay *" density="compact"
+                    variant="outlined" prepend-inner-icon="mdi-home-city-outline" hide-details />
                 </v-col>
               </v-row>
 
               <!-- Auto-Filled Postal Code -->
               <div class="d-flex align-center flex-wrap ga-3 mb-3">
-                <v-text-field
-                  v-model="simPostalCode"
-                  label="Auto-Resolved ZIP Code"
-                  density="compact"
-                  variant="outlined"
-                  prepend-inner-icon="mdi-numeric"
-                  hide-details
-                  style="max-width: 190px;"
-                  readonly
-                />
+                <v-text-field v-model="simPostalCode" label="Auto-Resolved ZIP Code" density="compact"
+                  variant="outlined" prepend-inner-icon="mdi-numeric" hide-details style="max-width: 190px;" readonly />
                 <div class="text-caption text-medium-emphasis">
                   Postal Code auto-resolves based on the selected Philippine municipality.
                 </div>
@@ -986,7 +993,9 @@
                   Brgy. {{ simBarangay }}, {{ simCity }}, {{ simProvince }}, Philippines (ZIP: {{ simPostalCode }})
                 </div>
                 <div class="text-caption text-medium-emphasis mt-1">
-                  Selecting a Province dynamically resets and filters Municipalities. Selecting a Municipality automatically loads all official registered Barangays and ZIP codes.
+                  Selecting a Province dynamically resets and filters Municipalities. Selecting a Municipality
+                  automatically
+                  loads all official registered Barangays and ZIP codes.
                 </div>
               </div>
             </div>
@@ -1002,18 +1011,9 @@
                 </v-chip>
               </div>
 
-              <v-select
-                v-model="simSelectedRegionCode"
-                :items="phRegionsList"
-                item-title="name"
-                item-value="code"
-                density="compact"
-                variant="outlined"
-                label="Official Philippine Administrative Region *"
-                prepend-inner-icon="mdi-map-marker-check-outline"
-                hide-details
-                class="mb-3"
-              />
+              <v-select v-model="simSelectedRegionCode" :items="phRegionsList" item-title="name" item-value="code"
+                density="compact" variant="outlined" label="Official Philippine Administrative Region *"
+                prepend-inner-icon="mdi-map-marker-check-outline" hide-details class="mb-3" />
 
               <!-- Statutory Compliance Details Card -->
               <div class="pa-4 rounded-lg border bg-surface">
@@ -1047,7 +1047,9 @@
                     <div>
                       <span class="font-weight-bold text-high-emphasis">Statutory Holiday Sync: </span>
                       <span class="text-medium-emphasis">
-                        Automatically applies local special non-working days (e.g., {{ selectedRegionInfo.holidays }}) to payroll attendance for all staff assigned to branches under this region.
+                        Automatically applies local special non-working days (e.g., {{ selectedRegionInfo.holidays }})
+                        to
+                        payroll attendance for all staff assigned to branches under this region.
                       </span>
                     </div>
                   </div>
@@ -1066,18 +1068,9 @@
                 </v-chip>
               </div>
 
-              <v-text-field
-                v-model="simPhoneRaw"
-                label="Philippine Contact Number *"
-                density="compact"
-                variant="outlined"
-                placeholder="e.g., 09171234567 or (082) 224-5678"
-                prepend-inner-icon="mdi-phone"
-                clearable
-                hide-details
-                class="mb-3"
-                @update:model-value="handlePhoneInput"
-              >
+              <v-text-field v-model="simPhoneRaw" label="Philippine Contact Number *" density="compact"
+                variant="outlined" placeholder="e.g., 09171234567 or (082) 224-5678" prepend-inner-icon="mdi-phone"
+                clearable hide-details class="mb-3" @update:model-value="handlePhoneInput">
                 <template #prepend>
                   <v-chip size="small" variant="tonal" color="primary" class="font-weight-bold">
                     🇵🇭 +63
@@ -1088,31 +1081,16 @@
               <!-- Quick test presets -->
               <div class="d-flex align-center flex-wrap ga-2 mb-3">
                 <span class="text-caption text-medium-emphasis font-weight-medium">Quick Presets:</span>
-                <v-btn
-                  size="x-small"
-                  variant="tonal"
-                  color="primary"
-                  class="text-none font-weight-bold"
-                  @click="applyPhonePreset('09178891234')"
-                >
+                <v-btn size="x-small" variant="tonal" color="primary" class="text-none font-weight-bold"
+                  @click="applyPhonePreset('09178891234')">
                   Globe Mobile (0917)
                 </v-btn>
-                <v-btn
-                  size="x-small"
-                  variant="tonal"
-                  color="primary"
-                  class="text-none font-weight-bold"
-                  @click="applyPhonePreset('09205547890')"
-                >
+                <v-btn size="x-small" variant="tonal" color="primary" class="text-none font-weight-bold"
+                  @click="applyPhonePreset('09205547890')">
                   Smart Mobile (0920)
                 </v-btn>
-                <v-btn
-                  size="x-small"
-                  variant="tonal"
-                  color="primary"
-                  class="text-none font-weight-bold"
-                  @click="applyPhonePreset('0822245678')"
-                >
+                <v-btn size="x-small" variant="tonal" color="primary" class="text-none font-weight-bold"
+                  @click="applyPhonePreset('0822245678')">
                   Davao Landline (082)
                 </v-btn>
               </div>
@@ -1127,12 +1105,8 @@
                     </div>
                   </div>
                   <div>
-                    <v-chip
-                      size="small"
-                      :color="isPhoneValid ? 'success' : 'warning'"
-                      variant="flat"
-                      class="font-weight-bold"
-                    >
+                    <v-chip size="small" :color="isPhoneValid ? 'success' : 'warning'" variant="flat"
+                      class="font-weight-bold">
                       <v-icon start :icon="isPhoneValid ? 'mdi-check-circle' : 'mdi-alert-circle-outline'" size="14" />
                       {{ isPhoneValid ? 'Valid PH Number' : 'Incomplete / Invalid' }}
                     </v-chip>
@@ -1151,22 +1125,18 @@
                 </v-row>
 
                 <div class="text-caption text-medium-emphasis pt-2 border-t mt-2">
-                  Entered digits are dynamically sanitized into Philippine <code>09XX-XXX-XXXX</code> spacing. Eliminates misdialed hotlines on emergency rosters and automated branch SMS dispatches.
+                  Entered digits are dynamically sanitized into Philippine <code>09XX-XXX-XXXX</code> spacing.
+                  Eliminates
+                  misdialed hotlines on emergency rosters and automated branch SMS dispatches.
                 </div>
               </div>
             </div>
 
             <!-- 7. DROPDOWN FILTER SIMULATOR -->
             <div v-else-if="controlType === 'dropdown-filter'" class="py-1">
-              <v-select
-                v-model="simSelectedFilter"
-                :items="dropdownItems"
-                density="compact"
-                variant="outlined"
+              <v-select v-model="simSelectedFilter" :items="dropdownItems" density="compact" variant="outlined"
                 :label="selectedControl.name.includes('Branch') ? 'Select Branch Filter Scope' : (selectedControl.name.includes('Department') ? 'Select Department Scope' : 'Select Entity (Company / Subsidiary)')"
-                hide-details
-                class="mb-3"
-              />
+                hide-details class="mb-3" />
 
               <div class="pa-3 rounded-lg border bg-surface">
                 <div class="d-flex align-center justify-space-between text-caption mb-1">
@@ -1184,10 +1154,8 @@
 
             <!-- 8. FILE UPLOAD SIMULATOR -->
             <div v-else-if="controlType === 'upload'" class="py-1">
-              <div
-                class="upload-dropzone pa-6 rounded-lg border border-dashed text-center cursor-pointer bg-surface"
-                @click="triggerSimUpload"
-              >
+              <div class="upload-dropzone pa-6 rounded-lg border border-dashed text-center cursor-pointer bg-surface"
+                @click="triggerSimUpload">
                 <v-icon icon="mdi-cloud-upload-outline" size="36" color="primary" class="mb-2" />
                 <div class="text-subtitle-2 font-weight-bold mb-1">
                   Click to Simulate File Upload
@@ -1202,7 +1170,8 @@
                 </div>
 
                 <v-fade-transition>
-                  <div v-if="simUploadSuccess" class="mt-4 d-inline-flex align-center ga-2 text-success text-caption font-weight-bold">
+                  <div v-if="simUploadSuccess"
+                    class="mt-4 d-inline-flex align-center ga-2 text-success text-caption font-weight-bold">
                     <v-icon icon="mdi-check-circle" size="18" />
                     <span>profile_avatar_2026.png uploaded & validated!</span>
                   </div>
@@ -1212,9 +1181,11 @@
 
             <!-- 9. PAGINATION SIMULATOR -->
             <div v-else-if="controlType === 'pagination'" class="py-2 text-center">
-              <div class="d-flex align-center justify-space-between flex-wrap ga-2 pa-3 rounded-lg border bg-surface mb-3">
+              <div
+                class="d-flex align-center justify-space-between flex-wrap ga-2 pa-3 rounded-lg border bg-surface mb-3">
                 <span class="text-caption text-medium-emphasis">
-                  Showing <strong>{{ (simCurrentPage - 1) * simRowsPerPage + 1 }}-{{ Math.min(simCurrentPage * simRowsPerPage, 48) }}</strong> of <strong>48</strong> records
+                  Showing <strong>{{ (simCurrentPage - 1) * simRowsPerPage + 1 }}-{{ Math.min(simCurrentPage *
+                    simRowsPerPage, 48) }}</strong> of <strong>48</strong> records
                 </span>
                 <div class="d-flex align-center ga-2">
                   <span class="text-caption text-medium-emphasis">Rows:</span>
@@ -1227,31 +1198,15 @@
               </div>
 
               <div class="d-flex justify-center align-center ga-2">
-                <v-btn
-                  size="small"
-                  variant="outlined"
-                  icon="mdi-chevron-left"
-                  :disabled="simCurrentPage === 1"
-                  @click="simCurrentPage--"
-                />
-                <v-btn
-                  v-for="p in [1, 2, 3]"
-                  :key="p"
-                  size="small"
-                  :variant="simCurrentPage === p ? 'flat' : 'text'"
-                  :color="simCurrentPage === p ? 'primary' : 'medium-emphasis'"
-                  class="font-weight-bold"
-                  @click="simCurrentPage = p"
-                >
+                <v-btn size="small" variant="outlined" icon="mdi-chevron-left" :disabled="simCurrentPage === 1"
+                  @click="simCurrentPage--" />
+                <v-btn v-for="p in [1, 2, 3]" :key="p" size="small" :variant="simCurrentPage === p ? 'flat' : 'text'"
+                  :color="simCurrentPage === p ? 'primary' : 'medium-emphasis'" class="font-weight-bold"
+                  @click="simCurrentPage = p">
                   {{ p }}
                 </v-btn>
-                <v-btn
-                  size="small"
-                  variant="outlined"
-                  icon="mdi-chevron-right"
-                  :disabled="simCurrentPage === 3"
-                  @click="simCurrentPage++"
-                />
+                <v-btn size="small" variant="outlined" icon="mdi-chevron-right" :disabled="simCurrentPage === 3"
+                  @click="simCurrentPage++" />
               </div>
             </div>
 
@@ -1260,17 +1215,14 @@
               <div class="d-flex align-center justify-space-between mb-3">
                 <span class="text-caption font-weight-bold text-medium-emphasis">Capability Checklist:</span>
                 <v-chip size="x-small" color="primary" variant="flat" class="font-weight-bold">
-                  {{ simCapabilities.filter(c => c.checked).length }} of {{ simCapabilities.length }} Enabled
+                  {{simCapabilities.filter(c => c.checked).length}} of {{ simCapabilities.length }} Enabled
                 </v-chip>
               </div>
 
               <div class="rounded-lg border bg-surface pa-2">
-                <div
-                  v-for="cap in simCapabilities"
-                  :key="cap.id"
+                <div v-for="cap in simCapabilities" :key="cap.id"
                   class="d-flex align-center justify-space-between px-3 py-2 border-b cursor-pointer hover-bg"
-                  @click="cap.checked = !cap.checked"
-                >
+                  @click="cap.checked = !cap.checked">
                   <span class="text-caption font-weight-medium text-high-emphasis">{{ cap.label }}</span>
                   <v-checkbox-btn v-model="cap.checked" color="primary" density="compact" hide-details />
                 </div>
@@ -1279,14 +1231,8 @@
 
             <!-- 11. GENERIC FALLBACK SIMULATOR -->
             <div v-else class="py-2 text-center">
-              <v-btn
-                color="primary"
-                variant="flat"
-                size="large"
-                class="text-none font-weight-bold px-6 mb-3 shadow-sm"
-                :prepend-icon="selectedControl.icon || 'mdi-cursor-default-click-outline'"
-                @click="simGenericClicks++"
-              >
+              <v-btn color="primary" variant="flat" size="large" class="text-none font-weight-bold px-6 mb-3 shadow-sm"
+                :prepend-icon="selectedControl.icon || 'mdi-cursor-default-click-outline'" @click="simGenericClicks++">
                 Trigger {{ selectedControl.name }}
               </v-btn>
               <div class="text-caption text-medium-emphasis">
@@ -1310,13 +1256,8 @@
 
           <!-- Direct Jump to Handbook Step Button -->
           <div v-if="module.steps && module.steps.length > 0" class="text-center pt-1">
-            <v-btn
-              variant="tonal"
-              color="primary"
-              class="text-none font-weight-bold"
-              prepend-icon="mdi-file-document-arrow-right-outline"
-              @click="jumpToStep(selectedControl)"
-            >
+            <v-btn variant="tonal" color="primary" class="text-none font-weight-bold"
+              prepend-icon="mdi-file-document-arrow-right-outline" @click="jumpToStep(selectedControl)">
               Jump to Handbook Step for this Control &rarr;
             </v-btn>
           </div>
@@ -1338,12 +1279,15 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue'
 import { useDisplay } from 'vuetify'
-import type { ModuleDoc, StepItem, UIFeatureControl } from '@/data/manualData'
+import type { ModuleDoc, StepItem, StepBadge, UIFeatureControl } from '@/data/manualData'
 import ModuleScreenshot from '@/components/ModuleScreenshot.vue'
 import BaseBreadcrumb from '@/components/BaseBreadcrumb.vue'
 import DepartmentManagementSandbox from '@/components/sandbox/DepartmentManagementSandbox.vue'
 import DivisionManagementSandbox from '@/components/sandbox/DivisionManagementSandbox.vue'
 import PositionManagementSandbox from '@/components/sandbox/PositionManagementSandbox.vue'
+import UserManagementSandbox from '@/components/sandbox/UserManagementSandbox.vue'
+import EntityManagementSandbox from '@/components/sandbox/EntityManagementSandbox.vue'
+import BranchManagementSandbox from '@/components/sandbox/BranchManagementSandbox.vue'
 
 const { smAndDown } = useDisplay()
 
@@ -1446,7 +1390,7 @@ const lightboxImage = ref('')
 const lightboxTitle = ref('')
 const lightboxCaption = ref('')
 const lightboxHighlights = ref<string[]>([])
-const isLightboxZoomed = ref(false)
+const activeLightboxStep = ref<StepItem | null>(null)
 const copiedStep = ref<number | null>(null)
 
 // -------------------------------------------------------------
@@ -2028,9 +1972,16 @@ const jumpToStep = (ctrl: UIFeatureControl) => {
   }, 250)
 }
 
+const getBadgeMenuLocation = (b: StepBadge): any => {
+  if (b.y < 28) return 'bottom center'
+  if (b.x > 72) return 'top end'
+  if (b.x < 28) return 'top start'
+  return 'top center'
+}
+
 const openLightbox = (step: StepItem) => {
   if (!step.image) return
-  isLightboxZoomed.value = false
+  activeLightboxStep.value = step
   lightboxImage.value = step.image
   lightboxTitle.value = `Step ${step.number}: ${step.title}`
   lightboxCaption.value = step.caption || step.description
@@ -2183,9 +2134,11 @@ const calloutColor = computed(() => {
   0% {
     box-shadow: 0 0 0 0 rgba(var(--v-theme-primary), 0.7);
   }
+
   70% {
     box-shadow: 0 0 0 6px rgba(var(--v-theme-primary), 0);
   }
+
   100% {
     box-shadow: 0 0 0 0 rgba(var(--v-theme-primary), 0);
   }
@@ -2225,10 +2178,12 @@ const calloutColor = computed(() => {
     box-shadow: 0 0 0 0 rgba(var(--v-theme-primary), 0.8);
     border-color: rgb(var(--v-theme-primary));
   }
+
   50% {
     box-shadow: 0 0 0 8px rgba(var(--v-theme-primary), 0.3);
     border-color: rgb(var(--v-theme-primary));
   }
+
   100% {
     box-shadow: 0 0 0 0 rgba(var(--v-theme-primary), 0);
   }
@@ -2307,11 +2262,112 @@ const calloutColor = computed(() => {
   .step-screenshot-img {
     max-height: 280px !important;
   }
+
   .chapter-number-badge {
     width: 32px !important;
     height: 32px !important;
     font-size: 0.95rem !important;
     border-radius: 8px !important;
   }
+}
+
+/* Modern Documentation Underline Tabs (GitBook / Vercel Style) */
+.module-docs-tabs-wrapper {
+  margin-top: 4px;
+}
+
+.module-docs-tabs {
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.1) !important;
+  gap: 8px;
+  position: relative;
+}
+
+.module-doc-tab {
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 10px 16px 12px 16px;
+  font-size: 0.92rem;
+  color: rgba(var(--v-theme-on-surface), 0.6);
+  border-bottom: 2px solid transparent !important;
+  margin-bottom: -1px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 6px 6px 0 0;
+  user-select: none;
+
+  &:hover {
+    color: rgba(var(--v-theme-on-surface), 0.95);
+    background-color: rgba(var(--v-theme-primary), 0.04);
+  }
+
+  &.is-active {
+    color: rgb(var(--v-theme-primary)) !important;
+    font-weight: 700;
+    border-bottom: 2px solid rgb(var(--v-theme-primary)) !important;
+    background-color: transparent;
+  }
+}
+
+/* Dynamic Screenshot Number Badges (Option A) */
+.screenshot-badge-pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.95) 0%, rgba(3, 105, 161, 0.98) 100%);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 11px;
+  line-height: 1;
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.4), 0 0 0 1.5px rgba(2, 132, 199, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 5;
+  user-select: none;
+  outline: none;
+}
+
+/* Compact preview badges on handbook cards */
+.badge-pin-preview {
+  width: 17px;
+  height: 17px;
+  font-size: 9.5px;
+  border: 1px solid #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
+}
+
+.screenshot-badge-pin:hover,
+.screenshot-badge-pin.is-active {
+  transform: translate(-50%, -50%) scale(1.22);
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.6), 0 0 0 3px rgba(245, 158, 11, 0.35);
+  z-index: 10;
+}
+
+/* Floating Hover Popup Card for Badges */
+.guide-popup-card {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(var(--v-theme-on-surface), 0.08) !important;
+  backdrop-filter: blur(8px);
+  pointer-events: auto;
+}
+
+.badge-number-indicator {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
