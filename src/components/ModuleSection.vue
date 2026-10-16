@@ -532,10 +532,15 @@
       @keydown.esc="onLightboxEsc"
       @keydown="handleTourKeydown">
       <v-card class="rounded-lg overflow-hidden">
-        <v-toolbar color="primary" density="comfortable" class="text-white">
-          <v-toolbar-title class="text-subtitle-1 font-weight-bold text-truncate">
-            {{ module.num }}. {{ module.title }} &mdash; {{ lightboxTitle }}
-          </v-toolbar-title>
+        <v-toolbar color="primary" density="comfortable" class="text-white px-2 px-sm-3">
+          <div class="d-flex align-center ga-2 min-w-0 flex-grow-1 mr-2 flex-wrap flex-sm-nowrap">
+            <v-chip size="x-small" variant="flat" color="white" class="text-primary font-weight-bold flex-shrink-0">
+              Chapter {{ module.num }} &bull; {{ module.title }}
+            </v-chip>
+            <span class="text-subtitle-2 font-weight-bold text-white text-truncate" :title="lightboxTitle">
+              {{ lightboxTitle }}
+            </span>
+          </div>
           <v-spacer />
 
           <!-- Play Tour Button in Toolbar -->
