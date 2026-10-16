@@ -2031,7 +2031,7 @@ export const MANUAL_MODULES: ModuleDoc[] = [
           {
             number: 3,
             x: 70.0,
-            y: 28.0,
+            y: 26.0,
             title: 'Refresh Directory (↻)',
             location: 'Top Toolbar (Right)',
             purpose: 'Synchronizes live department records and entity mappings with the database.',
@@ -2061,7 +2061,7 @@ export const MANUAL_MODULES: ModuleDoc[] = [
           {
             number: 6,
             x: 26.0,
-            y: 45.0,
+            y: 43.0,
             title: 'Department Icon & Avatar',
             location: 'Department Card Header',
             purpose: 'Visual functional cost center indicator.',
@@ -2091,7 +2091,7 @@ export const MANUAL_MODULES: ModuleDoc[] = [
           {
             number: 9,
             x: 38.0,
-            y: 55.0,
+            y: 53.0,
             title: 'Contextual Action Menu (···)',
             location: 'Department Card (Bottom-Right)',
             purpose: 'Contextual actions for this specific department.',
@@ -2120,8 +2120,8 @@ export const MANUAL_MODULES: ModuleDoc[] = [
         badges: [
           {
             number: 1,
-            x: 35.0,
-            y: 39.0,
+            x: 33.0,
+            y: 38.0,
             title: 'Create Department Modal Header',
             location: 'Modal Top Bar',
             purpose: 'Container for registering new organizational functional departments.',
@@ -2130,8 +2130,8 @@ export const MANUAL_MODULES: ModuleDoc[] = [
           },
           {
             number: 2,
-            x: 67.5,
-            y: 39.0,
+            x: 66.5,
+            y: 38.0,
             title: 'Close Modal (✕)',
             location: 'Modal Header (Far Right)',
             purpose: 'Dismisses modal without committing changes.',
@@ -2140,7 +2140,7 @@ export const MANUAL_MODULES: ModuleDoc[] = [
           },
           {
             number: 3,
-            x: 50.0,
+            x: 40.0,
             y: 48.0,
             title: 'Parent Entity Selector',
             location: 'Form Field 1 (Dropdown)',
@@ -2150,8 +2150,8 @@ export const MANUAL_MODULES: ModuleDoc[] = [
           },
           {
             number: 4,
-            x: 50.0,
-            y: 57.0,
+            x: 40.0,
+            y: 55.0,
             title: 'Department Name Input',
             location: 'Form Field 2 (Text Field)',
             purpose: 'Captures the official title of the new operational department.',
@@ -2160,8 +2160,8 @@ export const MANUAL_MODULES: ModuleDoc[] = [
           },
           {
             number: 5,
-            x: 67.0,
-            y: 69.0,
+            x: 66.0,
+            y: 68.0,
             title: 'Save Department Action',
             location: 'Modal Footer (Right)',
             purpose: 'Validates inputs and commits the new department to the database.',
@@ -2190,7 +2190,7 @@ export const MANUAL_MODULES: ModuleDoc[] = [
           },
           {
             number: 2,
-            x: 67.5,
+            x: 66.0,
             y: 40.0,
             title: 'Dismiss Profile (✕)',
             location: 'Modal Top-Right',
@@ -2220,8 +2220,8 @@ export const MANUAL_MODULES: ModuleDoc[] = [
           },
           {
             number: 5,
-            x: 62.0,
-            y: 68.0,
+            x: 60.0,
+            y: 66.0,
             title: 'Delete Department Action',
             location: 'Modal Footer (Left of Edit)',
             purpose: 'Initiates protected deletion workflow with confirmation prompt.',
@@ -2231,7 +2231,7 @@ export const MANUAL_MODULES: ModuleDoc[] = [
           {
             number: 6,
             x: 67.0,
-            y: 68.0,
+            y: 66.0,
             title: 'Edit Department Shortcut',
             location: 'Modal Footer (Far Right)',
             purpose: 'Directly opens the Edit Department form dialog.',
@@ -2250,7 +2250,7 @@ export const MANUAL_MODULES: ModuleDoc[] = [
         badges: [
           {
             number: 1,
-            x: 38.5,
+            x: 36.0,
             y: 48.0,
             title: 'Security Warning Indicator',
             location: 'Dialog Header (Left)',
@@ -2330,7 +2330,7 @@ export const MANUAL_MODULES: ModuleDoc[] = [
           },
           {
             number: 3,
-            x: 50.0,
+            x: 45.0,
             y: 48.0,
             title: 'Parent Entity Dropdown',
             location: 'Form Field 1 (Dropdown)',
@@ -2340,8 +2340,8 @@ export const MANUAL_MODULES: ModuleDoc[] = [
           },
           {
             number: 4,
-            x: 50.0,
-            y: 57.0,
+            x: 45.0,
+            y: 55.0,
             title: 'Department Name Input',
             location: 'Form Field 2 (Text Field)',
             purpose: 'Pre-filled with existing title ("Audit Department") for editing.',
@@ -2350,7 +2350,7 @@ export const MANUAL_MODULES: ModuleDoc[] = [
           },
           {
             number: 5,
-            x: 67.0,
+            x: 64.0,
             y: 69.0,
             title: 'Save Modifications',
             location: 'Modal Footer (Right)',
