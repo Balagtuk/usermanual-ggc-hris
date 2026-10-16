@@ -1230,7 +1230,21 @@ const focusFeature = (key: string) => {
 
 defineExpose({
   focusFeature,
-  setMode: (mode: 'play' | 'guide') => { sandboxMode.value = mode }
+  setMode: (mode: 'play' | 'guide') => { sandboxMode.value = mode },
+  openCreateDialog,
+  openProfile: (pos?: DummyPosition) => {
+    viewPosition(pos || positions.value[0])
+  },
+  openEdit: (pos?: DummyPosition) => {
+    editPosition(pos || positions.value[0])
+  },
+  setSearch: (query: string) => {
+    searchQuery.value = query
+  },
+  setTier: (tier: string) => {
+    selectedTier.value = tier
+  },
+  triggerRefresh,
 })
 </script>
 
