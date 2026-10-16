@@ -1039,6 +1039,27 @@ const resetDummyData = () => {
   currentPage.value = 1
   triggerToast('Sandbox Reset: Default Dummy Users Restored', 'info', 'mdi-restore')
 }
+
+defineExpose({
+  openCreateDialog,
+  setMode: (mode: 'play' | 'guide') => { sandboxMode.value = mode },
+  openProfile: (user?: DummyUser) => {
+    viewUser(user || users.value[0])
+  },
+  openEdit: (user?: DummyUser) => {
+    editUser(user || users.value[0])
+  },
+  setSearch: (q: string) => {
+    searchQuery.value = q
+  },
+  triggerRefresh: () => {
+    resetDummyData()
+  },
+  focusFeature: (key: string) => {
+    sandboxMode.value = 'guide'
+    openFeatureExplanation(key)
+  }
+})
 </script>
 
 <style scoped>

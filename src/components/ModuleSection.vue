@@ -170,9 +170,9 @@
 
       <!-- Live Sandbox Mode -->
       <section v-if="hasSandbox && experienceTab === 'sandbox'" :id="module.id + '-sandbox-section'" class="mb-8">
-        <UserManagementSandbox v-if="module.id === 'mod-user'" />
-        <EntityManagementSandbox v-else-if="module.id === 'mod-entity'" />
-        <BranchManagementSandbox v-else-if="module.id === 'mod-branch'" />
+        <UserManagementSandbox v-if="module.id === 'mod-user'" ref="userSandboxRef" />
+        <EntityManagementSandbox v-else-if="module.id === 'mod-entity'" ref="entitySandboxRef" />
+        <BranchManagementSandbox v-else-if="module.id === 'mod-branch'" ref="branchSandboxRef" />
         <DepartmentManagementSandbox v-else-if="module.id === 'mod-departments'" ref="deptSandboxRef" />
         <DivisionManagementSandbox v-else-if="module.id === 'mod-division'" ref="divSandboxRef" />
         <PositionManagementSandbox v-else-if="module.id === 'mod-position'" ref="posSandboxRef" />
@@ -602,7 +602,7 @@
                 <span>Hover over any badge for details, or click <strong>Play Tour</strong> to spotlight each field sequentially.</span>
               </div>
               <span v-if="activeTourStep && activeTourBadge" class="text-caption font-weight-bold text-primary">
-                Control {{ activeTourBadgeIndex + 1 }} of {{ activeTourStep.badges?.length || 0 }}
+                Step 0{{ activeTourStep.number }} &bull; Control {{ activeTourBadgeIndex + 1 }} of {{ activeTourStep.badges?.length || 0 }}
               </span>
             </div>
           </div>
@@ -728,7 +728,7 @@
                       <div class="min-w-0">
                         <div class="d-flex align-center ga-1.5 flex-wrap">
                           <span class="text-caption font-weight-bold text-primary text-uppercase" style="font-size: 0.65rem; letter-spacing: 0.05em;">
-                            Control {{ activeTourBadgeIndex + 1 }} of {{ activeTourStep.badges?.length || 0 }}
+                            Step 0{{ activeTourStep.number }} &bull; Control {{ activeTourBadgeIndex + 1 }} of {{ activeTourStep.badges?.length || 0 }}
                           </span>
                           <v-chip v-if="activeTourBadge.location" size="x-small" density="compact" variant="tonal" color="secondary" class="font-weight-medium" style="font-size: 0.65rem; height: 18px;">
                             <v-icon start icon="mdi-map-marker-outline" size="10" />
@@ -774,21 +774,21 @@
                         variant="outlined"
                         color="medium-emphasis"
                         class="text-none font-weight-medium"
-                        :disabled="activeTourBadgeIndex === 0"
-                        prepend-icon="mdi-chevron-left"
+                        :disabled="isFirstBadgeInCurrentStep && !hasPrevTourStep"
+                        :prepend-icon="isFirstBadgeInCurrentStep && hasPrevTourStep ? 'mdi-chevron-double-left' : 'mdi-chevron-left'"
                         @click="prevTourBadge"
                       >
-                        Prev
+                        {{ isFirstBadgeInCurrentStep && hasPrevTourStep ? 'Prev Step' : 'Prev' }}
                       </v-btn>
                       <v-btn
                         size="x-small"
                         variant="flat"
                         color="primary"
                         class="text-none font-weight-bold shadow-sm"
-                        :append-icon="activeTourBadgeIndex === (activeTourStep.badges?.length || 0) - 1 ? 'mdi-check' : 'mdi-chevron-right'"
+                        :append-icon="isLastBadgeInCurrentStep ? (hasNextTourStep ? 'mdi-chevron-double-right' : 'mdi-check') : 'mdi-chevron-right'"
                         @click="nextTourBadge"
                       >
-                        {{ activeTourBadgeIndex === (activeTourStep.badges?.length || 0) - 1 ? 'Finish' : 'Next' }}
+                        {{ isLastBadgeInCurrentStep ? (hasNextTourStep ? `Next: Step 0${nextTourStepItem?.number}` : 'Finish') : 'Next' }}
                       </v-btn>
                     </div>
 
@@ -1495,11 +1495,17 @@ const props = defineProps<{
 
 const experienceTab = ref<'walkthrough' | 'sandbox'>('walkthrough')
 
+const userSandboxRef = ref<any>(null)
+const entitySandboxRef = ref<any>(null)
+const branchSandboxRef = ref<any>(null)
 const deptSandboxRef = ref<any>(null)
 const divSandboxRef = ref<any>(null)
 const posSandboxRef = ref<any>(null)
 
 const getActiveSandbox = () => {
+  if (props.module.id === 'mod-user') return userSandboxRef.value
+  if (props.module.id === 'mod-entity') return entitySandboxRef.value
+  if (props.module.id === 'mod-branch') return branchSandboxRef.value
   if (props.module.id === 'mod-departments') return deptSandboxRef.value
   if (props.module.id === 'mod-division') return divSandboxRef.value
   if (props.module.id === 'mod-position') return posSandboxRef.value
@@ -2180,7 +2186,14 @@ const getBadgeMenuLocation = (b: StepBadge): any => {
   return 'top center'
 }
 
-const isTargetModule = computed(() => ['mod-departments', 'mod-division', 'mod-position'].includes(props.module.id))
+const isTargetModule = computed(() => [
+  'mod-user',
+  'mod-entity',
+  'mod-branch',
+  'mod-departments',
+  'mod-division',
+  'mod-position'
+].includes(props.module.id))
 
 // -------------------------------------------------------------
 // Lightbox Step Navigation
@@ -2373,18 +2386,67 @@ const toggleModalTour = () => {
   }
 }
 
+// Steps that have both an image and at least one badge
+const visualStepsWithBadges = computed(() => {
+  return props.module.steps?.filter(s => !!s.image && s.badges && s.badges.length > 0) || []
+})
+
+const currentTourStepIndex = computed(() => {
+  if (!activeTourStep.value) return -1
+  return visualStepsWithBadges.value.findIndex(s => s.number === activeTourStep.value?.number)
+})
+
+const hasNextTourStep = computed(() => {
+  const idx = currentTourStepIndex.value
+  return idx !== -1 && idx < visualStepsWithBadges.value.length - 1
+})
+
+const hasPrevTourStep = computed(() => {
+  const idx = currentTourStepIndex.value
+  return idx > 0
+})
+
+const nextTourStepItem = computed(() => {
+  if (!hasNextTourStep.value) return null
+  return visualStepsWithBadges.value[currentTourStepIndex.value + 1]
+})
+
+const prevTourStepItem = computed(() => {
+  if (!hasPrevTourStep.value) return null
+  return visualStepsWithBadges.value[currentTourStepIndex.value - 1]
+})
+
+const isLastBadgeInCurrentStep = computed(() => {
+  if (!activeTourStep.value?.badges) return true
+  return activeTourBadgeIndex.value >= activeTourStep.value.badges.length - 1
+})
+
+const isFirstBadgeInCurrentStep = computed(() => {
+  return activeTourBadgeIndex.value <= 0
+})
+
 const nextTourBadge = () => {
   if (!activeTourStep.value?.badges) return
-  if (activeTourBadgeIndex.value < activeTourStep.value.badges.length - 1) {
+  if (!isLastBadgeInCurrentStep.value) {
     activeTourBadgeIndex.value++
+  } else if (hasNextTourStep.value && nextTourStepItem.value) {
+    const nextStep = nextTourStepItem.value
+    openLightbox(nextStep)
+    activeTourStep.value = nextStep
+    activeTourBadgeIndex.value = 0
   } else {
-    activeTourStep.value = null
+    exitGuidedTour()
   }
 }
 
 const prevTourBadge = () => {
-  if (activeTourBadgeIndex.value > 0) {
+  if (!isFirstBadgeInCurrentStep.value) {
     activeTourBadgeIndex.value--
+  } else if (hasPrevTourStep.value && prevTourStepItem.value) {
+    const prevStep = prevTourStepItem.value
+    openLightbox(prevStep)
+    activeTourStep.value = prevStep
+    activeTourBadgeIndex.value = (prevStep.badges?.length || 1) - 1
   }
 }
 
@@ -2507,6 +2569,9 @@ const jumpToSandboxFeature = (badge: StepBadge | UIFeatureControl) => {
       sandbox.setMode?.('play')
       if (props.module.id === 'mod-departments') sandbox.setSearch?.('Finance')
       else if (props.module.id === 'mod-division') sandbox.setSearch?.('Operations')
+      else if (props.module.id === 'mod-user') sandbox.setSearch?.('Juan')
+      else if (props.module.id === 'mod-entity') sandbox.setSearch?.('Head Office')
+      else if (props.module.id === 'mod-branch') sandbox.setSearch?.('Davao')
       else sandbox.setSearch?.('Manager')
     }
     // 5. Filter

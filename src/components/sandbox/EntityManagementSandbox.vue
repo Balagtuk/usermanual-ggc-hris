@@ -786,6 +786,27 @@ const resetDummyData = () => {
   currentPage.value = 1
   triggerToast('Sandbox Reset: Default Entities Restored', 'info', 'mdi-restore')
 }
+
+defineExpose({
+  openCreateDialog,
+  setMode: (mode: 'play' | 'guide') => { sandboxMode.value = mode },
+  openProfile: (entity?: DummyEntity) => {
+    viewEntity(entity || entities.value[0])
+  },
+  openEdit: (entity?: DummyEntity) => {
+    editEntity(entity || entities.value[0])
+  },
+  setSearch: (q: string) => {
+    searchQuery.value = q
+  },
+  triggerRefresh: () => {
+    resetDummyData()
+  },
+  focusFeature: (key: string) => {
+    sandboxMode.value = 'guide'
+    openFeatureExplanation(key)
+  }
+})
 </script>
 
 <style scoped>

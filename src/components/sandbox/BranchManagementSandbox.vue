@@ -807,6 +807,28 @@ function openFeatureExplanation(featureKey: string) {
     selectedExplanation.value = exp
   }
 }
+
+defineExpose({
+  openCreateDialog,
+  setMode: (mode: 'play' | 'guide') => { sandboxMode.value = mode },
+  openProfile: (branch?: DummyBranch) => {
+    viewBranch(branch || branches.value[0])
+  },
+  openEdit: (branch?: DummyBranch) => {
+    selectedBranch.value = branch || branches.value[0]
+    switchToEditFromView()
+  },
+  setSearch: (q: string) => {
+    searchQuery.value = q
+  },
+  triggerRefresh: () => {
+    simulateRefresh()
+  },
+  focusFeature: (key: string) => {
+    sandboxMode.value = 'guide'
+    openFeatureExplanation(key)
+  }
+})
 </script>
 
 <style scoped>
